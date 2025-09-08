@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>No Loss Statement - Bill Layne Insurance Agency</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 10px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .logo {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 20px;
+            filter: brightness(0) invert(1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .form-container {
+            padding: 30px 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+        }
+        
+        .statement-box {
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+        
+        .statement-box h3 {
+            color: #2a5298;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .statement-box p {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .signature-container {
+            margin: 25px 0;
+        }
+        
+        .signature-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        #signature-pad {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            display: block;
+            width: 100%;
+            height: 200px;
+            cursor: crosshair;
+            background: white;
+            touch-action: none;
+        }
+        
+        .signature-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .btn-clear {
+            background: #f44336;
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-clear:hover {
+            background: #da190b;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+            font-size: 18px;
+            padding: 15px;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .success-message,
+        .error-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+        
+        .success-message {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .error-message {
+            background: #f44336;
+            color: white;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .footer img {
+            max-width: 150px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        
+        .footer p {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .form-container {
+                padding: 20px 15px;
+            }
+            
+            input[type="text"],
+            input[type="email"],
+            input[type="tel"],
+            input[type="date"],
+            select {
+                font-size: 16px;
+                padding: 14px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://i.imgur.com/cBAgeX8.png" alt="Bill Layne Insurance Agency" class="logo">
+            <h1>Statement of No Loss</h1>
+            <p>Electronic Signature Authorization</p>
+        </div>
+        
+        <form id="noLossForm" class="form-container">
+            <div class="form-group">
+                <label for="insuranceCompany">Insurance Company *</label>
+                <select id="insuranceCompany" name="insuranceCompany" required>
+                    <option value="">Select Insurance Company</option>
+                    <option value="Nationwide">Nationwide</option>
+                    <option value="Progressive">Progressive</option>
+                    <option value="National General">National General</option>
+                    <option value="Alamance">Alamance</option>
+                    <option value="Travelers">Travelers</option>
+                    <option value="Foremost">Foremost</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="policyNumber">Policy Number *</label>
+                <input type="text" id="policyNumber" name="policyNumber" required placeholder="Enter your policy number">
+            </div>
+            
+            <div class="form-group">
+                <label for="insuredName">Insured Name (Full Name) *</label>
+                <input type="text" id="insuredName" name="insuredName" required placeholder="John Doe">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" required placeholder="your@email.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Phone Number *</label>
+                <input type="tel" id="phone" name="phone" required placeholder="(336) 555-1234">
+            </div>
+            
+            <div class="form-group">
+                <label for="cancellationDate">Cancellation/Lapse Date *</label>
+                <input type="date" id="cancellationDate" name="cancellationDate" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="reinstatementDate">Requested Reinstatement Date *</label>
+                <input type="date" id="reinstatementDate" name="reinstatementDate" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="policyType">Policy Type *</label>
+                <select id="policyType" name="policyType" required>
+                    <option value="">Select Policy Type</option>
+                    <option value="Auto">Auto Insurance</option>
+                    <option value="Home">Homeowners Insurance</option>
+                    <option value="Renters">Renters Insurance</option>
+                    <option value="Life">Life Insurance</option>
+                    <option value="Business">Business Insurance</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <div class="statement-box">
+                <h3>📋 Statement of No Loss</h3>
+                <p>
+                    I hereby certify and attest that <strong>NO losses, accidents, claims, incidents, or circumstances that might give rise to a claim</strong> have occurred during the period between the cancellation/lapse date and the requested reinstatement date of the above-referenced policy.
+                </p>
+                <p style="margin-top: 10px;">
+                    I understand that this statement is material to the reinstatement of my insurance policy and that any misrepresentation may void coverage.
+                </p>
+            </div>
+            
+            <div class="signature-container">
+                <div class="signature-label">
+                    <label>Electronic Signature *</label>
+                    <span style="color: #666; font-size: 12px;">Draw your signature below</span>
+                </div>
+                <canvas id="signature-pad"></canvas>
+                <div class="signature-buttons">
+                    <button type="button" class="btn btn-clear" onclick="clearSignature()">Clear Signature</button>
+                </div>
+            </div>
+            
+            <input type="hidden" id="signature" name="signature">
+            
+            <div class="success-message" id="successMessage">
+                ✅ Your Statement of No Loss has been successfully submitted!
+            </div>
+            
+            <div class="error-message" id="errorMessage">
+                ❌ There was an error submitting your form. Please try again.
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 10px;">Submitting your statement...</p>
+            </div>
+            
+            <button type="submit" class="btn btn-submit" id="submitBtn">
+                Submit Statement of No Loss
+            </button>
+        </form>
+        
+        <div class="footer">
+            <img src="https://i.imgur.com/cBAgeX8.png" alt="Bill Layne Insurance Agency">
+            <p>
+                Bill Layne Insurance Agency<br>
+                1283 N Bridge St, Elkin NC 28621<br>
+                📞 336-835-1993 | ✉️ Save@BillLayneInsurance.com<br>
+                🌐 www.BillLayneInsurance.com
+            </p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script>
+        // Your Google Apps Script Web App URL
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwP14I7YhgGEYqp8--oI_S1Frlh_F9fQJon1CfzT4nPVtT7smV1H4f_KOoT9ihIHbHlCQ/exec';
+        
+        let signaturePad;
+        
+        // Initialize signature pad
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('signature-pad');
+            signaturePad = new SignaturePad(canvas, {
+                backgroundColor: 'rgb(255, 255, 255)',
+                penColor: 'rgb(0, 0, 0)'
+            });
+            
+            // Resize canvas to proper size
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+        });
+        
+        function resizeCanvas() {
+            const canvas = document.getElementById('signature-pad');
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext('2d').scale(ratio, ratio);
+            signaturePad.clear();
+        }
+        
+        function clearSignature() {
+            signaturePad.clear();
+        }
+        
+        // Handle form submission
+        document.getElementById('noLossForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Validate signature
+            if (signaturePad.isEmpty()) {
+                alert('Please provide your signature before submitting.');
+                return;
+            }
+            
+            // Get signature data
+            document.getElementById('signature').value = signaturePad.toDataURL();
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            // Prepare form data
+            const formData = new FormData(this);
+            formData.append('submissionDate', new Date().toLocaleString());
+            
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.text();
+                
+                if (result.includes('Success') || response.ok) {
+                    // Show success message
+                    document.getElementById('successMessage').style.display = 'block';
+                    document.getElementById('noLossForm').reset();
+                    signaturePad.clear();
+                    
+                    // Scroll to top
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    throw new Error('Submission failed');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('errorMessage').style.display = 'block';
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('submitBtn').disabled = false;
+            }
+        });
+        
+        // Auto-format phone number
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 0) {
+                if (value.length <= 3) {
+                    value = `(${value}`;
+                } else if (value.length <= 6) {
+                    value = `(${value.slice(0, 3)}) ${value.slice(3)}`;
+                } else {
+                    value = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6, 10)}`;
+                }
+            }
+            e.target.value = value;
+        });
+        
+        // Auto-format amount paid as currency
+        document.getElementById('amountPaid').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^\d.]/g, '');
+            let parts = value.split('.');
+            if (parts.length > 2) {
+                value = parts[0] + '.' + parts.slice(1).join('');
+            }
+            if (parts.length === 2 && parts[1].length > 2) {
+                value = parts[0] + '.' + parts[1].slice(0, 2);
+            }
+            if (value && !value.startsWith('
+    </script>
+</body>
+</html>)) {
+                e.target.value = '
+    </script>
+</body>
+</html> + value;
+            } else if (value === '') {
+                e.target.value = '';
+            }
+        });
+        
+        // Format amount on blur (when user clicks away)
+        document.getElementById('amountPaid').addEventListener('blur', function(e) {
+            let value = e.target.value.replace(/[^\d.]/g, '');
+            if (value) {
+                let num = parseFloat(value);
+                if (!isNaN(num)) {
+                    e.target.value = '
+    </script>
+</body>
+</html> + num.toFixed(2);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
