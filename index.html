@@ -34,17 +34,16 @@
             text-align: center;
         }
         
-        .logo {
-            max-width: 200px;
-            height: auto;
-            margin-bottom: 20px;
-            filter: brightness(0) invert(1);
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 600;
         }
         
-        .header h1 {
-            font-size: 24px;
+        .header h2 {
+            font-size: 20px;
+            font-weight: 400;
             margin-bottom: 10px;
-            font-weight: 600;
         }
         
         .header p {
@@ -240,7 +239,11 @@
         
         @media (max-width: 600px) {
             .header h1 {
-                font-size: 20px;
+                font-size: 24px;
+            }
+            
+            .header h2 {
+                font-size: 18px;
             }
             
             .form-container {
@@ -261,8 +264,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="https://i.imgur.com/cBAgeX8.png" alt="Bill Layne Insurance Agency" class="logo">
-            <h1>Statement of No Loss</h1>
+            <h1>Bill Layne Insurance Agency</h1>
+            <h2>Statement of No Loss</h2>
             <p>Electronic Signature Authorization</p>
         </div>
         
@@ -324,6 +327,11 @@
                 </select>
             </div>
             
+            <div class="form-group">
+                <label for="amountPaid">Amount Paid for Reinstatement *</label>
+                <input type="text" id="amountPaid" name="amountPaid" required placeholder="$0.00">
+            </div>
+            
             <div class="statement-box">
                 <h3>📋 Statement of No Loss</h3>
                 <p>
@@ -376,7 +384,7 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <script>
         // Your Google Apps Script Web App URL
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwP14I7YhgGEYqp8--oI_S1Frlh_F9fQJon1CfzT4nPVtT7smV1H4f_KOoT9ihIHbHlCQ/exec';
@@ -402,7 +410,9 @@
             canvas.width = canvas.offsetWidth * ratio;
             canvas.height = canvas.offsetHeight * ratio;
             canvas.getContext('2d').scale(ratio, ratio);
-            signaturePad.clear();
+            if (signaturePad) {
+                signaturePad.clear();
+            }
         }
         
         function clearSignature() {
@@ -465,11 +475,11 @@
             let value = e.target.value.replace(/\D/g, '');
             if (value.length > 0) {
                 if (value.length <= 3) {
-                    value = `(${value}`;
+                    value = '(' + value;
                 } else if (value.length <= 6) {
-                    value = `(${value.slice(0, 3)}) ${value.slice(3)}`;
+                    value = '(' + value.slice(0, 3) + ') ' + value.slice(3);
                 } else {
-                    value = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6, 10)}`;
+                    value = '(' + value.slice(0, 3) + ') ' + value.slice(3, 6) + '-' + value.slice(6, 10);
                 }
             }
             e.target.value = value;
@@ -485,14 +495,8 @@
             if (parts.length === 2 && parts[1].length > 2) {
                 value = parts[0] + '.' + parts[1].slice(0, 2);
             }
-            if (value && !value.startsWith('
-    </script>
-</body>
-</html>)) {
-                e.target.value = '
-    </script>
-</body>
-</html> + value;
+            if (value && !e.target.value.startsWith('$')) {
+                e.target.value = '$' + value;
             } else if (value === '') {
                 e.target.value = '';
             }
@@ -504,10 +508,7 @@
             if (value) {
                 let num = parseFloat(value);
                 if (!isNaN(num)) {
-                    e.target.value = '
-    </script>
-</body>
-</html> + num.toFixed(2);
+                    e.target.value = '$' + num.toFixed(2);
                 }
             }
         });
