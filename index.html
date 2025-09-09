@@ -232,6 +232,30 @@
             margin: 0 auto;
         }
         
+        /* Auto-fill notification */
+        .autofill-notice {
+            background: #4CAF50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            animation: slideDown 0.5s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -270,6 +294,10 @@
         </div>
         
         <form id="noLossForm" class="form-container">
+            <div class="autofill-notice" id="autofillNotice">
+                ✨ Form has been pre-filled with your information
+            </div>
+            
             <div class="form-group">
                 <label for="insuranceCompany">Insurance Company *</label>
                 <select id="insuranceCompany" name="insuranceCompany" required>
@@ -390,8 +418,106 @@
         
         let signaturePad;
         
-        // Initialize signature pad
+        // ============================================
+        // URL PARAMETER AUTO-FILL FUNCTIONALITY
+        // ============================================
+        function getUrlParameters() {
+            const params = new URLSearchParams(window.location.search);
+            const paramObject = {};
+            for (const [key, value] of params) {
+                paramObject[key] = decodeURIComponent(value);
+            }
+            return paramObject;
+        }
+        
+        function autoFillForm() {
+            const params = getUrlParameters();
+            let fieldsAutoFilled = false;
+            
+            // Map URL parameters to form field IDs
+            const fieldMapping = {
+                'company': 'insuranceCompany',
+                'insuranceCompany': 'insuranceCompany',
+                'policy': 'policyNumber',
+                'policyNumber': 'policyNumber',
+                'name': 'insuredName',
+                'insuredName': 'insuredName',
+                'email': 'email',
+                'phone': 'phone',
+                'tel': 'phone',
+                'cancelDate': 'cancellationDate',
+                'cancellationDate': 'cancellationDate',
+                'reinstateDate': 'reinstatementDate',
+                'reinstatementDate': 'reinstatementDate',
+                'type': 'policyType',
+                'policyType': 'policyType',
+                'amount': 'amountPaid',
+                'amountPaid': 'amountPaid'
+            };
+            
+            // Fill in the form fields based on URL parameters
+            for (const [urlParam, fieldId] of Object.entries(fieldMapping)) {
+                if (params[urlParam]) {
+                    const field = document.getElementById(fieldId);
+                    if (field) {
+                        field.value = params[urlParam];
+                        fieldsAutoFilled = true;
+                        
+                        // Special handling for amount field to ensure proper formatting
+                        if (fieldId === 'amountPaid' && !params[urlParam].startsWith('$')) {
+                            field.value = '$' + params[urlParam];
+                        }
+                    }
+                }
+            }
+            
+            // Show notification if fields were auto-filled
+            if (fieldsAutoFilled) {
+                const notice = document.getElementById('autofillNotice');
+                notice.style.display = 'block';
+                setTimeout(() => {
+                    notice.style.opacity = '0';
+                    setTimeout(() => {
+                        notice.style.display = 'none';
+                        notice.style.opacity = '1';
+                    }, 500);
+                }, 3000);
+            }
+        }
+        
+        // Function to generate a pre-filled URL
+        function generatePreFilledUrl() {
+            const baseUrl = window.location.origin + window.location.pathname;
+            const params = new URLSearchParams();
+            
+            // Get all form values
+            const fields = {
+                'insuranceCompany': document.getElementById('insuranceCompany').value,
+                'policyNumber': document.getElementById('policyNumber').value,
+                'insuredName': document.getElementById('insuredName').value,
+                'email': document.getElementById('email').value,
+                'phone': document.getElementById('phone').value,
+                'cancellationDate': document.getElementById('cancellationDate').value,
+                'reinstatementDate': document.getElementById('reinstatementDate').value,
+                'policyType': document.getElementById('policyType').value,
+                'amountPaid': document.getElementById('amountPaid').value.replace('$', '')
+            };
+            
+            // Add non-empty fields to URL parameters
+            for (const [key, value] of Object.entries(fields)) {
+                if (value) {
+                    params.append(key, value);
+                }
+            }
+            
+            return `${baseUrl}?${params.toString()}`;
+        }
+        
+        // Initialize signature pad and auto-fill form
         document.addEventListener('DOMContentLoaded', function() {
+            // Auto-fill form from URL parameters
+            autoFillForm();
+            
             const canvas = document.getElementById('signature-pad');
             signaturePad = new SignaturePad(canvas, {
                 backgroundColor: 'rgb(255, 255, 255)',
