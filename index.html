@@ -533,6 +533,8 @@
             </div>
             
             <input type="hidden" id="signature" name="signature">
+            <!-- NEW HIDDEN FIELD FOR CONFIRMATION NUMBER -->
+            <input type="hidden" id="confirmationNumber" name="confirmationNumber">
             
             <div class="success-message" id="successMessage">
                 ✅ Your Statement of No Loss has been successfully submitted!
@@ -572,7 +574,7 @@
             </div>
             <h2>Successfully Submitted!</h2>
             <p>Your Statement of No Loss has been received and processed successfully.</p>
-            <div class="confirmation-number" id="confirmationNumber">
+            <div class="confirmation-number" id="confirmationDisplay">
                 Confirmation #: <span id="confirmNumber"></span>
             </div>
             <p style="font-size: 14px; color: #888;">
@@ -589,6 +591,7 @@
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMR6JkqwOFjLUR4BRo7QE0mRiEwKxbcpdCDwJi5AKOmM4MMorM1EROWYMcH7gH1Vke/exec';
         
         let signaturePad;
+        let currentConfirmationNumber = ''; // Store confirmation number globally
         
         // ============================================
         // URL PARAMETER AUTO-FILL FUNCTIONALITY
@@ -685,7 +688,7 @@
             return `${baseUrl}?${params.toString()}`;
         }
         
-        // NEW FUNCTION: Generate confirmation number
+        // Generate confirmation number
         function generateConfirmationNumber() {
             const date = new Date();
             const year = date.getFullYear().toString().slice(-2);
@@ -695,15 +698,14 @@
             return `NOL-${year}${month}${day}-${random}`;
         }
         
-        // NEW FUNCTION: Close success modal
+        // Close success modal
         function closeSuccessModal() {
             document.getElementById('successModalOverlay').classList.remove('show');
         }
         
-        // NEW FUNCTION: Show success modal
+        // Show success modal
         function showSuccessModal() {
-            const confirmNumber = generateConfirmationNumber();
-            document.getElementById('confirmNumber').textContent = confirmNumber;
+            document.getElementById('confirmNumber').textContent = currentConfirmationNumber;
             document.getElementById('successModalOverlay').classList.add('show');
         }
         
@@ -755,8 +757,14 @@
                 return;
             }
             
+            // Generate confirmation number BEFORE submission
+            currentConfirmationNumber = generateConfirmationNumber();
+            
             // Get signature data
             document.getElementById('signature').value = signaturePad.toDataURL();
+            
+            // Set confirmation number in hidden field
+            document.getElementById('confirmationNumber').value = currentConfirmationNumber;
             
             // Show loading
             document.getElementById('loading').style.display = 'block';
@@ -767,6 +775,7 @@
             // Prepare form data
             const formData = new FormData(this);
             formData.append('submissionDate', new Date().toLocaleString());
+            // The confirmation number is already in the form data via the hidden field
             
             try {
                 const response = await fetch(SCRIPT_URL, {
@@ -777,7 +786,7 @@
                 const result = await response.text();
                 
                 if (result.includes('Success') || response.ok) {
-                    // Show enhanced success modal
+                    // Show enhanced success modal with confirmation number
                     showSuccessModal();
                     
                     // Also show inline success message
