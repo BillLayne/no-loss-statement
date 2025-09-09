@@ -197,6 +197,142 @@
             color: white;
         }
         
+        /* NEW ENHANCED SUCCESS MODAL STYLES */
+        .success-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .success-modal-overlay.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .success-modal {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            animation: slideUp 0.4s ease-out;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: scaleIn 0.5s ease-out 0.2s both;
+        }
+        
+        .success-icon svg {
+            width: 40px;
+            height: 40px;
+            stroke: white;
+            stroke-width: 3;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            animation: drawCheck 0.6s ease-out 0.5s both;
+        }
+        
+        .success-modal h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .success-modal p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        
+        .success-modal .confirmation-number {
+            background: #f0f4ff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-family: monospace;
+            font-size: 14px;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .success-modal .btn-ok {
+            background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%);
+            color: white;
+            padding: 12px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .success-modal .btn-ok:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes drawCheck {
+            from {
+                stroke-dasharray: 50;
+                stroke-dashoffset: 50;
+            }
+            to {
+                stroke-dasharray: 50;
+                stroke-dashoffset: 0;
+            }
+        }
+        /* END NEW MODAL STYLES */
+        
         .footer {
             background: #f8f9fa;
             padding: 20px;
@@ -281,6 +417,21 @@
             select {
                 font-size: 16px;
                 padding: 14px 12px;
+            }
+            
+            .success-modal {
+                width: 95%;
+                padding: 30px 20px;
+            }
+            
+            .success-icon {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .success-icon svg {
+                width: 30px;
+                height: 30px;
             }
         }
     </style>
@@ -411,6 +562,27 @@
         </div>
     </div>
 
+    <!-- NEW SUCCESS MODAL -->
+    <div class="success-modal-overlay" id="successModalOverlay">
+        <div class="success-modal">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+            <h2>Successfully Submitted!</h2>
+            <p>Your Statement of No Loss has been received and processed successfully.</p>
+            <div class="confirmation-number" id="confirmationNumber">
+                Confirmation #: <span id="confirmNumber"></span>
+            </div>
+            <p style="font-size: 14px; color: #888;">
+                A confirmation email has been sent to your registered email address.
+            </p>
+            <button class="btn-ok" onclick="closeSuccessModal()">OK</button>
+        </div>
+    </div>
+    <!-- END NEW SUCCESS MODAL -->
+
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <script>
         // Your Google Apps Script Web App URL - UPDATED FOR DOCS EMAIL SYSTEM
@@ -513,6 +685,28 @@
             return `${baseUrl}?${params.toString()}`;
         }
         
+        // NEW FUNCTION: Generate confirmation number
+        function generateConfirmationNumber() {
+            const date = new Date();
+            const year = date.getFullYear().toString().slice(-2);
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            return `NOL-${year}${month}${day}-${random}`;
+        }
+        
+        // NEW FUNCTION: Close success modal
+        function closeSuccessModal() {
+            document.getElementById('successModalOverlay').classList.remove('show');
+        }
+        
+        // NEW FUNCTION: Show success modal
+        function showSuccessModal() {
+            const confirmNumber = generateConfirmationNumber();
+            document.getElementById('confirmNumber').textContent = confirmNumber;
+            document.getElementById('successModalOverlay').classList.add('show');
+        }
+        
         // Initialize signature pad and auto-fill form
         document.addEventListener('DOMContentLoaded', function() {
             // Auto-fill form from URL parameters
@@ -527,6 +721,13 @@
             // Resize canvas to proper size
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
+            
+            // Close modal when clicking outside
+            document.getElementById('successModalOverlay').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeSuccessModal();
+                }
+            });
         });
         
         function resizeCanvas() {
@@ -576,8 +777,13 @@
                 const result = await response.text();
                 
                 if (result.includes('Success') || response.ok) {
-                    // Show success message
+                    // Show enhanced success modal
+                    showSuccessModal();
+                    
+                    // Also show inline success message
                     document.getElementById('successMessage').style.display = 'block';
+                    
+                    // Reset form
                     document.getElementById('noLossForm').reset();
                     signaturePad.clear();
                     
