@@ -27,11 +27,45 @@
             overflow: hidden;
         }
         
+        /* Language Toggle Styles */
+        .language-toggle {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            display: flex;
+            gap: 5px;
+            background: rgba(255,255,255,0.2);
+            padding: 5px;
+            border-radius: 8px;
+        }
+        
+        .lang-btn {
+            padding: 5px 12px;
+            border: none;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .lang-btn.active {
+            background: white;
+            color: #2a5298;
+        }
+        
+        .lang-btn:hover:not(.active) {
+            background: rgba(255,255,255,0.3);
+        }
+        
         .header {
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
             padding: 30px 20px;
             text-align: center;
+            position: relative;
         }
         
         .header h1 {
@@ -433,107 +467,120 @@
                 width: 30px;
                 height: 30px;
             }
+            
+            .language-toggle {
+                position: static;
+                margin-bottom: 10px;
+                justify-content: center;
+                background: rgba(255,255,255,0.1);
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <div class="language-toggle">
+                <button class="lang-btn active" onclick="setLanguage('en')">English</button>
+                <button class="lang-btn" onclick="setLanguage('es')">Español</button>
+            </div>
             <h1>Bill Layne Insurance Agency</h1>
-            <h2>Statement of No Loss</h2>
-            <p>Electronic Signature Authorization</p>
+            <h2 data-lang="header-title">Statement of No Loss</h2>
+            <p data-lang="header-subtitle">Electronic Signature Authorization</p>
         </div>
         
         <form id="noLossForm" class="form-container">
             <div class="autofill-notice" id="autofillNotice">
-                ✨ Form has been pre-filled with your information
+                <span data-lang="autofill-notice">✨ Form has been pre-filled with your information</span>
             </div>
             
             <div class="form-group">
-                <label for="insuranceCompany">Insurance Company *</label>
+                <label for="insuranceCompany" data-lang="label-company">Insurance Company *</label>
                 <select id="insuranceCompany" name="insuranceCompany" required>
-                    <option value="">Select Insurance Company</option>
+                    <option value="" data-lang="select-company">Select Insurance Company</option>
                     <option value="Nationwide">Nationwide</option>
                     <option value="Progressive">Progressive</option>
                     <option value="National General">National General</option>
                     <option value="Alamance">Alamance</option>
                     <option value="Travelers">Travelers</option>
                     <option value="Foremost">Foremost</option>
-                    <option value="Other">Other</option>
+                    <option value="Other" data-lang="option-other">Other</option>
                 </select>
             </div>
             
             <div class="form-group">
-                <label for="policyNumber">Policy Number *</label>
-                <input type="text" id="policyNumber" name="policyNumber" required placeholder="Enter your policy number">
+                <label for="policyNumber" data-lang="label-policy">Policy Number *</label>
+                <input type="text" id="policyNumber" name="policyNumber" required data-lang-placeholder="placeholder-policy">
             </div>
             
             <div class="form-group">
-                <label for="insuredName">Insured Name (Full Name) *</label>
+                <label for="insuredName" data-lang="label-name">Insured Name (Full Name) *</label>
                 <input type="text" id="insuredName" name="insuredName" required placeholder="John Doe">
             </div>
             
             <div class="form-group">
-                <label for="email">Email Address *</label>
+                <label for="email" data-lang="label-email">Email Address *</label>
                 <input type="email" id="email" name="email" required placeholder="your@email.com">
             </div>
             
             <div class="form-group">
-                <label for="phone">Phone Number *</label>
+                <label for="phone" data-lang="label-phone">Phone Number *</label>
                 <input type="tel" id="phone" name="phone" required placeholder="(336) 555-1234">
             </div>
             
             <div class="form-group">
-                <label for="cancellationDate">Cancellation/Lapse Date *</label>
+                <label for="cancellationDate" data-lang="label-cancel-date">Cancellation/Lapse Date *</label>
                 <input type="date" id="cancellationDate" name="cancellationDate" required>
             </div>
             
             <div class="form-group">
-                <label for="reinstatementDate">Requested Reinstatement Date *</label>
+                <label for="reinstatementDate" data-lang="label-reinstate-date">Requested Reinstatement Date *</label>
                 <input type="date" id="reinstatementDate" name="reinstatementDate" required>
             </div>
             
             <div class="form-group">
-                <label for="policyType">Policy Type *</label>
+                <label for="policyType" data-lang="label-policy-type">Policy Type *</label>
                 <select id="policyType" name="policyType" required>
-                    <option value="">Select Policy Type</option>
-                    <option value="Auto">Auto Insurance</option>
-                    <option value="Home">Homeowners Insurance</option>
-                    <option value="Renters">Renters Insurance</option>
-                    <option value="Life">Life Insurance</option>
-                    <option value="Business">Business Insurance</option>
-                    <option value="Other">Other</option>
+                    <option value="" data-lang="select-policy-type">Select Policy Type</option>
+                    <option value="Auto" data-lang="option-auto">Auto Insurance</option>
+                    <option value="Home" data-lang="option-home">Homeowners Insurance</option>
+                    <option value="Renters" data-lang="option-renters">Renters Insurance</option>
+                    <option value="Life" data-lang="option-life">Life Insurance</option>
+                    <option value="Business" data-lang="option-business">Business Insurance</option>
+                    <option value="Other" data-lang="option-other2">Other</option>
                 </select>
             </div>
             
             <div class="form-group">
-                <label for="amountPaid">Amount Paid for Reinstatement *</label>
+                <label for="amountPaid" data-lang="label-amount">Amount Paid for Reinstatement *</label>
                 <input type="text" id="amountPaid" name="amountPaid" required placeholder="$0.00">
             </div>
             
             <div class="statement-box">
-                <h3>📋 Statement of No Loss</h3>
-                <p>
-                    I state that neither I nor any other person covered by this policy has had a claim or loss or been involved in an accident since the cancellation or expiration of the policy (otherwise known as the "no loss period") wherein this policy, including any and all coverages endorsed upon or made part of the policy may apply. In addition, if this reinstatement is for a personal or commercial auto, motorcycle, or RV policy, I certify that I have disclosed the current garaging location and use of all insured vehicles including if any such vehicle is used to deliver food or goods, to transport people for compensation, or for any other business purpose. I have also disclosed household members who are age 14 or older, and all persons who regularly drive any vehicle insured under this policy.
-                </p>
-                <p style="margin-top: 10px;">
-                    I understand that this insurance company is relying solely upon this Statement of No Loss all of which is material, as an inducement to reinstate my policy with no lapse in coverage. I further understand that if a claim, loss, or accident has occurred during the no loss period, or if I failed to disclose the current garaging location and primary use of all vehicles insured under this policy, all persons who regularly drive these vehicles, and all members of my household who are age 14 or older, the reinstatement is null and void, my policy remains cancelled and no insurance coverage shall be provided.
-                </p>
-                <p style="margin-top: 10px;">
-                    I agree that if my check or other payment for this reinstatement is not honored for any reason, the reinstatement is null and void and no coverage shall exist under this policy. I agree to pay a reinstatement fee and late fee (if applicable) in addition to the premium required to reinstate my policy. My payment will be applied first to the reinstatement and late fee and the remainder to the premium.
-                </p>
-                <p style="margin-top: 10px; font-weight: bold;">
-                    It is a crime to knowingly provide false, incomplete, or misleading information to an insurance company for the purpose of defrauding the company. Penalties include imprisonment, fines, and denial of insurance benefits.
-                </p>
-                <p style="margin-top: 10px; font-weight: bold;">
-                    Do you understand and agree to these statements, terms, and conditions?
-                </p>
+                <h3 data-lang="statement-title">📋 Statement of No Loss</h3>
+                <div data-lang="statement-text">
+                    <p>
+                        I state that neither I nor any other person covered by this policy has had a claim or loss or been involved in an accident since the cancellation or expiration of the policy (otherwise known as the "no loss period") wherein this policy, including any and all coverages endorsed upon or made part of the policy may apply. In addition, if this reinstatement is for a personal or commercial auto, motorcycle, or RV policy, I certify that I have disclosed the current garaging location and use of all insured vehicles including if any such vehicle is used to deliver food or goods, to transport people for compensation, or for any other business purpose. I have also disclosed household members who are age 14 or older, and all persons who regularly drive any vehicle insured under this policy.
+                    </p>
+                    <p style="margin-top: 10px;">
+                        I understand that this insurance company is relying solely upon this Statement of No Loss all of which is material, as an inducement to reinstate my policy with no lapse in coverage. I further understand that if a claim, loss, or accident has occurred during the no loss period, or if I failed to disclose the current garaging location and primary use of all vehicles insured under this policy, all persons who regularly drive these vehicles, and all members of my household who are age 14 or older, the reinstatement is null and void, my policy remains cancelled and no insurance coverage shall be provided.
+                    </p>
+                    <p style="margin-top: 10px;">
+                        I agree that if my check or other payment for this reinstatement is not honored for any reason, the reinstatement is null and void and no coverage shall exist under this policy. I agree to pay a reinstatement fee and late fee (if applicable) in addition to the premium required to reinstate my policy. My payment will be applied first to the reinstatement and late fee and the remainder to the premium.
+                    </p>
+                    <p style="margin-top: 10px; font-weight: bold;">
+                        It is a crime to knowingly provide false, incomplete, or misleading information to an insurance company for the purpose of defrauding the company. Penalties include imprisonment, fines, and denial of insurance benefits.
+                    </p>
+                    <p style="margin-top: 10px; font-weight: bold;">
+                        Do you understand and agree to these statements, terms, and conditions?
+                    </p>
+                </div>
             </div>
             
             <div class="form-group" style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
                 <label style="display: flex; align-items: flex-start; cursor: pointer; font-weight: normal;">
                     <input type="checkbox" id="agreeTerms" name="agreeTerms" required style="width: auto; margin-right: 10px; margin-top: 3px; transform: scale(1.2);">
-                    <span style="color: #333; font-size: 15px; line-height: 1.5;">
+                    <span style="color: #333; font-size: 15px; line-height: 1.5;" data-lang="agree-checkbox">
                         I have read, understand, and agree to all the statements, terms, and conditions outlined above in the Statement of No Loss.
                     </span>
                 </label>
@@ -541,12 +588,12 @@
             
             <div class="signature-container">
                 <div class="signature-label">
-                    <label>Electronic Signature *</label>
-                    <span style="color: #666; font-size: 12px;">Draw your signature below</span>
+                    <label data-lang="label-signature">Electronic Signature *</label>
+                    <span style="color: #666; font-size: 12px;" data-lang="signature-instruction">Draw your signature below</span>
                 </div>
                 <canvas id="signature-pad"></canvas>
                 <div class="signature-buttons">
-                    <button type="button" class="btn btn-clear" onclick="clearSignature()">Clear Signature</button>
+                    <button type="button" class="btn btn-clear" onclick="clearSignature()" data-lang="btn-clear">Clear Signature</button>
                 </div>
             </div>
             
@@ -555,19 +602,19 @@
             <input type="hidden" id="confirmationNumber" name="confirmationNumber">
             
             <div class="success-message" id="successMessage">
-                ✅ Your Statement of No Loss has been successfully submitted!
+                <span data-lang="success-msg">✅ Your Statement of No Loss has been successfully submitted!</span>
             </div>
             
             <div class="error-message" id="errorMessage">
-                ❌ There was an error submitting your form. Please try again.
+                <span data-lang="error-msg">❌ There was an error submitting your form. Please try again.</span>
             </div>
             
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p style="margin-top: 10px;">Submitting your statement...</p>
+                <p style="margin-top: 10px;" data-lang="loading-msg">Submitting your statement...</p>
             </div>
             
-            <button type="submit" class="btn btn-submit" id="submitBtn">
+            <button type="submit" class="btn btn-submit" id="submitBtn" data-lang="btn-submit">
                 Submit Statement of No Loss
             </button>
         </form>
@@ -590,12 +637,12 @@
                     <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
             </div>
-            <h2>Successfully Submitted!</h2>
-            <p>Your Statement of No Loss has been received and processed successfully.</p>
+            <h2 data-lang="modal-title">Successfully Submitted!</h2>
+            <p data-lang="modal-text">Your Statement of No Loss has been received and processed successfully.</p>
             <div class="confirmation-number" id="confirmationDisplay">
-                Confirmation #: <span id="confirmNumber"></span>
+                <span data-lang="modal-confirmation">Confirmation #:</span> <span id="confirmNumber"></span>
             </div>
-            <p style="font-size: 14px; color: #888;">
+            <p style="font-size: 14px; color: #888;" data-lang="modal-email">
                 A confirmation email has been sent to your registered email address.
             </p>
             <button class="btn-ok" onclick="closeSuccessModal()">OK</button>
@@ -605,11 +652,138 @@
 
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <script>
-        // Your Google Apps Script Web App URL - UPDATED FOR DOCS EMAIL SYSTEM
+        // Your Google Apps Script Web App URL
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMR6JkqwOFjLUR4BRo7QE0mRiEwKxbcpdCDwJi5AKOmM4MMorM1EROWYMcH7gH1Vke/exec';
         
         let signaturePad;
-        let currentConfirmationNumber = ''; // Store confirmation number globally
+        let currentConfirmationNumber = '';
+        let currentLanguage = 'en';
+        
+        // Language translations
+        const translations = {
+            en: {
+                'header-title': 'Statement of No Loss',
+                'header-subtitle': 'Electronic Signature Authorization',
+                'autofill-notice': '✨ Form has been pre-filled with your information',
+                'label-company': 'Insurance Company *',
+                'select-company': 'Select Insurance Company',
+                'option-other': 'Other',
+                'label-policy': 'Policy Number *',
+                'placeholder-policy': 'Enter your policy number',
+                'label-name': 'Insured Name (Full Name) *',
+                'label-email': 'Email Address *',
+                'label-phone': 'Phone Number *',
+                'label-cancel-date': 'Cancellation/Lapse Date *',
+                'label-reinstate-date': 'Requested Reinstatement Date *',
+                'label-policy-type': 'Policy Type *',
+                'select-policy-type': 'Select Policy Type',
+                'option-auto': 'Auto Insurance',
+                'option-home': 'Homeowners Insurance',
+                'option-renters': 'Renters Insurance',
+                'option-life': 'Life Insurance',
+                'option-business': 'Business Insurance',
+                'option-other2': 'Other',
+                'label-amount': 'Amount Paid for Reinstatement *',
+                'statement-title': '📋 Statement of No Loss',
+                'statement-text': `<p>I state that neither I nor any other person covered by this policy has had a claim or loss or been involved in an accident since the cancellation or expiration of the policy (otherwise known as the "no loss period") wherein this policy, including any and all coverages endorsed upon or made part of the policy may apply. In addition, if this reinstatement is for a personal or commercial auto, motorcycle, or RV policy, I certify that I have disclosed the current garaging location and use of all insured vehicles including if any such vehicle is used to deliver food or goods, to transport people for compensation, or for any other business purpose. I have also disclosed household members who are age 14 or older, and all persons who regularly drive any vehicle insured under this policy.</p>
+                    <p style="margin-top: 10px;">I understand that this insurance company is relying solely upon this Statement of No Loss all of which is material, as an inducement to reinstate my policy with no lapse in coverage. I further understand that if a claim, loss, or accident has occurred during the no loss period, or if I failed to disclose the current garaging location and primary use of all vehicles insured under this policy, all persons who regularly drive these vehicles, and all members of my household who are age 14 or older, the reinstatement is null and void, my policy remains cancelled and no insurance coverage shall be provided.</p>
+                    <p style="margin-top: 10px;">I agree that if my check or other payment for this reinstatement is not honored for any reason, the reinstatement is null and void and no coverage shall exist under this policy. I agree to pay a reinstatement fee and late fee (if applicable) in addition to the premium required to reinstate my policy. My payment will be applied first to the reinstatement and late fee and the remainder to the premium.</p>
+                    <p style="margin-top: 10px; font-weight: bold;">It is a crime to knowingly provide false, incomplete, or misleading information to an insurance company for the purpose of defrauding the company. Penalties include imprisonment, fines, and denial of insurance benefits.</p>
+                    <p style="margin-top: 10px; font-weight: bold;">Do you understand and agree to these statements, terms, and conditions?</p>`,
+                'agree-checkbox': 'I have read, understand, and agree to all the statements, terms, and conditions outlined above in the Statement of No Loss.',
+                'label-signature': 'Electronic Signature *',
+                'signature-instruction': 'Draw your signature below',
+                'btn-clear': 'Clear Signature',
+                'btn-submit': 'Submit Statement of No Loss',
+                'success-msg': '✅ Your Statement of No Loss has been successfully submitted!',
+                'error-msg': '❌ There was an error submitting your form. Please try again.',
+                'loading-msg': 'Submitting your statement...',
+                'modal-title': 'Successfully Submitted!',
+                'modal-text': 'Your Statement of No Loss has been received and processed successfully.',
+                'modal-confirmation': 'Confirmation #:',
+                'modal-email': 'A confirmation email has been sent to your registered email address.',
+                'alert-agree': 'Please check the box to agree to the terms and conditions before submitting.',
+                'alert-signature': 'Please provide your signature before submitting.'
+            },
+            es: {
+                'header-title': 'Declaración de No Pérdida',
+                'header-subtitle': 'Autorización de Firma Electrónica',
+                'autofill-notice': '✨ El formulario ha sido prellenado con su información',
+                'label-company': 'Compañía de Seguros *',
+                'select-company': 'Seleccione Compañía de Seguros',
+                'option-other': 'Otra',
+                'label-policy': 'Número de Póliza *',
+                'placeholder-policy': 'Ingrese su número de póliza',
+                'label-name': 'Nombre del Asegurado (Nombre Completo) *',
+                'label-email': 'Correo Electrónico *',
+                'label-phone': 'Número de Teléfono *',
+                'label-cancel-date': 'Fecha de Cancelación/Vencimiento *',
+                'label-reinstate-date': 'Fecha de Reinstalación Solicitada *',
+                'label-policy-type': 'Tipo de Póliza *',
+                'select-policy-type': 'Seleccione Tipo de Póliza',
+                'option-auto': 'Seguro de Auto',
+                'option-home': 'Seguro de Propietario',
+                'option-renters': 'Seguro de Inquilino',
+                'option-life': 'Seguro de Vida',
+                'option-business': 'Seguro de Negocio',
+                'option-other2': 'Otro',
+                'label-amount': 'Cantidad Pagada para Reinstalación *',
+                'statement-title': '📋 Declaración de No Pérdida',
+                'statement-text': `<p>Declaro que ni yo ni ninguna otra persona cubierta por esta póliza ha tenido un reclamo o pérdida o ha estado involucrado en un accidente desde la cancelación o vencimiento de la póliza (también conocido como el "período sin pérdida") en el que esta póliza, incluidas todas y cada una de las coberturas endosadas o que forman parte de la póliza, puedan aplicarse. Además, si esta reinstalación es para una póliza de auto personal o comercial, motocicleta o vehículo recreativo, certifico que he revelado la ubicación actual del garaje y el uso de todos los vehículos asegurados, incluyendo si algún vehículo se usa para entregar alimentos o bienes, para transportar personas por compensación, o para cualquier otro propósito comercial. También he revelado a los miembros del hogar que tienen 14 años o más, y todas las personas que regularmente conducen cualquier vehículo asegurado bajo esta póliza.</p>
+                    <p style="margin-top: 10px;">Entiendo que esta compañía de seguros confía únicamente en esta Declaración de No Pérdida, toda la cual es material, como un incentivo para reinstalar mi póliza sin lapso en la cobertura. Además, entiendo que si ha ocurrido un reclamo, pérdida o accidente durante el período sin pérdida, o si no revelé la ubicación actual del garaje y el uso principal de todos los vehículos asegurados bajo esta póliza, todas las personas que regularmente conducen estos vehículos, y todos los miembros de mi hogar que tienen 14 años o más, la reinstalación es nula y sin efecto, mi póliza permanece cancelada y no se proporcionará cobertura de seguro.</p>
+                    <p style="margin-top: 10px;">Acepto que si mi cheque u otro pago para esta reinstalación no es honrado por cualquier razón, la reinstalación es nula y sin efecto y no existirá cobertura bajo esta póliza. Acepto pagar una tarifa de reinstalación y una tarifa por pago tardío (si corresponde) además de la prima requerida para reinstalar mi póliza. Mi pago se aplicará primero a la tarifa de reinstalación y tardía y el resto a la prima.</p>
+                    <p style="margin-top: 10px; font-weight: bold;">Es un delito proporcionar información falsa, incompleta o engañosa a sabiendas a una compañía de seguros con el propósito de defraudar a la compañía. Las sanciones incluyen encarcelamiento, multas y denegación de beneficios del seguro.</p>
+                    <p style="margin-top: 10px; font-weight: bold;">¿Entiende y está de acuerdo con estas declaraciones, términos y condiciones?</p>`,
+                'agree-checkbox': 'He leído, entiendo y acepto todas las declaraciones, términos y condiciones descritos anteriormente en la Declaración de No Pérdida.',
+                'label-signature': 'Firma Electrónica *',
+                'signature-instruction': 'Dibuje su firma abajo',
+                'btn-clear': 'Borrar Firma',
+                'btn-submit': 'Enviar Declaración de No Pérdida',
+                'success-msg': '✅ ¡Su Declaración de No Pérdida ha sido enviada exitosamente!',
+                'error-msg': '❌ Hubo un error al enviar su formulario. Por favor intente de nuevo.',
+                'loading-msg': 'Enviando su declaración...',
+                'modal-title': '¡Enviado Exitosamente!',
+                'modal-text': 'Su Declaración de No Pérdida ha sido recibida y procesada exitosamente.',
+                'modal-confirmation': 'Número de Confirmación:',
+                'modal-email': 'Se ha enviado un correo de confirmación a su dirección de correo electrónico registrada.',
+                'alert-agree': 'Por favor marque la casilla para aceptar los términos y condiciones antes de enviar.',
+                'alert-signature': 'Por favor proporcione su firma antes de enviar.'
+            }
+        };
+        
+        // Language switching function
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            
+            // Update button states
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update all text elements
+            document.querySelectorAll('[data-lang]').forEach(element => {
+                const key = element.getAttribute('data-lang');
+                if (translations[lang][key]) {
+                    if (element.tagName === 'DIV' && key === 'statement-text') {
+                        element.innerHTML = translations[lang][key];
+                    } else {
+                        element.textContent = translations[lang][key];
+                    }
+                }
+            });
+            
+            // Update placeholders
+            document.querySelectorAll('[data-lang-placeholder]').forEach(element => {
+                const key = element.getAttribute('data-lang-placeholder');
+                if (translations[lang][key]) {
+                    element.placeholder = translations[lang][key];
+                }
+            });
+            
+            // Store language preference
+            localStorage.setItem('preferredLanguage', lang);
+        }
         
         // ============================================
         // URL PARAMETER AUTO-FILL FUNCTIONALITY
@@ -678,34 +852,6 @@
             }
         }
         
-        // Function to generate a pre-filled URL
-        function generatePreFilledUrl() {
-            const baseUrl = window.location.origin + window.location.pathname;
-            const params = new URLSearchParams();
-            
-            // Get all form values
-            const fields = {
-                'insuranceCompany': document.getElementById('insuranceCompany').value,
-                'policyNumber': document.getElementById('policyNumber').value,
-                'insuredName': document.getElementById('insuredName').value,
-                'email': document.getElementById('email').value,
-                'phone': document.getElementById('phone').value,
-                'cancellationDate': document.getElementById('cancellationDate').value,
-                'reinstatementDate': document.getElementById('reinstatementDate').value,
-                'policyType': document.getElementById('policyType').value,
-                'amountPaid': document.getElementById('amountPaid').value.replace('$', '')
-            };
-            
-            // Add non-empty fields to URL parameters
-            for (const [key, value] of Object.entries(fields)) {
-                if (value) {
-                    params.append(key, value);
-                }
-            }
-            
-            return `${baseUrl}?${params.toString()}`;
-        }
-        
         // Generate confirmation number
         function generateConfirmationNumber() {
             const date = new Date();
@@ -729,6 +875,25 @@
         
         // Initialize signature pad and auto-fill form
         document.addEventListener('DOMContentLoaded', function() {
+            // Check for language parameter in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const langParam = urlParams.get('lang');
+            
+            // Set language from URL parameter or saved preference
+            if (langParam === 'es') {
+                setLanguage('es');
+                document.querySelector('.lang-btn[onclick="setLanguage(\'es\')"]').classList.add('active');
+                document.querySelector('.lang-btn[onclick="setLanguage(\'en\')"]').classList.remove('active');
+            } else {
+                // Check for saved language preference
+                const savedLang = localStorage.getItem('preferredLanguage');
+                if (savedLang && savedLang !== 'en') {
+                    setLanguage(savedLang);
+                    document.querySelector(`.lang-btn[onclick="setLanguage('${savedLang}')"]`).classList.add('active');
+                    document.querySelector(`.lang-btn[onclick="setLanguage('en')"]`).classList.remove('active');
+                }
+            }
+            
             // Auto-fill form from URL parameters
             autoFillForm();
             
@@ -769,15 +934,19 @@
         document.getElementById('noLossForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            // Get alert messages in current language
+            const alertAgree = translations[currentLanguage]['alert-agree'];
+            const alertSignature = translations[currentLanguage]['alert-signature'];
+            
             // Validate agreement checkbox
             if (!document.getElementById('agreeTerms').checked) {
-                alert('Please check the box to agree to the terms and conditions before submitting.');
+                alert(alertAgree);
                 return;
             }
             
             // Validate signature
             if (signaturePad.isEmpty()) {
-                alert('Please provide your signature before submitting.');
+                alert(alertSignature);
                 return;
             }
             
