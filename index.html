@@ -481,8 +481,8 @@
     <div class="container">
         <div class="header">
             <div class="language-toggle">
-                <button class="lang-btn active" onclick="setLanguage('en')">English</button>
-                <button class="lang-btn" onclick="setLanguage('es')">Español</button>
+                <button class="lang-btn active" onclick="setLanguage('en', event)">English</button>
+                <button class="lang-btn" onclick="setLanguage('es', event)">Español</button>
             </div>
             <h1>Bill Layne Insurance Agency</h1>
             <h2 data-lang="header-title">Statement of No Loss</h2>
@@ -751,15 +751,26 @@
             }
         };
         
-        // Language switching function
-        function setLanguage(lang) {
+        // FIXED: Language switching function with optional event parameter
+        function setLanguage(lang, event) {
             currentLanguage = lang;
             
             // Update button states
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            event.target.classList.add('active');
+            
+            // If event exists (button click), use event.target
+            // Otherwise, find the button for the language
+            if (event && event.target) {
+                event.target.classList.add('active');
+            } else {
+                // Find and activate the correct button programmatically
+                const langButton = document.querySelector(`.lang-btn[onclick*="'${lang}'"]`);
+                if (langButton) {
+                    langButton.classList.add('active');
+                }
+            }
             
             // Update all text elements
             document.querySelectorAll('[data-lang]').forEach(element => {
@@ -880,21 +891,18 @@
             const langParam = urlParams.get('lang');
             
             // Set language from URL parameter or saved preference
+            // FIXED: Call setLanguage without event parameter
             if (langParam === 'es') {
-                setLanguage('es');
-                document.querySelector('.lang-btn[onclick="setLanguage(\'es\')"]').classList.add('active');
-                document.querySelector('.lang-btn[onclick="setLanguage(\'en\')"]').classList.remove('active');
+                setLanguage('es'); // No event parameter when called programmatically
             } else {
                 // Check for saved language preference
                 const savedLang = localStorage.getItem('preferredLanguage');
                 if (savedLang && savedLang !== 'en') {
-                    setLanguage(savedLang);
-                    document.querySelector(`.lang-btn[onclick="setLanguage('${savedLang}')"]`).classList.add('active');
-                    document.querySelector(`.lang-btn[onclick="setLanguage('en')"]`).classList.remove('active');
+                    setLanguage(savedLang); // No event parameter when called programmatically
                 }
             }
             
-            // Auto-fill form from URL parameters
+            // Auto-fill form from URL parameters - This will now work even after language switch
             autoFillForm();
             
             const canvas = document.getElementById('signature-pad');
