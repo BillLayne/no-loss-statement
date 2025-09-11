@@ -530,6 +530,15 @@
                 </p>
             </div>
             
+            <div class="form-group" style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <label style="display: flex; align-items: flex-start; cursor: pointer; font-weight: normal;">
+                    <input type="checkbox" id="agreeTerms" name="agreeTerms" required style="width: auto; margin-right: 10px; margin-top: 3px; transform: scale(1.2);">
+                    <span style="color: #333; font-size: 15px; line-height: 1.5;">
+                        I have read, understand, and agree to all the statements, terms, and conditions outlined above in the Statement of No Loss.
+                    </span>
+                </label>
+            </div>
+            
             <div class="signature-container">
                 <div class="signature-label">
                     <label>Electronic Signature *</label>
@@ -759,6 +768,12 @@
         // Handle form submission
         document.getElementById('noLossForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            // Validate agreement checkbox
+            if (!document.getElementById('agreeTerms').checked) {
+                alert('Please check the box to agree to the terms and conditions before submitting.');
+                return;
+            }
             
             // Validate signature
             if (signaturePad.isEmpty()) {
