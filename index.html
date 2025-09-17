@@ -231,6 +231,96 @@
             color: white;
         }
         
+        /* ENHANCED LOADING INDICATOR STYLES - MODAL OVERLAY */
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .loading.show {
+            display: flex;
+        }
+        
+        .loading-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.4s ease-out;
+            position: relative;
+            border: 3px solid transparent;
+            background: linear-gradient(white, white) padding-box,
+                        linear-gradient(135deg, #667eea 0%, #764ba2 100%) border-box;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(102, 126, 234, 0.2);
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 25px;
+        }
+        
+        .loading-title {
+            font-size: 24px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+        
+        .loading-message {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .loading-warning {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffe8a1 100%);
+            color: #856404;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 2px solid #ffc107;
+            box-shadow: 0 4px 10px rgba(255, 193, 7, 0.2);
+            animation: pulseWarning 2s ease-in-out infinite;
+        }
+        
+        .loading-warning-icon {
+            font-size: 24px;
+            animation: bounce 1s ease-in-out infinite;
+        }
+        
+        @keyframes pulseWarning {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+        
         /* NEW ENHANCED SUCCESS MODAL STYLES */
         .success-modal-overlay {
             display: none;
@@ -386,22 +476,6 @@
             line-height: 1.5;
         }
         
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-        
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        
         /* Auto-fill notification */
         .autofill-notice {
             background: #4CAF50;
@@ -554,6 +628,9 @@
             <div class="form-group">
                 <label for="amountPaid" data-lang="label-amount">Amount Paid for Reinstatement *</label>
                 <input type="text" id="amountPaid" name="amountPaid" required placeholder="$0.00">
+                <small style="display: block; margin-top: 5px; color: #666; font-size: 12px; font-style: italic;" data-lang="fees-disclaimer">
+                    *fees included in Total Amount Required to Reinstate
+                </small>
             </div>
             
             <div class="statement-box">
@@ -609,9 +686,20 @@
                 <span data-lang="error-msg">❌ There was an error submitting your form. Please try again.</span>
             </div>
             
+            <!-- ENHANCED LOADING INDICATOR -->
             <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <p style="margin-top: 10px;" data-lang="loading-msg">Submitting your statement...</p>
+                <div class="loading-content">
+                    <div class="spinner"></div>
+                    <div class="loading-title" data-lang="loading-title">Please Wait - Uploading Your Signature</div>
+                    <div class="loading-message" data-lang="loading-message">
+                        Your Statement of No Loss is being securely uploaded.<br>
+                        You will receive your confirmation number shortly.
+                    </div>
+                    <div class="loading-warning">
+                        <span class="loading-warning-icon">⚠️</span>
+                        <span data-lang="loading-warning">Do not close this page until upload is complete</span>
+                    </div>
+                </div>
             </div>
             
             <button type="submit" class="btn btn-submit" id="submitBtn" data-lang="btn-submit">
@@ -659,7 +747,7 @@
         let currentConfirmationNumber = '';
         let currentLanguage = 'en';
         
-        // Language translations
+        // Language translations - ENHANCED with new loading messages
         const translations = {
             en: {
                 'header-title': 'Statement of No Loss',
@@ -684,6 +772,7 @@
                 'option-business': 'Business Insurance',
                 'option-other2': 'Other',
                 'label-amount': 'Amount Paid for Reinstatement *',
+                'fees-disclaimer': '*fees included in Total Amount Required to Reinstate',
                 'statement-title': '📋 Statement of No Loss',
                 'statement-text': `<p>I state that neither I nor any other person covered by this policy has had a claim or loss or been involved in an accident since the cancellation or expiration of the policy (otherwise known as the "no loss period") wherein this policy, including any and all coverages endorsed upon or made part of the policy may apply. In addition, if this reinstatement is for a personal or commercial auto, motorcycle, or RV policy, I certify that I have disclosed the current garaging location and use of all insured vehicles including if any such vehicle is used to deliver food or goods, to transport people for compensation, or for any other business purpose. I have also disclosed household members who are age 14 or older, and all persons who regularly drive any vehicle insured under this policy.</p>
                     <p style="margin-top: 10px;">I understand that this insurance company is relying solely upon this Statement of No Loss all of which is material, as an inducement to reinstate my policy with no lapse in coverage. I further understand that if a claim, loss, or accident has occurred during the no loss period, or if I failed to disclose the current garaging location and primary use of all vehicles insured under this policy, all persons who regularly drive these vehicles, and all members of my household who are age 14 or older, the reinstatement is null and void, my policy remains cancelled and no insurance coverage shall be provided.</p>
@@ -697,7 +786,9 @@
                 'btn-submit': 'Submit Statement of No Loss',
                 'success-msg': '✅ Your Statement of No Loss has been successfully submitted!',
                 'error-msg': '❌ There was an error submitting your form. Please try again.',
-                'loading-msg': 'Submitting your statement...',
+                'loading-title': 'Please Wait - Uploading Your Signature',
+                'loading-message': 'Your Statement of No Loss is being securely uploaded.<br>You will receive your confirmation number shortly.',
+                'loading-warning': 'Do not close this page until upload is complete',
                 'modal-title': 'Successfully Submitted!',
                 'modal-text': 'Your Statement of No Loss has been received and processed successfully.',
                 'modal-confirmation': 'Confirmation #:',
@@ -728,6 +819,7 @@
                 'option-business': 'Seguro de Negocio',
                 'option-other2': 'Otro',
                 'label-amount': 'Cantidad Pagada para Reinstalación *',
+                'fees-disclaimer': '*tarifas incluidas en el Monto Total Requerido para Reinstalar',
                 'statement-title': '📋 Declaración de No Pérdida',
                 'statement-text': `<p>Declaro que ni yo ni ninguna otra persona cubierta por esta póliza ha tenido un reclamo o pérdida o ha estado involucrado en un accidente desde la cancelación o vencimiento de la póliza (también conocido como el "período sin pérdida") en el que esta póliza, incluidas todas y cada una de las coberturas endosadas o que forman parte de la póliza, puedan aplicarse. Además, si esta reinstalación es para una póliza de auto personal o comercial, motocicleta o vehículo recreativo, certifico que he revelado la ubicación actual del garaje y el uso de todos los vehículos asegurados, incluyendo si algún vehículo se usa para entregar alimentos o bienes, para transportar personas por compensación, o para cualquier otro propósito comercial. También he revelado a los miembros del hogar que tienen 14 años o más, y todas las personas que regularmente conducen cualquier vehículo asegurado bajo esta póliza.</p>
                     <p style="margin-top: 10px;">Entiendo que esta compañía de seguros confía únicamente en esta Declaración de No Pérdida, toda la cual es material, como un incentivo para reinstalar mi póliza sin lapso en la cobertura. Además, entiendo que si ha ocurrido un reclamo, pérdida o accidente durante el período sin pérdida, o si no revelé la ubicación actual del garaje y el uso principal de todos los vehículos asegurados bajo esta póliza, todas las personas que regularmente conducen estos vehículos, y todos los miembros de mi hogar que tienen 14 años o más, la reinstalación es nula y sin efecto, mi póliza permanece cancelada y no se proporcionará cobertura de seguro.</p>
@@ -741,7 +833,9 @@
                 'btn-submit': 'Enviar Declaración de No Pérdida',
                 'success-msg': '✅ ¡Su Declaración de No Pérdida ha sido enviada exitosamente!',
                 'error-msg': '❌ Hubo un error al enviar su formulario. Por favor intente de nuevo.',
-                'loading-msg': 'Enviando su declaración...',
+                'loading-title': 'Por Favor Espere - Subiendo Su Firma',
+                'loading-message': 'Su Declaración de No Pérdida se está subiendo de forma segura.<br>Recibirá su número de confirmación en breve.',
+                'loading-warning': 'No cierre esta página hasta que se complete la carga',
                 'modal-title': '¡Enviado Exitosamente!',
                 'modal-text': 'Su Declaración de No Pérdida ha sido recibida y procesada exitosamente.',
                 'modal-confirmation': 'Número de Confirmación:',
@@ -777,6 +871,8 @@
                 const key = element.getAttribute('data-lang');
                 if (translations[lang][key]) {
                     if (element.tagName === 'DIV' && key === 'statement-text') {
+                        element.innerHTML = translations[lang][key];
+                    } else if (key === 'loading-message') {
                         element.innerHTML = translations[lang][key];
                     } else {
                         element.textContent = translations[lang][key];
@@ -967,8 +1063,8 @@
             // Set confirmation number in hidden field
             document.getElementById('confirmationNumber').value = currentConfirmationNumber;
             
-            // Show loading
-            document.getElementById('loading').style.display = 'block';
+            // Show loading modal overlay
+            document.getElementById('loading').classList.add('show');
             document.getElementById('submitBtn').disabled = true;
             document.getElementById('successMessage').style.display = 'none';
             document.getElementById('errorMessage').style.display = 'none';
@@ -1006,7 +1102,7 @@
                 console.error('Error:', error);
                 document.getElementById('errorMessage').style.display = 'block';
             } finally {
-                document.getElementById('loading').style.display = 'none';
+                document.getElementById('loading').classList.remove('show');
                 document.getElementById('submitBtn').disabled = false;
             }
         });
