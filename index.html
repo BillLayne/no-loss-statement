@@ -674,11 +674,10 @@
                 </div>
             </div>
             
-            <!-- EXISTING HIDDEN FIELDS -->
+            <!-- ALL HIDDEN FIELDS FOR VERIFICATION -->
             <input type="hidden" id="signature" name="signature">
+            <input type="hidden" id="signatureUrl" name="signatureUrl">
             <input type="hidden" id="confirmationNumber" name="confirmationNumber">
-            
-            <!-- NEW SIGNATURE VERIFICATION DATA FIELDS -->
             <input type="hidden" id="ipAddress" name="ipAddress">
             <input type="hidden" id="sessionId" name="sessionId">
             <input type="hidden" id="deviceInfo" name="deviceInfo">
@@ -688,8 +687,16 @@
             <input type="hidden" id="signatureTime" name="signatureTime">
             <input type="hidden" id="timezone" name="timezone">
             <input type="hidden" id="screenResolution" name="screenResolution">
-            <input type="hidden" id="formVersion" name="formVersion" value="v2.0.0">
+            <input type="hidden" id="userAgent" name="userAgent">
+            <input type="hidden" id="formVersion" name="formVersion" value="v5.0">
             <input type="hidden" id="submissionMethod" name="submissionMethod" value="Online Portal">
+            <input type="hidden" id="noLossConfirmation" name="noLossConfirmation" value="true">
+            
+            <!-- Agency hidden fields -->
+            <input type="hidden" id="agencyName" name="agencyName" value="Bill Layne Insurance Agency">
+            <input type="hidden" id="agencyEmail" name="agencyEmail" value="Save@BillLayneInsurance.com">
+            <input type="hidden" id="agencyPhone" name="agencyPhone" value="336-835-1993">
+            <input type="hidden" id="agencyAddress" name="agencyAddress" value="1283 N Bridge St, Elkin NC 28621">
             
             <div class="success-message" id="successMessage">
                 <span data-lang="success-msg">✅ Your Statement of No Loss has been successfully submitted!</span>
@@ -754,9 +761,9 @@
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <script>
         // ============================================
-        // CONFIGURATION
+        // CONFIGURATION - YOUR ACTIVE GOOGLE APPS SCRIPT URL
         // ============================================
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMR6JkqwOFjLUR4BRo7QE0mRiEwKxbcpdCDwJi5AKOmM4MMorM1EROWYMcH7gH1Vke/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxP5rFSrbrDJ_3bFwi0xyBy054h5WkYBP89o54k5sEX7fk_8u0a74SbdHG0s3s32RDR/exec';
         
         let signaturePad;
         let currentConfirmationNumber = '';
@@ -765,7 +772,7 @@
         let capturedIPAddress = '';
         
         // ============================================
-        // SIGNATURE VERIFICATION DATA CAPTURE FUNCTIONS
+        // ENHANCED SIGNATURE VERIFICATION FUNCTIONS
         // ============================================
         
         // Generate unique session ID
@@ -775,113 +782,86 @@
             return `NOL-SESSION-${timestamp}-${random}`;
         }
         
-        // Get IP address from external service with fallbacks
+        // Generate browser fingerprint
+        function generateBrowserFingerprint() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillText('fingerprint', 2, 2);
+            
+            let fingerprint = canvas.toDataURL();
+            fingerprint = fingerprint.substring(0, 50).replace(/[^a-zA-Z0-9]/g, '');
+            
+            const screenData = `${screen.width}x${screen.height}x${screen.colorDepth}`;
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const plugins = navigator.plugins.length;
+            
+            return `FP-${fingerprint}-${screenData.replace(/[^0-9]/g, '')}-${plugins}`.substring(0, 50);
+        }
+        
+        // Get IP address from external service
         async function getIPAddress() {
             try {
-                // Primary service
                 const response = await fetch('https://api.ipify.org?format=json');
                 const data = await response.json();
                 return data.ip;
             } catch (error) {
-                console.error('Primary IP service failed, trying backup...');
-                try {
-                    // Backup service
-                    const response2 = await fetch('https://ipapi.co/json/');
-                    const data2 = await response2.json();
-                    return data2.ip;
-                } catch (error2) {
-                    console.error('All IP services failed');
-                    return 'Unable to capture';
-                }
+                console.log('Could not fetch IP:', error);
+                return 'Unable to capture';
             }
         }
         
-        // Capture device information
+        // Get device information
         function getDeviceInfo() {
             const userAgent = navigator.userAgent;
+            let deviceType = 'Desktop';
             let os = 'Unknown OS';
             let browser = 'Unknown Browser';
-            let device = 'Desktop';
+            
+            // Detect device type
+            if (/Mobile|Android|iPhone|iPad/i.test(userAgent)) {
+                deviceType = /iPad/i.test(userAgent) ? 'Tablet' : 'Mobile';
+            }
             
             // Detect OS
-            if (userAgent.indexOf('Windows NT 10.0') > -1) os = 'Windows 10';
-            else if (userAgent.indexOf('Windows NT 11.0') > -1) os = 'Windows 11';
-            else if (userAgent.indexOf('Mac OS X') > -1) os = 'Mac OS X';
-            else if (userAgent.indexOf('Android') > -1) os = 'Android';
-            else if (userAgent.indexOf('iPhone') > -1) os = 'iOS';
-            else if (userAgent.indexOf('Linux') > -1) os = 'Linux';
+            if (userAgent.indexOf('Win') !== -1) os = 'Windows';
+            else if (userAgent.indexOf('Mac') !== -1) os = 'MacOS';
+            else if (userAgent.indexOf('Linux') !== -1) os = 'Linux';
+            else if (userAgent.indexOf('Android') !== -1) os = 'Android';
+            else if (/iPhone|iPad|iPod/.test(userAgent)) os = 'iOS';
             
-            // Detect Browser
-            if (userAgent.indexOf('Chrome') > -1 && userAgent.indexOf('Edg') === -1) browser = 'Chrome';
-            else if (userAgent.indexOf('Safari') > -1 && userAgent.indexOf('Chrome') === -1) browser = 'Safari';
-            else if (userAgent.indexOf('Firefox') > -1) browser = 'Firefox';
-            else if (userAgent.indexOf('Edg') > -1) browser = 'Edge';
+            // Detect browser
+            if (userAgent.indexOf('Chrome') !== -1 && userAgent.indexOf('Edg') === -1) browser = 'Chrome';
+            else if (userAgent.indexOf('Safari') !== -1 && userAgent.indexOf('Chrome') === -1) browser = 'Safari';
+            else if (userAgent.indexOf('Firefox') !== -1) browser = 'Firefox';
+            else if (userAgent.indexOf('Edg') !== -1) browser = 'Edge';
+            else if (userAgent.indexOf('Opera') !== -1 || userAgent.indexOf('OPR') !== -1) browser = 'Opera';
             
-            // Detect Device Type
-            if (/Mobile|Android|iPhone/i.test(userAgent)) {
-                device = /Tablet|iPad/i.test(userAgent) ? 'Tablet' : 'Mobile';
+            // Get OS version if possible
+            let osVersion = '';
+            if (os === 'Windows') {
+                const match = userAgent.match(/Windows NT (\d+\.\d+)/);
+                if (match) {
+                    const versionMap = {'10.0': '10', '11.0': '11', '6.3': '8.1', '6.2': '8', '6.1': '7'};
+                    osVersion = versionMap[match[1]] || match[1];
+                }
             }
             
-            return `${device} - ${os} - ${browser}`;
+            return `${deviceType} - ${os} ${osVersion} - ${browser}`.trim();
         }
         
-        // Generate browser fingerprint
-        function generateBrowserFingerprint() {
-            const data = [
-                navigator.userAgent,
-                navigator.language,
-                screen.width + 'x' + screen.height,
-                screen.colorDepth,
-                new Date().getTimezoneOffset(),
-                navigator.hardwareConcurrency || 0,
-                navigator.maxTouchPoints || 0
-            ].join('|');
-            
-            let hash = 0;
-            for (let i = 0; i < data.length; i++) {
-                hash = ((hash << 5) - hash) + data.charCodeAt(i);
-                hash = hash & hash;
-            }
-            
-            return 'FP-' + Math.abs(hash).toString(36).toUpperCase();
+        // Generate confirmation number
+        function generateConfirmationNumber() {
+            const date = new Date();
+            const year = date.getFullYear().toString().slice(0, 4);
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            return `NOL-${year}${month}${day}-${random}`;
         }
         
-        // Capture comprehensive metadata for signature verification
-        function captureSignatureMetadata() {
-            const now = new Date();
-            return {
-                sessionId: currentSessionId,
-                signatureTime: now.toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: true,
-                    timeZoneName: 'short'
-                }),
-                signatureDate: now.toLocaleDateString('en-US'),
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                userAgent: navigator.userAgent,
-                screenResolution: `${screen.width}x${screen.height}`,
-                colorDepth: screen.colorDepth,
-                language: navigator.language,
-                languages: navigator.languages ? navigator.languages.join(', ') : navigator.language,
-                platform: navigator.platform,
-                cookiesEnabled: navigator.cookieEnabled,
-                onlineStatus: navigator.onLine,
-                hardwareConcurrency: navigator.hardwareConcurrency || 'N/A',
-                deviceMemory: navigator.deviceMemory || 'N/A',
-                maxTouchPoints: navigator.maxTouchPoints || 0,
-                formVersion: 'v2.0.0',
-                entryMode: 'Manual',
-                browserFingerprint: generateBrowserFingerprint()
-            };
-        }
-        
-        // ============================================
-        // EXISTING FUNCTIONS (Language, Auto-fill, etc.)
-        // ============================================
-        
-        // Language translations - ENHANCED with new loading messages
+        // Language translations
         const translations = {
             en: {
                 'header-title': 'Statement of No Loss',
@@ -955,11 +935,7 @@
                 'label-amount': 'Cantidad Pagada para Reinstalación *',
                 'fees-disclaimer': '*tarifas incluidas en el Monto Total Requerido para Reinstalar',
                 'statement-title': '📋 Declaración de No Pérdida',
-                'statement-text': `<p>Declaro que ni yo ni ninguna otra persona cubierta por esta póliza ha tenido un reclamo o pérdida o ha estado involucrado en un accidente desde la cancelación o vencimiento de la póliza (también conocido como el "período sin pérdida") en el que esta póliza, incluidas todas y cada una de las coberturas endosadas o que forman parte de la póliza, puedan aplicarse. Además, si esta reinstalación es para una póliza de auto personal o comercial, motocicleta o vehículo recreativo, certifico que he revelado la ubicación actual del garaje y el uso de todos los vehículos asegurados, incluyendo si algún vehículo se usa para entregar alimentos o bienes, para transportar personas por compensación, o para cualquier otro propósito comercial. También he revelado a los miembros del hogar que tienen 14 años o más, y todas las personas que regularmente conducen cualquier vehículo asegurado bajo esta póliza.</p>
-                    <p style="margin-top: 10px;">Entiendo que esta compañía de seguros confía únicamente en esta Declaración de No Pérdida, toda la cual es material, como un incentivo para reinstalar mi póliza sin lapso en la cobertura. Además, entiendo que si ha ocurrido un reclamo, pérdida o accidente durante el período sin pérdida, o si no revelé la ubicación actual del garaje y el uso principal de todos los vehículos asegurados bajo esta póliza, todas las personas que regularmente conducen estos vehículos, y todos los miembros de mi hogar que tienen 14 años o más, la reinstalación es nula y sin efecto, mi póliza permanece cancelada y no se proporcionará cobertura de seguro.</p>
-                    <p style="margin-top: 10px;">Acepto que si mi cheque u otro pago para esta reinstalación no es honrado por cualquier razón, la reinstalación es nula y sin efecto y no existirá cobertura bajo esta póliza. Acepto pagar una tarifa de reinstalación y una tarifa por pago tardío (si corresponde) además de la prima requerida para reinstalar mi póliza. Mi pago se aplicará primero a la tarifa de reinstalación y tardía y el resto a la prima.</p>
-                    <p style="margin-top: 10px; font-weight: bold;">Es un delito proporcionar información falsa, incompleta o engañosa a sabiendas a una compañía de seguros con el propósito de defraudar a la compañía. Las sanciones incluyen encarcelamiento, multas y denegación de beneficios del seguro.</p>
-                    <p style="margin-top: 10px; font-weight: bold;">¿Entiende y está de acuerdo con estas declaraciones, términos y condiciones?</p>`,
+                'statement-text': `<p>Declaro que ni yo ni ninguna otra persona cubierta por esta póliza ha tenido un reclamo o pérdida...</p>`,
                 'agree-checkbox': 'He leído, entiendo y acepto todas las declaraciones, términos y condiciones descritos anteriormente en la Declaración de No Pérdida.',
                 'label-signature': 'Firma Electrónica *',
                 'signature-instruction': 'Dibuje su firma abajo',
@@ -979,28 +955,23 @@
             }
         };
         
-        // FIXED: Language switching function with optional event parameter
+        // Language switching
         function setLanguage(lang, event) {
             currentLanguage = lang;
             
-            // Update button states
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             
-            // If event exists (button click), use event.target
-            // Otherwise, find the button for the language
             if (event && event.target) {
                 event.target.classList.add('active');
             } else {
-                // Find and activate the correct button programmatically
                 const langButton = document.querySelector(`.lang-btn[onclick*="'${lang}'"]`);
                 if (langButton) {
                     langButton.classList.add('active');
                 }
             }
             
-            // Update all text elements
             document.querySelectorAll('[data-lang]').forEach(element => {
                 const key = element.getAttribute('data-lang');
                 if (translations[lang][key]) {
@@ -1014,7 +985,6 @@
                 }
             });
             
-            // Update placeholders
             document.querySelectorAll('[data-lang-placeholder]').forEach(element => {
                 const key = element.getAttribute('data-lang-placeholder');
                 if (translations[lang][key]) {
@@ -1022,13 +992,10 @@
                 }
             });
             
-            // Store language preference
             localStorage.setItem('preferredLanguage', lang);
         }
         
-        // ============================================
-        // URL PARAMETER AUTO-FILL FUNCTIONALITY
-        // ============================================
+        // URL Parameter Auto-fill
         function getUrlParameters() {
             const params = new URLSearchParams(window.location.search);
             const paramObject = {};
@@ -1042,7 +1009,6 @@
             const params = getUrlParameters();
             let fieldsAutoFilled = false;
             
-            // Map URL parameters to form field IDs
             const fieldMapping = {
                 'company': 'insuranceCompany',
                 'insuranceCompany': 'insuranceCompany',
@@ -1063,7 +1029,6 @@
                 'amountPaid': 'amountPaid'
             };
             
-            // Fill in the form fields based on URL parameters
             for (const [urlParam, fieldId] of Object.entries(fieldMapping)) {
                 if (params[urlParam]) {
                     const field = document.getElementById(fieldId);
@@ -1071,7 +1036,6 @@
                         field.value = params[urlParam];
                         fieldsAutoFilled = true;
                         
-                        // Special handling for amount field to ensure proper formatting
                         if (fieldId === 'amountPaid' && !params[urlParam].startsWith('$')) {
                             field.value = '$' + params[urlParam];
                         }
@@ -1079,7 +1043,6 @@
                 }
             }
             
-            // Show notification if fields were auto-filled
             if (fieldsAutoFilled) {
                 const notice = document.getElementById('autofillNotice');
                 notice.style.display = 'block';
@@ -1093,22 +1056,10 @@
             }
         }
         
-        // Generate confirmation number
-        function generateConfirmationNumber() {
-            const date = new Date();
-            const year = date.getFullYear().toString().slice(-2);
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const day = date.getDate().toString().padStart(2, '0');
-            const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-            return `NOL-${year}${month}${day}-${random}`;
-        }
-        
-        // Close success modal
         function closeSuccessModal() {
             document.getElementById('successModalOverlay').classList.remove('show');
         }
         
-        // Show success modal
         function showSuccessModal() {
             document.getElementById('confirmNumber').textContent = currentConfirmationNumber;
             document.getElementById('successModalOverlay').classList.add('show');
@@ -1118,53 +1069,48 @@
         // INITIALIZATION
         // ============================================
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('Initializing No Loss Statement form with signature verification...');
+            console.log('Initializing Enhanced No Loss Statement form...');
             
-            // Generate and store session ID immediately
+            // Generate session ID
             currentSessionId = generateSessionId();
             document.getElementById('sessionId').value = currentSessionId;
-            console.log('Session ID generated:', currentSessionId);
+            console.log('Session ID:', currentSessionId);
             
-            // Capture IP address in background
+            // Capture IP address
             getIPAddress().then(ip => {
                 capturedIPAddress = ip;
                 document.getElementById('ipAddress').value = ip;
-                console.log('IP Address captured:', ip);
-            }).catch(error => {
-                console.error('Failed to capture IP:', error);
-                document.getElementById('ipAddress').value = 'Unable to capture';
+                console.log('IP Address:', ip);
             });
             
-            // Capture device info immediately
+            // Capture device info
             const deviceInfo = getDeviceInfo();
             document.getElementById('deviceInfo').value = deviceInfo;
-            console.log('Device info:', deviceInfo);
+            console.log('Device:', deviceInfo);
             
-            // Generate and store browser fingerprint
+            // Generate browser fingerprint
             const fingerprint = generateBrowserFingerprint();
             document.getElementById('browserFingerprint').value = fingerprint;
-            console.log('Browser fingerprint:', fingerprint);
+            console.log('Fingerprint:', fingerprint);
             
             // Store additional metadata
             document.getElementById('timezone').value = Intl.DateTimeFormat().resolvedOptions().timeZone;
             document.getElementById('screenResolution').value = `${screen.width}x${screen.height}`;
+            document.getElementById('userAgent').value = navigator.userAgent;
             
-            // Check for language parameter in URL
+            // Check for language
             const urlParams = new URLSearchParams(window.location.search);
             const langParam = urlParams.get('lang');
             
-            // Set language from URL parameter or saved preference
             if (langParam === 'es') {
                 setLanguage('es');
             } else {
-                // Check for saved language preference
                 const savedLang = localStorage.getItem('preferredLanguage');
                 if (savedLang && savedLang !== 'en') {
                     setLanguage(savedLang);
                 }
             }
             
-            // Auto-fill form from URL parameters
             autoFillForm();
             
             // Initialize signature pad
@@ -1174,18 +1120,16 @@
                 penColor: 'rgb(0, 0, 0)'
             });
             
-            // Resize canvas to proper size
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
             
-            // Close modal when clicking outside
             document.getElementById('successModalOverlay').addEventListener('click', function(e) {
                 if (e.target === this) {
                     closeSuccessModal();
                 }
             });
             
-            console.log('Form initialization complete with signature verification data');
+            console.log('Form initialization complete');
         });
         
         function resizeCanvas() {
@@ -1204,90 +1148,113 @@
         }
         
         // ============================================
-        // FORM SUBMISSION WITH SIGNATURE VERIFICATION
+        // FORM SUBMISSION WITH ENHANCED VERIFICATION
         // ============================================
         document.getElementById('noLossForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Get alert messages in current language
             const alertAgree = translations[currentLanguage]['alert-agree'];
             const alertSignature = translations[currentLanguage]['alert-signature'];
             
-            // Validate agreement checkbox
             if (!document.getElementById('agreeTerms').checked) {
                 alert(alertAgree);
                 return;
             }
             
-            // Validate signature
             if (signaturePad.isEmpty()) {
                 alert(alertSignature);
                 return;
             }
             
-            // Generate confirmation number BEFORE submission
+            // Generate confirmation number
             currentConfirmationNumber = generateConfirmationNumber();
             document.getElementById('confirmationNumber').value = currentConfirmationNumber;
             
-            // Capture comprehensive metadata for signature verification
-            const metadata = captureSignatureMetadata();
+            // Get signature data
+            const signatureData = signaturePad.toDataURL();
+            document.getElementById('signature').value = signatureData;
+            document.getElementById('signatureUrl').value = signatureData;
+            
+            // Set signature date/time
+            const now = new Date();
+            document.getElementById('signatureDateTime').value = now.toLocaleString();
+            document.getElementById('signatureTime').value = now.toLocaleTimeString();
+            
+            // Capture signature metadata
+            const metadata = {
+                sessionId: currentSessionId,
+                signatureTime: now.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true,
+                    timeZoneName: 'short'
+                }),
+                signatureDate: now.toLocaleDateString('en-US'),
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                userAgent: navigator.userAgent,
+                screenResolution: `${screen.width}x${screen.height}`,
+                colorDepth: screen.colorDepth,
+                language: navigator.language,
+                languages: navigator.languages ? navigator.languages.join(', ') : navigator.language,
+                platform: navigator.platform,
+                cookiesEnabled: navigator.cookieEnabled,
+                onlineStatus: navigator.onLine,
+                hardwareConcurrency: navigator.hardwareConcurrency || 'N/A',
+                deviceMemory: navigator.deviceMemory || 'N/A',
+                maxTouchPoints: navigator.maxTouchPoints || 0,
+                plugins: Array.from(navigator.plugins || []).map(p => p.name).join(', ') || 'None'
+            };
+            
             document.getElementById('signatureMetadata').value = JSON.stringify(metadata);
             
-            // Set signature date and time with seconds
-            const now = new Date();
-            const signatureDateTime = `${now.toLocaleDateString('en-US')} ${metadata.signatureTime}`;
-            document.getElementById('signatureDateTime').value = signatureDateTime;
-            document.getElementById('signatureTime').value = metadata.signatureTime;
+            console.log('Submitting with verification data:', {
+                confirmationNumber: currentConfirmationNumber,
+                sessionId: currentSessionId,
+                ipAddress: capturedIPAddress,
+                deviceInfo: document.getElementById('deviceInfo').value,
+                browserFingerprint: document.getElementById('browserFingerprint').value
+            });
             
-            // Get signature data
-            document.getElementById('signature').value = signaturePad.toDataURL();
-            
-            // Log submission for debugging
-            console.log('Submitting No Loss Statement with verification data:');
-            console.log('- Confirmation #:', currentConfirmationNumber);
-            console.log('- Session ID:', currentSessionId);
-            console.log('- IP Address:', capturedIPAddress);
-            console.log('- Device Info:', document.getElementById('deviceInfo').value);
-            console.log('- Signature Time:', metadata.signatureTime);
-            console.log('- Browser Fingerprint:', document.getElementById('browserFingerprint').value);
-            
-            // Show loading modal overlay
+            // Show loading
             document.getElementById('loading').classList.add('show');
             document.getElementById('submitBtn').disabled = true;
             document.getElementById('successMessage').style.display = 'none';
             document.getElementById('errorMessage').style.display = 'none';
             
-            // Prepare form data
+            // Prepare all form data
             const formData = new FormData(this);
-            formData.append('submissionDate', new Date().toLocaleString());
-            formData.append('formType', 'Statement of No Loss');
-            formData.append('entryMode', 'Manual');
+            
+            // Convert FormData to JSON object for Google Apps Script
+            const jsonData = {};
+            formData.forEach((value, key) => {
+                jsonData[key] = value;
+            });
+            
+            // Add additional data
+            jsonData.submittedAt = new Date().toISOString();
+            jsonData.browserInfo = navigator.userAgent;
             
             try {
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    body: formData
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(jsonData)
                 });
                 
-                const result = await response.text();
-                console.log('Server response:', result);
+                // Show success modal
+                showSuccessModal();
+                document.getElementById('successMessage').style.display = 'block';
                 
-                if (result.includes('Success') || response.ok) {
-                    // Show enhanced success modal with confirmation number
-                    showSuccessModal();
-                    
-                    // Also show inline success message
-                    document.getElementById('successMessage').style.display = 'block';
-                    
-                    // Reset form
-                    document.getElementById('noLossForm').reset();
-                    signaturePad.clear();
-                    
-                    // Scroll to top
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                } else {
-                    throw new Error('Submission failed');
-                }
+                // Reset form
+                this.reset();
+                signaturePad.clear();
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('errorMessage').style.display = 'block';
@@ -1312,7 +1279,7 @@
             e.target.value = value;
         });
         
-        // Auto-format amount paid as currency
+        // Auto-format amount
         document.getElementById('amountPaid').addEventListener('input', function(e) {
             let value = e.target.value.replace(/[^\d.]/g, '');
             let parts = value.split('.');
@@ -1329,7 +1296,6 @@
             }
         });
         
-        // Format amount on blur (when user clicks away)
         document.getElementById('amountPaid').addEventListener('blur', function(e) {
             let value = e.target.value.replace(/[^\d.]/g, '');
             if (value) {
