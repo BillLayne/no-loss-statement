@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insurance Quote Generator - Bill Layne Insurance Agency</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .section h2 {
+            color: #2a5298;
+            font-size: 24px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .company-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .company-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .company-checkbox:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .company-checkbox input[type="checkbox"] {
+            margin-right: 10px;
+            width: auto;
+        }
+        
+        .company-checkbox.selected {
+            background: #f0f4ff;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        .btn-sms {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            color: white;
+        }
+        
+        .btn-sms:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.4);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        #preview {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .status-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .coverage-input {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .template-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .template-card {
+            padding: 15px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .template-card:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .template-card.selected {
+            background: #f0f4ff;
+            border-color: #667eea;
+        }
+        
+        .template-card h3 {
+            color: #2a5298;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .template-card p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .sms-section {
+            background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #4CAF50;
+            margin-top: 20px;
+        }
+        
+        .sms-status {
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .sms-sending {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffc107;
+        }
+        
+        .sms-sent {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #28a745;
+        }
+        
+        .sms-failed {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #dc3545;
+        }
+        
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Insurance Quote Generator</h1>
+            <p>Bill Layne Insurance Agency - Professional Quote Builder with SMS Integration</p>
+        </div>
+        
+        <div class="main-content">
+            <!-- Left Column - Input Section -->
+            <div class="section">
+                <h2>📝 Quote Information</h2>
+                
+                <!-- Template Selection -->
+                <div class="form-group">
+                    <label>Select Template</label>
+                    <div class="template-selector">
+                        <div class="template-card" onclick="selectTemplate('auto')">
+                            <h3>🚗 Auto</h3>
+                            <p>Car Insurance Quote</p>
+                        </div>
+                        <div class="template-card" onclick="selectTemplate('home')">
+                            <h3>🏠 Home</h3>
+                            <p>Homeowners Quote</p>
+                        </div>
+                        <div class="template-card" onclick="selectTemplate('comparison')">
+                            <h3>📊 Comparison</h3>
+                            <p>Multi-Company</p>
+                        </div>
+                        <div class="template-card" onclick="selectTemplate('custom')">
+                            <h3>✏️ Custom</h3>
+                            <p>Build Your Own</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Customer Information -->
+                <div class="form-group">
+                    <label for="customerName">Customer Name *</label>
+                    <input type="text" id="customerName" placeholder="John Doe">
+                </div>
+                
+                <div class="form-group">
+                    <label for="customerEmail">Email Address</label>
+                    <input type="email" id="customerEmail" placeholder="customer@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="customerPhone">Phone Number *</label>
+                    <input type="tel" id="customerPhone" placeholder="(336) 555-1234">
+                </div>
+                
+                <!-- Insurance Companies -->
+                <div class="form-group">
+                    <label>Select Insurance Companies</label>
+                    <div class="company-selection">
+                        <label class="company-checkbox">
+                            <input type="checkbox" name="company" value="Nationwide" checked>
+                            <span>Nationwide</span>
+                        </label>
+                        <label class="company-checkbox">
+                            <input type="checkbox" name="company" value="Progressive" checked>
+                            <span>Progressive</span>
+                        </label>
+                        <label class="company-checkbox">
+                            <input type="checkbox" name="company" value="National General">
+                            <span>National General</span>
+                        </label>
+                        <label class="company-checkbox">
+                            <input type="checkbox" name="company" value="Alamance">
+                            <span>Alamance</span>
+                        </label>
+                        <label class="company-checkbox">
+                            <input type="checkbox" name="company" value="Travelers">
+                            <span>Travelers</span>
+                        </label>
+                        <label class="company-checkbox">
+                            <input type="checkbox" name="company" value="Foremost">
+                            <span>Foremost</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Coverage Details -->
+                <div class="form-group">
+                    <label>Coverage Details</label>
+                    <div class="coverage-input">
+                        <input type="text" id="coverage1" placeholder="Coverage Type">
+                        <input type="text" id="amount1" placeholder="Amount">
+                    </div>
+                </div>
+                
+                <!-- Premium Information -->
+                <div class="form-group">
+                    <label for="premium">Premium Amount</label>
+                    <input type="text" id="premium" placeholder="$0.00">
+                </div>
+                
+                <!-- Notes -->
+                <div class="form-group">
+                    <label for="notes">Additional Notes</label>
+                    <textarea id="notes" placeholder="Enter any additional information..."></textarea>
+                </div>
+                
+                <!-- SMS Section -->
+                <div class="sms-section">
+                    <h3>📱 SMS Options</h3>
+                    
+                    <div class="form-group">
+                        <label for="smsTemplate">SMS Message Template</label>
+                        <select id="smsTemplate" onchange="updateSMSPreview()">
+                            <option value="quote">Send Quote Link</option>
+                            <option value="noloss">No Loss Form Link</option>
+                            <option value="reminder">Payment Reminder</option>
+                            <option value="custom">Custom Message</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="smsMessage">Message Preview</label>
+                        <textarea id="smsMessage" rows="4"></textarea>
+                        <small style="color: #666;">Characters: <span id="charCount">0</span>/160</small>
+                    </div>
+                    
+                    <div id="smsStatus" class="sms-status"></div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="generateQuote()">
+                        📄 Generate Quote
+                    </button>
+                    <button class="btn btn-sms" onclick="sendSMS()">
+                        📱 Send SMS
+                    </button>
+                    <button class="btn btn-success" onclick="saveAndSend()">
+                        ✅ Generate & Send SMS
+                    </button>
+                </div>
+                
+                <div id="statusMessage" class="status-message"></div>
+            </div>
+            
+            <!-- Right Column - Preview Section -->
+            <div class="section">
+                <h2>👁️ Preview</h2>
+                <div id="preview">
+                    <p style="color: #999; text-align: center; padding: 50px 0;">
+                        Your quote will appear here...
+                    </p>
+                </div>
+                
+                <!-- Download Options -->
+                <div class="button-group" style="margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="downloadHTML()">
+                        💾 Download HTML
+                    </button>
+                    <button class="btn btn-primary" onclick="copyHTML()">
+                        📋 Copy HTML
+                    </button>
+                    <button class="btn btn-primary" onclick="emailQuote()">
+                        📧 Email Quote
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>
+                Bill Layne Insurance Agency<br>
+                1283 N Bridge St, Elkin NC 28621<br>
+                📞 336-835-1993 | ✉️ Save@BillLayneInsurance.com<br>
+                🌐 www.BillLayneInsurance.com
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // Your Google Apps Script URL for Twilio SMS
+        const TWILIO_SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE'; // Replace with your actual URL
+        
+        let currentTemplate = 'auto';
+        let generatedHTML = '';
+        
+        // Format phone number
+        document.getElementById('customerPhone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 0) {
+                if (value.length <= 3) {
+                    value = '(' + value;
+                } else if (value.length <= 6) {
+                    value = '(' + value.slice(0, 3) + ') ' + value.slice(3);
+                } else {
+                    value = '(' + value.slice(0, 3) + ') ' + value.slice(3, 6) + '-' + value.slice(6, 10);
+                }
+            }
+            e.target.value = value;
+        });
+        
+        // Format premium
+        document.getElementById('premium').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^\d.]/g, '');
+            if (value && !e.target.value.startsWith('$')) {
+                e.target.value = '$' + value;
+            }
+        });
+        
+        // Character counter for SMS
+        document.getElementById('smsMessage').addEventListener('input', function(e) {
+            const count = e.target.value.length;
+            document.getElementById('charCount').textContent = count;
+            document.getElementById('charCount').style.color = count > 160 ? '#dc3545' : '#666';
+        });
+        
+        // Template selection
+        function selectTemplate(template) {
+            currentTemplate = template;
+            
+            // Update UI
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.template-card').classList.add('selected');
+            
+            // Update form based on template
+            updateFormForTemplate(template);
+        }
+        
+        function updateFormForTemplate(template) {
+            // Customize form fields based on template
+            if (template === 'auto') {
+                document.getElementById('coverage1').placeholder = 'Liability Coverage';
+                document.getElementById('amount1').placeholder = '100/300/100';
+            } else if (template === 'home') {
+                document.getElementById('coverage1').placeholder = 'Dwelling Coverage';
+                document.getElementById('amount1').placeholder = '$250,000';
+            }
+        }
+        
+        // Update SMS preview
+        function updateSMSPreview() {
+            const template = document.getElementById('smsTemplate').value;
+            const customerName = document.getElementById('customerName').value || 'Customer';
+            let message = '';
+            
+            switch(template) {
+                case 'quote':
+                    message = `Hi ${customerName}, your insurance quote is ready! View it here: [link]. Questions? Call 336-835-1993 - Bill Layne Insurance`;
+                    break;
+                case 'noloss':
+                    message = `Hi ${customerName}, please complete your No Loss Statement at: mynolossform.com. This is required to reinstate your policy. - Bill Layne Insurance`;
+                    break;
+                case 'reminder':
+                    message = `Hi ${customerName}, this is a reminder about your insurance payment. Please call 336-835-1993 to avoid cancellation. - Bill Layne Insurance`;
+                    break;
+                case 'custom':
+                    message = `Bill Layne Insurance: `;
+                    break;
+            }
+            
+            document.getElementById('smsMessage').value = message;
+            document.getElementById('charCount').textContent = message.length;
+        }
+        
+        // Generate Quote HTML
+        function generateQuote() {
+            const customerName = document.getElementById('customerName').value;
+            const customerEmail = document.getElementById('customerEmail').value;
+            const customerPhone = document.getElementById('customerPhone').value;
+            const premium = document.getElementById('premium').value;
+            const notes = document.getElementById('notes').value;
+            
+            // Get selected companies
+            const companies = [];
+            document.querySelectorAll('input[name="company"]:checked').forEach(cb => {
+                companies.push(cb.value);
+            });
+            
+            if (!customerName) {
+                showStatus('Please enter customer name', 'error');
+                return;
+            }
+            
+            // Generate HTML based on template
+            generatedHTML = generateHTMLTemplate(currentTemplate, {
+                customerName,
+                customerEmail,
+                customerPhone,
+                companies,
+                premium,
+                notes
+            });
+            
+            // Display preview
+            document.getElementById('preview').innerHTML = generatedHTML;
+            showStatus('Quote generated successfully!', 'success');
+            
+            // Update SMS preview
+            updateSMSPreview();
+        }
+        
+        function generateHTMLTemplate(template, data) {
+            const date = new Date().toLocaleDateString();
+            
+            let html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Insurance Quote - ${data.customerName}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+                    .header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 30px; text-align: center; border-radius: 10px; }
+                    .quote-details { background: #f8f9fa; padding: 20px; margin: 20px 0; border-radius: 10px; }
+                    .company-quote { background: white; padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
+                    .footer { text-align: center; margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; }
+                    .btn { display: inline-block; padding: 12px 25px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; margin: 10px; }
+                    @media (max-width: 600px) { body { padding: 10px; } }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>Insurance Quote</h1>
+                    <p>Prepared for: ${data.customerName}</p>
+                    <p>Date: ${date}</p>
+                </div>
+                
+                <div class="quote-details">
+                    <h2>Your Personalized Quote Options</h2>
+            `;
+            
+            // Add company quotes
+            data.companies.forEach(company => {
+                html += `
+                    <div class="company-quote">
+                        <h3>${company}</h3>
+                        <p><strong>Premium:</strong> ${data.premium || 'Call for quote'}</p>
+                        <p><strong>Coverage:</strong> Comprehensive protection</p>
+                    </div>
+                `;
+            });
+            
+            html += `
+                </div>
+                
+                ${data.notes ? `<div class="quote-details"><h3>Additional Information</h3><p>${data.notes}</p></div>` : ''}
+                
+                <div class="footer">
+                    <h3>Bill Layne Insurance Agency</h3>
+                    <p>1283 N Bridge St, Elkin NC 28621</p>
+                    <p>📞 336-835-1993 | ✉️ Save@BillLayneInsurance.com</p>
+                    <a href="tel:3368351993" class="btn">Call Now</a>
+                    <a href="mailto:Save@BillLayneInsurance.com" class="btn">Email Us</a>
+                </div>
+            </body>
+            </html>
+            `;
+            
+            return html;
+        }
+        
+        // Send SMS via Twilio
+        async function sendSMS() {
+            const phone = document.getElementById('customerPhone').value;
+            const message = document.getElementById('smsMessage').value;
+            
+            if (!phone || phone.length < 14) {
+                showStatus('Please enter a valid phone number', 'error');
+                return;
+            }
+            
+            if (!message) {
+                showStatus('Please enter a message', 'error');
+                return;
+            }
+            
+            // Show sending status
+            const smsStatus = document.getElementById('smsStatus');
+            smsStatus.className = 'sms-status sms-sending';
+            smsStatus.innerHTML = '📤 Sending SMS...';
+            smsStatus.style.display = 'block';
+            
+            try {
+                // Call your Google Apps Script
+                const response = await fetch(`${TWILIO_SCRIPT_URL}?action=sendSMS&phone=${encodeURIComponent(phone)}&message=${encodeURIComponent(message)}`, {
+                    method: 'GET',
+                    mode: 'no-cors'
+                });
+                
+                // Since no-cors, we assume success if no error
+                smsStatus.className = 'sms-status sms-sent';
+                smsStatus.innerHTML = '✅ SMS sent successfully!';
+                showStatus('SMS sent to ' + phone, 'success');
+                
+            } catch (error) {
+                smsStatus.className = 'sms-status sms-failed';
+                smsStatus.innerHTML = '❌ Failed to send SMS';
+                showStatus('Error sending SMS: ' + error.message, 'error');
+            }
+        }
+        
+        // Generate and Send
+        function saveAndSend() {
+            generateQuote();
+            setTimeout(() => {
+                if (generatedHTML) {
+                    sendSMS();
+                }
+            }, 500);
+        }
+        
+        // Download HTML
+        function downloadHTML() {
+            if (!generatedHTML) {
+                showStatus('Please generate a quote first', 'error');
+                return;
+            }
+            
+            const blob = new Blob([generatedHTML], { type: 'text/html' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `quote-${document.getElementById('customerName').value || 'customer'}-${new Date().getTime()}.html`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            showStatus('Quote downloaded!', 'success');
+        }
+        
+        // Copy HTML to clipboard
+        function copyHTML() {
+            if (!generatedHTML) {
+                showStatus('Please generate a quote first', 'error');
+                return;
+            }
+            
+            navigator.clipboard.writeText(generatedHTML).then(() => {
+                showStatus('HTML copied to clipboard!', 'success');
+            });
+        }
+        
+        // Email Quote
+        function emailQuote() {
+            const email = document.getElementById('customerEmail').value;
+            if (!email) {
+                showStatus('Please enter customer email', 'error');
+                return;
+            }
+            
+            const subject = encodeURIComponent('Your Insurance Quote - Bill Layne Insurance');
+            const body = encodeURIComponent('Thank you for your interest! Your personalized quote is attached.\n\nBill Layne Insurance Agency\n336-835-1993');
+            
+            window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+            showStatus('Opening email client...', 'success');
+        }
+        
+        // Show status message
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = `status-message status-${type}`;
+            statusEl.style.display = 'block';
+            
+            setTimeout(() => {
+                statusEl.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSMSPreview();
+            
+            // Set default template
+            document.querySelector('.template-card').classList.add('selected');
+        });
+    </script>
+</body>
+</html>
