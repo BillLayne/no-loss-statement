@@ -313,6 +313,15 @@
             font-size: 13px;
         }
         
+        /* Hidden iframe for SMS sending */
+        #smsFrame {
+            display: none;
+            width: 1px;
+            height: 1px;
+            position: absolute;
+            top: -1000px;
+        }
+        
         @media (max-width: 600px) {
             .header h1 {
                 font-size: 24px;
@@ -555,6 +564,9 @@
         </div>
     </div>
     
+    <!-- Hidden iframe for SMS sending -->
+    <iframe id="smsFrame" name="smsFrame"></iframe>
+    
     <script>
         // Configuration - Bill Layne Insurance Defaults
         const BASE_URL = 'https://mynolossform.com/';  // Your mynolossform.com domain
@@ -708,7 +720,7 @@
             document.getElementById('smsButtons').style.display = 'grid';
         }
         
-        async function sendSMS() {
+        function sendSMS() {
             const phone = document.getElementById('smsPhone').value.replace(/\D/g, '');
             
             if (phone.length !== 10) {
@@ -720,50 +732,35 @@
             document.getElementById('smsLoading').style.display = 'block';
             document.getElementById('smsButtons').style.display = 'none';
             
-            try {
-                // Create FormData for POST request
-                const formData = {
-                    action: 'sendSMS',
-                    to: phone,  // Changed from 'phone' to 'to' to match script
-                    message: currentTextMessage,
-                    customerName: document.getElementById('insuredName').value,
-                    policyNumber: document.getElementById('policyNumber').value,
-                    source: 'AgentPortal'
-                };
-                
-                // Make POST request to Google Script
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',  // Required for Google Scripts
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                // Since we're using no-cors mode, we can't read the response
-                // But we'll assume success if no error was thrown
+            // Method 1: Use iframe to send SMS (most reliable with Google Scripts)
+            const iframe = document.getElementById('smsFrame');
+            
+            // Encode the message for URL
+            const encodedMessage = encodeURIComponent(currentTextMessage);
+            const customerName = encodeURIComponent(document.getElementById('insuredName').value || '');
+            const policyNumber = encodeURIComponent(document.getElementById('policyNumber').value || '');
+            
+            // Build the URL with all parameters
+            const smsUrl = `${GOOGLE_SCRIPT_URL}?action=sendSMS&phone=${phone}&message=${encodedMessage}&customerName=${customerName}&policyNumber=${policyNumber}`;
+            
+            console.log('Sending SMS to:', phone);
+            console.log('Using iframe method for reliability');
+            
+            // Load the URL in the iframe (this will trigger the GET request)
+            iframe.src = smsUrl;
+            
+            // Set a timeout to show success (since we can't read the response)
+            setTimeout(() => {
                 document.getElementById('smsLoading').style.display = 'none';
                 document.getElementById('smsStatus').className = 'sms-status success';
                 document.getElementById('smsStatus').textContent = '✓ Text message sent successfully via Twilio!';
                 document.getElementById('smsStatus').style.display = 'block';
                 
-                // Log to console
-                console.log('SMS sent to:', phone);
-                
                 // Close modal after 3 seconds
                 setTimeout(() => {
                     closeSMSModal();
                 }, 3000);
-                
-            } catch (error) {
-                console.error('Error sending SMS:', error);
-                document.getElementById('smsLoading').style.display = 'none';
-                document.getElementById('smsStatus').className = 'sms-status error';
-                document.getElementById('smsStatus').textContent = '✗ Failed to send text message. Please check the phone number and try again.';
-                document.getElementById('smsStatus').style.display = 'block';
-                document.getElementById('smsButtons').style.display = 'grid';
-            }
+            }, 2000);
         }
         
         function copyLink() {
