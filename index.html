@@ -246,21 +246,32 @@
             transform: none;
         }
         
-        .loading {
+        .loading-modal-overlay {
             display: none;
-            text-align: center;
-            padding: 20px;
-            margin: 20px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
         }
         
-        .loading-box {
+        .loading-modal-overlay.show {
+            display: flex;
+        }
+        
+        .loading-modal {
             background: white;
-            border: 2px solid #1e3c72;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            padding: 40px 30px;
             max-width: 400px;
-            margin: 0 auto;
+            width: 90%;
+            text-align: center;
+            animation: slideUp 0.4s ease-out;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
         
         .spinner {
@@ -662,20 +673,6 @@
             
             <div class="error-message" id="errorMessage"></div>
             
-            <div class="loading" id="loading">
-                <div class="loading-box">
-                    <div class="spinner"></div>
-                    <h3 style="color: #1e3c72; margin: 20px 0 10px 0;">Submitting Your Statement</h3>
-                    <p style="font-size: 16px; color: #333; margin-bottom: 10px;">Please wait while we process your form...</p>
-                    <p class="warning-pulse" style="color: #dc3545; font-weight: 600; font-size: 14px;">
-                        ⚠️ Please keep this window open until you see the confirmation
-                    </p>
-                    <p style="color: #666; font-size: 13px; margin-top: 10px;">
-                        This usually takes 5-10 seconds
-                    </p>
-                </div>
-            </div>
-            
             <button type="submit" class="btn btn-submit" id="submitBtn">
                 Submit Statement of No Loss
             </button>
@@ -720,6 +717,21 @@
                 ✓ Securely stored and transmitted
             </p>
             <button class="btn btn-submit" onclick="closeSuccessModal()">OK</button>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div class="loading-modal-overlay" id="loadingOverlay">
+        <div class="loading-modal">
+            <div class="spinner"></div>
+            <h3 style="color: #1e3c72; margin: 20px 0 10px 0;">Submitting Your Statement</h3>
+            <p style="font-size: 16px; color: #333; margin-bottom: 10px;">Please wait while we process your form...</p>
+            <p class="warning-pulse" style="color: #dc3545; font-weight: 600; font-size: 14px;">
+                ⚠️ Please keep this window open until you see the confirmation
+            </p>
+            <p style="color: #666; font-size: 13px; margin-top: 10px;">
+                This usually takes 5-10 seconds
+            </p>
         </div>
     </div>
 
@@ -915,8 +927,8 @@
             // Get signature data
             document.getElementById('signature').value = signaturePad.toDataURL();
             
-            // Show loading
-            document.getElementById('loading').style.display = 'block';
+            // Show loading modal
+            document.getElementById('loadingOverlay').classList.add('show');
             document.getElementById('submitBtn').disabled = true;
             document.getElementById('errorMessage').style.display = 'none';
             
@@ -1003,7 +1015,7 @@
                 document.getElementById('errorMessage').textContent = 'Failed to submit form. Please try again or contact support at 336-835-1993.';
                 document.getElementById('errorMessage').style.display = 'block';
             } finally {
-                document.getElementById('loading').style.display = 'none';
+                document.getElementById('loadingOverlay').classList.remove('show');
                 document.getElementById('submitBtn').disabled = false;
             }
         });
