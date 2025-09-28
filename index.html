@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Statement of No Loss - Bill Layne Insurance</title>
     
     <style>
@@ -15,6 +15,7 @@
         :root {
             --primary-color: #1e3c72;
             --secondary-color: #667eea;
+            --safe-area-inset-bottom: env(safe-area-inset-bottom, 0);
         }
         
         body {
@@ -22,6 +23,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px 10px;
+            padding-bottom: calc(20px + var(--safe-area-inset-bottom));
         }
         
         .container {
@@ -31,6 +33,7 @@
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
+            margin-bottom: 80px; /* Space for sticky button on mobile */
         }
         
         .header {
@@ -39,12 +42,6 @@
             padding: 30px 20px;
             text-align: center;
             position: relative;
-        }
-        
-        .agency-logo {
-            max-width: 200px;
-            max-height: 80px;
-            margin-bottom: 15px;
         }
         
         .header h1 {
@@ -70,8 +67,25 @@
             opacity: 0.95;
         }
         
+        /* Progress indicator for mobile */
+        .progress-bar {
+            display: none;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            position: relative;
+            margin-top: 20px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: white;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
         .form-container {
             padding: 30px 20px;
+            padding-bottom: 100px; /* Extra space for mobile sticky button */
         }
         
         .section-title {
@@ -84,22 +98,22 @@
         }
         
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
         
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
         
         label {
             display: block;
             font-weight: 600;
             color: #333;
-            margin-bottom: 8px;
-            font-size: 14px;
+            margin-bottom: 10px;
+            font-size: 15px;
         }
         
         .required {
@@ -109,19 +123,37 @@
         
         input, select, textarea {
             width: 100%;
-            padding: 12px 15px;
+            padding: 16px;
+            min-height: 52px;
             border: 2px solid #e1e8ed;
-            border-radius: 10px;
-            font-size: 16px;
+            border-radius: 12px;
+            font-size: 16px; /* Prevents zoom on iOS */
             transition: all 0.3s;
             background: #f8f9fa;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        select {
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
         }
         
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--primary-color);
             background: white;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+            box-shadow: 0 0 0 4px rgba(102,126,234,0.1);
+        }
+        
+        /* Numeric input improvements */
+        input[type="tel"],
+        input[type="number"],
+        input[pattern="[0-9]*"],
+        input[inputmode="numeric"] {
+            font-variant-numeric: tabular-nums;
         }
         
         .statement-box {
@@ -154,12 +186,14 @@
             text-align: justify;
         }
         
+        /* Enhanced checkbox styling for mobile */
         .checkbox-container {
             background: #f9f9f9;
             padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
+            border-radius: 12px;
+            margin: 24px 0;
             border: 2px solid #e0e0e0;
+            position: relative;
         }
         
         .checkbox-container.consent-highlight {
@@ -178,20 +212,35 @@
             cursor: pointer;
             font-weight: 500;
             color: #333;
+            padding-left: 36px;
+            min-height: 44px; /* Larger tap target */
+            position: relative;
         }
         
         .checkbox-container input[type="checkbox"] {
-            width: auto;
-            min-width: 20px;
-            margin-right: 12px;
-            margin-top: 3px;
-            transform: scale(1.3);
+            position: absolute;
+            left: 0;
+            top: 2px;
+            width: 24px;
+            height: 24px;
             cursor: pointer;
+            margin: 0;
         }
         
+        /* Larger checkbox visual */
+        .checkbox-container input[type="checkbox"]::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: 44px;
+            height: 44px;
+        }
+        
+        /* Enhanced signature canvas for mobile */
         #signature-pad {
             border: 2px dashed #ddd;
-            border-radius: 10px;
+            border-radius: 12px;
             display: block;
             width: 100%;
             height: 200px;
@@ -200,20 +249,35 @@
             touch-action: none;
         }
         
+        .signature-label {
+            background: #f0f4ff;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--primary-color);
+        }
+        
         .signature-buttons {
             display: flex;
             gap: 10px;
-            margin-top: 10px;
+            margin-top: 12px;
         }
         
         .btn {
-            padding: 12px 25px;
+            padding: 16px 24px;
+            min-height: 48px;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
         }
         
         .btn-clear {
@@ -222,8 +286,9 @@
             flex: 1;
         }
         
-        .btn-clear:hover {
+        .btn-clear:hover, .btn-clear:active {
             background: #da190b;
+            transform: scale(0.98);
         }
         
         .btn-submit {
@@ -232,10 +297,11 @@
             width: 100%;
             margin-top: 20px;
             font-size: 18px;
-            padding: 15px;
+            padding: 18px;
+            min-height: 56px;
         }
         
-        .btn-submit:hover {
+        .btn-submit:hover, .btn-submit:active {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
         }
@@ -244,6 +310,34 @@
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
+        }
+        
+        /* Mobile sticky submit button */
+        .mobile-submit-container {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 16px;
+            padding-bottom: calc(16px + var(--safe-area-inset-bottom));
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            z-index: 998;
+        }
+        
+        .mobile-submit-container .btn-submit {
+            margin: 0;
+            width: 100%;
+        }
+        
+        .mobile-progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #666;
         }
         
         .loading-modal-overlay {
@@ -360,8 +454,8 @@
         
         .confirmation-number {
             background: #f0f4ff;
-            padding: 10px 15px;
-            border-radius: 8px;
+            padding: 12px 16px;
+            border-radius: 12px;
             margin-bottom: 25px;
             font-family: monospace;
             font-size: 16px;
@@ -392,6 +486,8 @@
             color: var(--primary-color);
             text-decoration: none;
             margin: 0 10px;
+            display: inline-block;
+            padding: 8px 0;
         }
         
         .footer-links a:hover {
@@ -409,27 +505,142 @@
         .error-message {
             background: #fee;
             color: #c00;
-            padding: 15px;
-            border-radius: 8px;
+            padding: 16px;
+            border-radius: 12px;
             margin: 20px 0;
             display: none;
+            font-size: 15px;
         }
         
         .esign-disclosure {
             background: #e3f2fd;
             border: 1px solid #1976d2;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 20px 0;
-            font-size: 13px;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 24px 0;
+            font-size: 14px;
             color: #0d47a1;
         }
         
-        @media (max-width: 600px) {
-            .header h1 { font-size: 20px; }
-            .header h2 { font-size: 16px; }
-            .form-container { padding: 20px 15px; }
-            .form-row { grid-template-columns: 1fr; }
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+                background: white;
+            }
+            
+            .container {
+                border-radius: 0;
+                box-shadow: none;
+                margin-bottom: 100px;
+            }
+            
+            .header {
+                border-radius: 0;
+                padding: 20px 16px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .header h2 {
+                font-size: 16px;
+            }
+            
+            .progress-bar {
+                display: block;
+            }
+            
+            .form-container {
+                padding: 20px 16px;
+                padding-bottom: 120px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+            
+            .form-row .form-group {
+                margin-bottom: 24px;
+            }
+            
+            /* Larger signature canvas on mobile */
+            #signature-pad {
+                height: 250px;
+            }
+            
+            /* Full width clear button on mobile */
+            .signature-buttons {
+                flex-direction: column;
+            }
+            
+            .btn-clear {
+                width: 100%;
+            }
+            
+            /* Hide desktop submit, show mobile sticky */
+            .form-container .btn-submit {
+                display: none;
+            }
+            
+            .mobile-submit-container {
+                display: block;
+            }
+            
+            /* Adjust checkbox spacing */
+            .checkbox-container {
+                padding: 16px;
+            }
+            
+            .checkbox-container label {
+                font-size: 14px;
+            }
+            
+            /* Modal adjustments */
+            .success-modal,
+            .loading-modal {
+                width: 95%;
+                margin: 10px;
+            }
+        }
+        
+        /* Tablet adjustments */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .container {
+                margin: 20px auto;
+            }
+            
+            #signature-pad {
+                height: 220px;
+            }
+        }
+        
+        /* Accessibility improvements */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            input, select, textarea {
+                border-width: 3px;
+            }
+            
+            .btn {
+                border: 2px solid currentColor;
+            }
+        }
+        
+        /* Focus visible for keyboard navigation */
+        *:focus-visible {
+            outline: 3px solid var(--secondary-color);
+            outline-offset: 2px;
         }
     </style>
 </head>
@@ -442,6 +653,9 @@
             <div class="agency-contact">
                 1283 N Bridge St, Elkin NC 28621<br>
                 336-835-1993 | Save@BillLayneInsurance.com
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
             </div>
         </div>
         
@@ -480,7 +694,7 @@
                 
                 <div class="form-group">
                     <label for="policyNumber">Policy Number<span class="required">*</span></label>
-                    <input type="text" id="policyNumber" name="policyNumber" required>
+                    <input type="text" id="policyNumber" name="policyNumber" required autocomplete="off">
                 </div>
             </div>
             
@@ -503,7 +717,7 @@
                 
                 <div class="form-group">
                     <label for="amountPaid">Total Amount Required to Reinstate</label>
-                    <input type="text" id="amountPaid" name="amountPaid" placeholder="$0.00">
+                    <input type="text" id="amountPaid" name="amountPaid" placeholder="$0.00" inputmode="decimal">
                     <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
                         * Fees included in Total Amount Required to Reinstate
                     </small>
@@ -527,35 +741,37 @@
             
             <div class="form-group">
                 <label for="insuredName">Insured Name (Full Name)<span class="required">*</span></label>
-                <input type="text" id="insuredName" name="insuredName" required>
+                <input type="text" id="insuredName" name="insuredName" required autocomplete="name">
             </div>
             
             <div class="form-row">
                 <div class="form-group">
                     <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email">
+                    <input type="email" id="email" name="email" autocomplete="email">
                 </div>
                 
                 <div class="form-group">
                     <label for="phone">Phone Number<span class="required">*</span></label>
-                    <input type="tel" id="phone" name="phone" required placeholder="(336) 555-1234">
+                    <input type="tel" id="phone" name="phone" required placeholder="(336) 555-1234" 
+                           inputmode="tel" pattern="[0-9\s\-\(\)]*" autocomplete="tel">
                 </div>
             </div>
             
             <div class="form-group">
                 <label for="propertyAddress">Property/Garaging Address<span class="required">*</span></label>
-                <input type="text" id="propertyAddress" name="propertyAddress" placeholder="123 Main Street" required>
+                <input type="text" id="propertyAddress" name="propertyAddress" placeholder="123 Main Street" required 
+                       autocomplete="street-address">
             </div>
             
             <div class="form-row">
                 <div class="form-group">
                     <label for="city">City<span class="required">*</span></label>
-                    <input type="text" id="city" name="city" required>
+                    <input type="text" id="city" name="city" required autocomplete="address-level2">
                 </div>
                 
                 <div class="form-group">
                     <label for="state">State<span class="required">*</span></label>
-                    <select id="state" name="state" required>
+                    <select id="state" name="state" required autocomplete="address-level1">
                         <option value="">Select State</option>
                         <option value="NC">North Carolina</option>
                         <option value="SC">South Carolina</option>
@@ -578,7 +794,8 @@
             
             <div class="form-group">
                 <label for="zipCode">ZIP Code<span class="required">*</span></label>
-                <input type="text" id="zipCode" name="zipCode" maxlength="5" pattern="[0-9]{5}" required>
+                <input type="text" id="zipCode" name="zipCode" maxlength="5" pattern="[0-9]{5}" required 
+                       inputmode="numeric" autocomplete="postal-code">
             </div>
             
             <!-- Statement of No Loss -->
@@ -636,7 +853,7 @@
                 </label>
             </div>
             
-            <!-- NEW: SMS Consent Checkbox -->
+            <!-- SMS Consent Checkbox -->
             <div class="checkbox-container consent-highlight">
                 <label>
                     <input type="checkbox" id="smsConsent" name="smsConsent">
@@ -644,7 +861,7 @@
                 </label>
             </div>
             
-            <!-- NEW: E-SIGN Act Disclosure and Consent -->
+            <!-- E-SIGN Act Disclosure and Consent -->
             <div class="esign-disclosure">
                 <h4 style="margin-bottom: 10px;">Electronic Signature Disclosure</h4>
                 <p>By providing your electronic signature below, you are signing this Statement of No Loss electronically. You agree your electronic signature is the legal equivalent of your manual signature on this document. You consent to be legally bound by this document's terms and conditions.</p>
@@ -662,7 +879,9 @@
             <h3 class="section-title">Electronic Signature</h3>
             
             <div class="form-group">
-                <label>Please sign below using your mouse or finger<span class="required">*</span></label>
+                <div class="signature-label">
+                    ✍️ Sign below using your finger or mouse
+                </div>
                 <canvas id="signature-pad"></canvas>
                 <div class="signature-buttons">
                     <button type="button" class="btn btn-clear" onclick="clearSignature()">Clear Signature</button>
@@ -677,6 +896,17 @@
                 Submit Statement of No Loss
             </button>
         </form>
+        
+        <!-- Mobile sticky submit button -->
+        <div class="mobile-submit-container">
+            <div class="mobile-progress">
+                <span>Ready to Submit</span>
+                <span id="formProgress">90% Complete</span>
+            </div>
+            <button type="button" class="btn btn-submit" onclick="document.getElementById('noLossForm').dispatchEvent(new Event('submit'))">
+                Submit Statement of No Loss
+            </button>
+        </div>
         
         <div class="footer">
             <img src="https://i.imgur.com/cBAgeX8.png" alt="Bill Layne Insurance" class="footer-logo">
@@ -741,6 +971,42 @@
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxD6j-pGmC13_X5GTUfIpJPg-HJXIMnzcaUmvo7rEBwd97Cx6alEabi30YJp5S6fqUyEg/exec';
         
         let signaturePad;
+        
+        // Update progress bar as form is filled
+        function updateProgress() {
+            const requiredFields = document.querySelectorAll('[required]');
+            let filledFields = 0;
+            
+            requiredFields.forEach(field => {
+                if (field.type === 'checkbox' ? field.checked : field.value) {
+                    filledFields++;
+                }
+            });
+            
+            const progress = Math.round((filledFields / requiredFields.length) * 100);
+            
+            // Update progress bar
+            const progressBar = document.getElementById('progressBar');
+            if (progressBar) {
+                progressBar.style.width = progress + '%';
+            }
+            
+            // Update mobile progress text
+            const formProgress = document.getElementById('formProgress');
+            if (formProgress) {
+                formProgress.textContent = progress + '% Complete';
+            }
+        }
+        
+        // Add progress tracking to all required fields
+        document.addEventListener('DOMContentLoaded', function() {
+            const requiredFields = document.querySelectorAll('[required]');
+            requiredFields.forEach(field => {
+                field.addEventListener('input', updateProgress);
+                field.addEventListener('change', updateProgress);
+            });
+            updateProgress();
+        });
         
         // Get Device Info
         function getDeviceInfo() {
@@ -861,6 +1127,9 @@
             
             // Pre-fetch IP address
             window.userIPAddress = await getIPAddress();
+            
+            // Update initial progress
+            updateProgress();
         });
         
         // Update customer name in the legal text
@@ -876,8 +1145,16 @@
             const canvas = document.getElementById('signature-pad');
             signaturePad = new SignaturePad(canvas, {
                 backgroundColor: 'rgb(255, 255, 255)',
-                penColor: 'rgb(0, 0, 0)'
+                penColor: 'rgb(0, 0, 0)',
+                minWidth: 1,
+                maxWidth: 3,
+                throttle: 16,
+                minDistance: 2
             });
+            
+            // Add event listener to update progress when signature is added
+            canvas.addEventListener('mouseup', updateProgress);
+            canvas.addEventListener('touchend', updateProgress);
             
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
@@ -896,6 +1173,7 @@
         
         function clearSignature() {
             signaturePad.clear();
+            updateProgress();
         }
         
         function closeSuccessModal() {
@@ -961,7 +1239,7 @@
             data.signatureDateTime = new Date().toLocaleString();
             data.signatureTime = new Date().toLocaleTimeString();
             data.userAgent = navigator.userAgent;
-            data.formVersion = 'v6.0-Secure';
+            data.formVersion = 'v6.0-Mobile-Optimized';
             data.submissionMethod = 'Online Portal - MyNoLossForm';
             data.ipAddress = window.userIPAddress || 'Unable to capture';
             
@@ -1009,6 +1287,7 @@
                 this.reset();
                 signaturePad.clear();
                 updateCustomerNameDisplay();
+                updateProgress();
                 
             } catch (error) {
                 console.error('Error:', error);
