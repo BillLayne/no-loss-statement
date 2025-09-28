@@ -162,6 +162,16 @@
             border: 2px solid #e0e0e0;
         }
         
+        .checkbox-container.consent-highlight {
+            background: #fffef5;
+            border-color: #ffc107;
+        }
+        
+        .checkbox-container.esign-highlight {
+            background: #f0f4ff;
+            border-color: var(--secondary-color);
+        }
+        
         .checkbox-container label {
             display: flex;
             align-items: flex-start;
@@ -360,6 +370,23 @@
             margin-bottom: 10px;
         }
         
+        .footer-links {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+            font-size: 13px;
+        }
+        
+        .footer-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
         .powered-by {
             margin-top: 15px;
             padding-top: 15px;
@@ -375,6 +402,16 @@
             border-radius: 8px;
             margin: 20px 0;
             display: none;
+        }
+        
+        .esign-disclosure {
+            background: #e3f2fd;
+            border: 1px solid #1976d2;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 13px;
+            color: #0d47a1;
         }
         
         @media (max-width: 600px) {
@@ -588,6 +625,28 @@
                 </label>
             </div>
             
+            <!-- NEW: SMS Consent Checkbox -->
+            <div class="checkbox-container consent-highlight">
+                <label>
+                    <input type="checkbox" id="smsConsent" name="smsConsent">
+                    <span><strong>SMS Notification Consent:</strong> I agree to receive one SMS confirmation message about this Statement of No Loss at the phone number provided. Message and data rates may apply. Reply STOP to opt out. Reply HELP for assistance.</span>
+                </label>
+            </div>
+            
+            <!-- NEW: E-SIGN Act Disclosure and Consent -->
+            <div class="esign-disclosure">
+                <h4 style="margin-bottom: 10px;">Electronic Signature Disclosure</h4>
+                <p>By providing your electronic signature below, you are signing this Statement of No Loss electronically. You agree your electronic signature is the legal equivalent of your manual signature on this document. You consent to be legally bound by this document's terms and conditions.</p>
+                <p style="margin-top: 10px;">This document will be stored electronically and you will receive a copy via email (if provided) for your records. The document is created and stored in compliance with the federal Electronic Signatures in Global and National Commerce Act (E-SIGN Act) and the Uniform Electronic Transactions Act (UETA).</p>
+            </div>
+            
+            <div class="checkbox-container esign-highlight">
+                <label>
+                    <input type="checkbox" id="esignConsent" name="esignConsent" required>
+                    <span><strong>Electronic Signature Consent:</strong> I consent to sign this document electronically and agree that my electronic signature is legally binding. I understand I have the right to receive a paper copy of this document and waive that right by choosing to sign electronically.</span>
+                </label>
+            </div>
+            
             <!-- Electronic Signature -->
             <h3 class="section-title">Electronic Signature</h3>
             
@@ -629,8 +688,14 @@
                 1283 N Bridge St, Elkin NC 28621<br>
                 336-835-1993 | Save@BillLayneInsurance.com
             </div>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">SMS Terms</a>
+            </div>
             <div class="powered-by">
-                Powered by MyNoLossForm.com
+                By submitting this form, you consent to electronic records per the E-SIGN Act and UETA.<br>
+                Powered by MyNoLossForm.com | © 2025 Bill Layne Insurance Agency
             </div>
         </div>
     </div>
@@ -650,8 +715,9 @@
             </div>
             <p style="color: #666; font-size: 14px; margin-bottom: 10px;">
                 ✓ Email confirmation sent (if provided)<br>
-                ✓ SMS confirmation sent to your phone<br>
-                ✓ PDF generated and sent to agency
+                <span id="smsConfirmStatus">✓ SMS confirmation sent to your phone</span><br>
+                ✓ PDF generated with audit trail<br>
+                ✓ Securely stored and transmitted
             </p>
             <button class="btn btn-submit" onclick="closeSuccessModal()">OK</button>
         </div>
@@ -834,6 +900,12 @@
                 return;
             }
             
+            // Validate E-Sign consent
+            if (!document.getElementById('esignConsent').checked) {
+                alert('Please consent to electronic signature to proceed.');
+                return;
+            }
+            
             // Validate signature
             if (signaturePad.isEmpty()) {
                 alert('Please provide your signature before submitting.');
@@ -856,6 +928,11 @@
             data.dmvAcknowledgement = document.getElementById('dmvAcknowledgement').checked ? 'Yes' : '';
             data.mortgageAcknowledgement = document.getElementById('mortgageAcknowledgement').checked ? 'Yes' : '';
             
+            // Add consent checkboxes
+            data.smsConsent = document.getElementById('smsConsent').checked ? 'true' : 'false';
+            data.esignConsent = document.getElementById('esignConsent').checked ? 'true' : 'false';
+            data.consentTimestamp = new Date().toISOString();
+            
             // Generate confirmation number
             const confirmationNumber = 'NOL-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
             
@@ -872,7 +949,7 @@
             data.signatureDateTime = new Date().toLocaleString();
             data.signatureTime = new Date().toLocaleTimeString();
             data.userAgent = navigator.userAgent;
-            data.formVersion = 'v5.0-BillLayne';
+            data.formVersion = 'v6.0-Secure';
             data.submissionMethod = 'Online Portal - MyNoLossForm';
             data.ipAddress = window.userIPAddress || 'Unable to capture';
             
@@ -906,6 +983,12 @@
                     body: JSON.stringify(data)
                 });
                 
+                // Update SMS confirmation status in modal
+                const smsStatus = document.getElementById('smsConsent').checked ? 
+                    '✓ SMS confirmation sent to your phone' : 
+                    '✓ SMS notification skipped (no consent given)';
+                document.getElementById('smsConfirmStatus').textContent = smsStatus;
+                
                 // Show success modal
                 document.getElementById('confirmNumber').textContent = confirmationNumber;
                 document.getElementById('successModalOverlay').classList.add('show');
@@ -917,7 +1000,7 @@
                 
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('errorMessage').textContent = 'Failed to submit form. Please try again or contact support.';
+                document.getElementById('errorMessage').textContent = 'Failed to submit form. Please try again or contact support at 336-835-1993.';
                 document.getElementById('errorMessage').style.display = 'block';
             } finally {
                 document.getElementById('loading').style.display = 'none';
