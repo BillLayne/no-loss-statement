@@ -96,7 +96,7 @@
         /* Form Layout */
         .form-container {
             padding: 30px 20px;
-            padding-bottom: 100px;
+            padding-bottom: 40px;
         }
         
         .section-title {
@@ -389,33 +389,6 @@
             box-shadow: none;
         }
         
-        /* Mobile Sticky Submit Button */
-        .mobile-submit-container {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            padding: 16px;
-            padding-bottom: calc(16px + var(--safe-area-inset-bottom));
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
-            z-index: 998;
-        }
-        
-        .mobile-submit-container .btn-submit {
-            margin: 0;
-        }
-        
-        .mobile-progress {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            font-size: 14px;
-            color: #666;
-        }
-        
         /* Modals (Loading & Success) */
         .loading-modal-overlay, .success-modal-overlay {
             display: none;
@@ -550,7 +523,7 @@
             .container {
                 border-radius: 0;
                 box-shadow: none;
-                margin-bottom: 100px;
+                margin-bottom: 0;
             }
             
             .header {
@@ -564,7 +537,6 @@
             
             .form-container {
                 padding: 20px 16px;
-                padding-bottom: 120px;
             }
             
             .form-row {
@@ -574,15 +546,6 @@
             
             .form-row .form-group {
                 margin-bottom: 24px;
-            }
-            
-            /* Hide desktop submit, show mobile sticky */
-            .form-container > .btn-submit {
-                display: none;
-            }
-            
-            .mobile-submit-container {
-                display: block;
             }
         }
         
@@ -778,17 +741,6 @@
             </button>
         </form>
         
-        <!-- Mobile sticky submit button -->
-        <div class="mobile-submit-container">
-            <div class="mobile-progress">
-                <span>Form Progress</span>
-                <span id="formProgress">0% Complete</span>
-            </div>
-            <button type="button" class="btn btn-submit" onclick="document.getElementById('noLossForm').dispatchEvent(new Event('submit'))">
-                Submit Statement
-            </button>
-        </div>
-        
         <footer class="footer">
             <img src="https://i.imgur.com/1RmyVju.png" alt="Bill Layne Insurance Logo" class="footer-logo">
             <p>Bill Layne Insurance Agency</p>
@@ -832,8 +784,16 @@
                 if (field.type === 'checkbox' ? field.checked : field.value) filledFields++;
             });
             const progress = Math.round((filledFields / requiredFields.length) * 100);
-            document.getElementById('progressBar').style.width = progress + '%';
-            document.getElementById('formProgress').textContent = progress + '% Complete';
+            
+            const progressBar = document.getElementById('progressBar');
+            if (progressBar) {
+                progressBar.style.width = progress + '%';
+            }
+
+            const formProgress = document.getElementById('formProgress');
+            if (formProgress) {
+                formProgress.textContent = progress + '% Complete';
+            }
         }
         
         // Get Device Info for audit trail
@@ -1008,3 +968,4 @@
     </script>
 </body>
 </html>
+
