@@ -161,10 +161,10 @@
             border-color: var(--primary-color);
             background: white;
             /* Subtle ring effect on focus */
-            box-shadow: 0 0 0 4px rgba(102,126,234,0.1);
+            box-shadow: 0 0 0 4px rgba(102,126,24,0.1);
         }
 
-        /* NEW CSS: Input field icons */
+        /* Input field icons */
         .input-icon {
             position: absolute;
             top: 52px;
@@ -239,13 +239,12 @@
             position: relative;
         }
         
-        /* Semantic Coloring for Checkboxes */
-        .consent-highlight { /* Warning Yellow */
+        .consent-highlight {
             background: #fffbeb;
             border-color: var(--warning-color);
         }
         
-        .esign-highlight { /* Informational Blue */
+        .esign-highlight {
             background: #f0f4ff;
             border-color: var(--secondary-color);
         }
@@ -256,19 +255,62 @@
             cursor: pointer;
             font-weight: 500;
             color: #333;
-            padding-left: 36px;
-            min-height: 44px; /* Larger tap target */
+            padding-left: 35px; /* Space for custom checkbox */
+            min-height: 24px;
             position: relative;
         }
         
+        /* Hide original checkbox */
         .checkbox-container input[type="checkbox"] {
             position: absolute;
-            left: 0;
-            top: 2px;
-            width: 24px;
-            height: 24px;
+            opacity: 0;
             cursor: pointer;
-            margin: 0;
+            height: 0;
+            width: 0;
+        }
+
+        /* Create a custom checkbox */
+        .checkbox-container .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 24px;
+            width: 24px;
+            background-color: #fff;
+            border: 2px solid #adb5bd;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        /* Style the checkmark when checkbox is checked */
+        .checkbox-container input[type="checkbox"]:checked ~ .checkmark {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        /* Create the checkmark/indicator (hidden when not checked) */
+        .checkbox-container .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        /* Show the checkmark when checked */
+        .checkbox-container input[type="checkbox"]:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        /* Style the checkmark/indicator */
+        .checkbox-container .checkmark:after {
+            left: 7px;
+            top: 3px;
+            width: 6px;
+            height: 12px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
         }
         
         /* Signature Pad */
@@ -648,21 +690,18 @@
             <div class="form-group">
                 <label for="insuredName">Insured Full Name<span class="required">*</span></label>
                 <input type="text" id="insuredName" name="insuredName" required autocomplete="name" data-validate="required">
-                <!-- NEW FEATURE: Real-time validation icons -->
                 <svg class="input-icon valid-icon" viewBox="0 0 24 24"><path fill="var(--success-color)" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="form-row">
                 <div class="form-group">
                     <label for="email">Email Address</label>
                     <input type="email" id="email" name="email" autocomplete="email" data-validate="email">
-                     <!-- NEW FEATURE: Real-time validation icons -->
                     <svg class="input-icon valid-icon" viewBox="0 0 24 24"><path fill="var(--success-color)" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                     <svg class="input-icon invalid-icon" viewBox="0 0 24 24"><path fill="var(--error-color)" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </div>
                 <div class="form-group">
                     <label for="phone">Phone Number<span class="required">*</span></label>
                     <input type="tel" id="phone" name="phone" required placeholder="(555) 555-5555" inputmode="tel" data-validate="phone">
-                     <!-- NEW FEATURE: Real-time validation icons -->
                     <svg class="input-icon valid-icon" viewBox="0 0 24 24"><path fill="var(--success-color)" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                     <svg class="input-icon invalid-icon" viewBox="0 0 24 24"><path fill="var(--error-color)" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </div>
@@ -679,6 +718,7 @@
             <div class="checkbox-container">
                 <label>
                     <input type="checkbox" id="noLossConfirmation" name="noLossConfirmation" required>
+                    <span class="checkmark"></span>
                     <span>I have read, understand, and agree to the Statement of No Loss. I confirm NO LOSS, damage, or claim has occurred during the lapse period.</span>
                 </label>
             </div>
@@ -687,12 +727,14 @@
             <div class="checkbox-container" id="dmvContainer" style="display: none;">
                 <label>
                     <input type="checkbox" id="dmvAcknowledgement" name="dmvAcknowledgement">
+                    <span class="checkmark"></span>
                     <span>I acknowledge the DMV may be notified of this policy reinstatement.</span>
                 </label>
             </div>
             <div class="checkbox-container" id="mortgageContainer" style="display: none;">
                 <label>
                     <input type="checkbox" id="mortgageAcknowledgement" name="mortgageAcknowledgement">
+                    <span class="checkmark"></span>
                     <span>I acknowledge my mortgage company may be notified of this policy reinstatement.</span>
                 </label>
             </div>
@@ -701,6 +743,7 @@
             <div class="checkbox-container consent-highlight">
                 <label>
                     <input type="checkbox" id="smsConsent" name="smsConsent">
+                    <span class="checkmark"></span>
                     <span><strong>SMS Consent:</strong> I agree to receive one SMS confirmation for this submission. Message and data rates may apply.</span>
                 </label>
             </div>
@@ -714,6 +757,7 @@
             <div class="checkbox-container esign-highlight">
                 <label>
                     <input type="checkbox" id="esignConsent" name="esignConsent" required>
+                    <span class="checkmark"></span>
                     <span><strong>Electronic Signature Consent:</strong> I consent to sign this document electronically and agree that my signature is legally binding.</span>
                 </label>
             </div>
@@ -806,7 +850,7 @@
             return `${device} - ${os}`;
         }
 
-        // NEW FEATURE: Real-time validation logic
+        // Real-time validation logic
         function validateField(input) {
             const type = input.dataset.validate;
             const parent = input.parentElement;
@@ -839,7 +883,7 @@
         
         // Auto-fill form from URL parameters
         window.addEventListener('DOMContentLoaded', () => {
-            // NEW FEATURE: Pre-fill reinstatement date to today
+            // Pre-fill reinstatement date to today
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('reinstatementDate').value = today;
 
@@ -887,7 +931,6 @@
             });
             updateProgress();
 
-             // NEW FEATURE: Add event listeners for real-time validation
             document.querySelectorAll('[data-validate]').forEach(input => {
                 input.addEventListener('input', () => validateField(input));
             });
@@ -965,4 +1008,3 @@
     </script>
 </body>
 </html>
-
