@@ -238,19 +238,26 @@
         
         .loading {
             display: none;
-            text-align: center;
-            padding: 20px;
-            margin: 20px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
         }
-        
+
         .loading-box {
             background: white;
             border: 2px solid #1e3c72;
             border-radius: 10px;
             padding: 30px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             max-width: 400px;
             margin: 0 auto;
+            animation: slideUp 0.3s ease-out;
         }
         
         .spinner {
@@ -623,7 +630,7 @@
         </form>
         
         <div class="footer">
-            <img src="https://i.imgur.com/cBAgeX8.png" alt="Bill Layne Insurance" class="footer-logo">
+            <img src="https://i.imgur.com/1RmyVju.png" alt="Bill Layne Insurance" class="footer-logo">
             <div>
                 Bill Layne Insurance Agency<br>
                 1283 N Bridge St, Elkin NC 28621<br>
@@ -844,7 +851,7 @@
             document.getElementById('signature').value = signaturePad.toDataURL();
             
             // Show loading
-            document.getElementById('loading').style.display = 'block';
+            document.getElementById('loading').style.display = 'flex';
             document.getElementById('submitBtn').disabled = true;
             document.getElementById('errorMessage').style.display = 'none';
             
