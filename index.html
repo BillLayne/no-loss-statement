@@ -2,686 +2,446 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Statement of No Loss - Bill Layne Insurance</title>
     
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#eef2ff', 100: '#e0e7ff', 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81',
+                        },
+                        slate: { 800: '#1e293b', 900: '#0f172a' }
+                    },
+                    animation: {
+                        'pulse-glow': 'pulse-glow 2s infinite',
+                    },
+                    keyframes: {
+                        'pulse-glow': {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '0.5' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        body { 
+            -webkit-tap-highlight-color: transparent; 
+            background-color: #f8fafc;
         }
         
-        :root {
-            --primary-color: #1e3c72;
-            --secondary-color: #667eea;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px 10px;
-        }
-        
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-            padding: 30px 20px;
-            text-align: center;
-            position: relative;
-        }
-        
-        .agency-logo {
-            max-width: 200px;
-            max-height: 80px;
-            margin-bottom: 15px;
-        }
-        
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-        
-        .header h2 {
-            font-size: 18px;
-            font-weight: 400;
-            margin-bottom: 8px;
-        }
-        
-        .header p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        
-        .agency-contact {
-            font-size: 13px;
-            margin-top: 10px;
-            opacity: 0.95;
-        }
-        
-        .form-container {
-            padding: 30px 20px;
-        }
-        
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--primary-color);
-            margin: 25px 0 15px 0;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e0e0e0;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-        
-        .required {
-            color: #dc3545;
-            margin-left: 3px;
-        }
-        
-        input, select, textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e1e8ed;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s;
-            background: #f8f9fa;
-        }
-        
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            background: white;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
-        }
-        
-        .statement-box {
-            background: #f0f4ff;
-            border-left: 4px solid var(--primary-color);
-            padding: 20px;
-            margin: 25px 0;
-            border-radius: 8px;
-        }
-        
-        .statement-box h3 {
-            color: var(--primary-color);
-            font-size: 18px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .statement-box h3::before {
-            content: '📋';
-            margin-right: 10px;
-            font-size: 24px;
-        }
-        
-        .legal-text {
-            color: #333;
-            font-size: 14px;
-            line-height: 1.8;
-            margin-bottom: 15px;
-            text-align: justify;
-        }
-        
-        .checkbox-container {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border: 2px solid #e0e0e0;
-        }
-        
-        .checkbox-container label {
-            display: flex;
-            align-items: flex-start;
-            cursor: pointer;
-            font-weight: 500;
-            color: #333;
-        }
-        
-        .checkbox-container input[type="checkbox"] {
-            width: auto;
-            min-width: 20px;
-            margin-right: 12px;
-            margin-top: 3px;
-            transform: scale(1.3);
-            cursor: pointer;
-        }
-        
-        #signature-pad {
-            border: 2px dashed #ddd;
-            border-radius: 10px;
-            display: block;
-            width: 100%;
-            height: 200px;
-            cursor: crosshair;
-            background: white;
-            touch-action: none;
-        }
-        
-        .signature-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-clear {
-            background: #f44336;
-            color: white;
-            flex: 1;
-        }
-        
-        .btn-clear:hover {
-            background: #da190b;
-        }
-        
-        .btn-submit {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-            width: 100%;
-            margin-top: 20px;
-            font-size: 18px;
-            padding: 15px;
-        }
-        
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-        }
-        
-        .btn-submit:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .loading {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
-        .loading-box {
-            background: white;
-            border: 2px solid #1e3c72;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            max-width: 400px;
-            margin: 0 auto;
-            animation: slideUp 0.3s ease-out;
-        }
-        
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary-color);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
-        
-        .warning-pulse {
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-        
-        .success-modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
+        .form-input {
             width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 10000;
+            padding: 0.75rem 1rem;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Signature Pad */
+        #signature-pad {
+            touch-action: none;
+            background-color: #ffffff;
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Custom Checkbox */
+        .custom-checkbox {
+            appearance: none;
+            background-color: #fff;
+            margin: 0;
+            font: inherit;
+            color: currentColor;
+            width: 1.25em;
+            height: 1.25em;
+            border: 2px solid #cbd5e1;
+            border-radius: 0.25em;
+            display: grid;
+            place-content: center;
+            margin-top: 0.15em;
+        }
+
+        .custom-checkbox::before {
+            content: "";
+            width: 0.65em;
+            height: 0.65em;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em white;
+            transform-origin: center;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+
+        .custom-checkbox:checked {
+            background-color: #4f46e5;
+            border-color: #4f46e5;
+        }
+
+        .custom-checkbox:checked::before {
+            transform: scale(1);
         }
         
-        .success-modal-overlay.show {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .success-modal {
-            background: white;
-            border-radius: 20px;
-            padding: 40px 30px;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-            animation: slideUp 0.4s ease-out;
-        }
-        
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .success-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 20px;
-            background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .success-icon svg {
-            width: 40px;
-            height: 40px;
-            stroke: white;
-            stroke-width: 3;
-            fill: none;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-        
-        .confirmation-number {
-            background: #f0f4ff;
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin-bottom: 25px;
-            font-family: monospace;
-            font-size: 16px;
-            color: #667eea;
-            font-weight: 600;
-        }
-        
-        .footer {
-            background: #f8f9fa;
-            padding: 20px;
-            text-align: center;
-            border-top: 1px solid #e0e0e0;
-        }
-        
-        .footer-logo {
-            max-width: 150px;
-            margin-bottom: 10px;
-        }
-        
-        .powered-by {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #e0e0e0;
-            font-size: 12px;
-            color: #999;
-        }
-        
-        .error-message {
-            background: #fee;
-            color: #c00;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-            display: none;
-        }
-        
-        @media (max-width: 600px) {
-            .header h1 { font-size: 20px; }
-            .header h2 { font-size: 16px; }
-            .form-container { padding: 20px 15px; }
-            .form-row { grid-template-columns: 1fr; }
+        .loading-overlay {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
         }
     </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.32.0"
+  }
+}
+</script>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>STATEMENT OF NO LOSS</h1>
-            <h2>Reinstatement Request Form</h2>
-            <p>Electronic Signature Authorization</p>
-            <div class="agency-contact">
-                1283 N Bridge St, Elkin NC 28621<br>
-                336-835-1993 | Save@BillLayneInsurance.com
+<body class="font-sans text-slate-600 antialiased selection:bg-primary-100 selection:text-primary-900">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-40">
+        <div class="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center shadow-inner border border-white/10">
+                    <span class="font-display font-bold text-lg text-white">BL</span>
+                </div>
+                <div>
+                    <h1 class="font-display font-bold text-lg leading-none">Bill Layne Insurance</h1>
+                    <p class="text-xs text-slate-400 mt-1 uppercase tracking-wider">Statement of No Loss</p>
+                </div>
+            </div>
+            <div class="text-right hidden sm:block">
+                <a href="tel:3368351993" class="text-sm font-bold hover:text-primary-400 transition-colors block">(336) 835-1993</a>
+                <a href="mailto:Save@BillLayneInsurance.com" class="text-xs text-slate-400 hover:text-white transition-colors block">Save@BillLayneInsurance.com</a>
             </div>
         </div>
-        
-        <form id="noLossForm" class="form-container">
-            <!-- Hidden fields for agency/agent info - Bill Layne Insurance defaults -->
-            <input type="hidden" id="hiddenAgencyName" name="agencyName" value="Bill Layne Insurance Agency">
-            <input type="hidden" id="hiddenAgencyAddress" name="agencyAddress" value="1283 N Bridge St, Elkin NC 28621">
-            <input type="hidden" id="hiddenAgencyEmail" name="agencyEmail" value="Save@BillLayneInsurance.com">
-            <input type="hidden" id="hiddenAgencyPhone" name="agencyPhone" value="336-835-1993">
-            <input type="hidden" id="hiddenAgentName" name="agentName">
-            <input type="hidden" id="hiddenAgentEmail" name="agentEmail">
-            
-            <!-- Policy Information -->
-            <h3 class="section-title">Policy Information</h3>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="insuranceCompany">Insurance Company<span class="required">*</span></label>
-                    <select id="insuranceCompany" name="insuranceCompany" required>
-                        <option value="">Select Insurance Company</option>
-                        <option value="Nationwide">Nationwide</option>
-                        <option value="Progressive">Progressive</option>
-                        <option value="National General">National General</option>
-                        <option value="Alamance">Alamance</option>
-                        <option value="Travelers">Travelers</option>
-                        <option value="Foremost">Foremost</option>
-                        <option value="State Farm">State Farm</option>
-                        <option value="Allstate">Allstate</option>
-                        <option value="GEICO">GEICO</option>
-                        <option value="Liberty Mutual">Liberty Mutual</option>
-                        <option value="Farmers">Farmers</option>
-                        <option value="USAA">USAA</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="relative py-8 px-4 sm:px-6">
+        <!-- Background Decor -->
+        <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+            <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary-200/40 rounded-full blur-[100px]"></div>
+            <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-200/40 rounded-full blur-[100px]"></div>
+        </div>
+
+        <div class="max-w-3xl mx-auto">
+            <form id="noLossForm" class="glass-card rounded-3xl p-6 sm:p-10 shadow-2xl relative">
                 
-                <div class="form-group">
-                    <label for="policyNumber">Policy Number<span class="required">*</span></label>
-                    <input type="text" id="policyNumber" name="policyNumber" required>
+                <!-- Header Text -->
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl font-display font-extrabold text-slate-900 mb-2">Reinstatement Request</h2>
+                    <p class="text-slate-500">Electronic Signature Authorization</p>
                 </div>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="policyType">Policy Type<span class="required">*</span></label>
-                    <select id="policyType" name="policyType" required>
-                        <option value="">Select Policy Type</option>
-                        <option value="Auto">Auto Insurance</option>
-                        <option value="Home">Homeowners Insurance</option>
-                        <option value="Renters">Renters Insurance</option>
-                        <option value="Motorcycle">Motorcycle Insurance</option>
-                        <option value="RV">RV Insurance</option>
-                        <option value="Commercial Auto">Commercial Auto</option>
-                        <option value="Business">Business Insurance</option>
-                        <option value="Life">Life Insurance</option>
-                        <option value="Other">Other</option>
-                    </select>
+
+                <!-- Hidden Fields (Preserved for Backend) -->
+                <input type="hidden" id="hiddenAgencyName" name="agencyName" value="Bill Layne Insurance Agency">
+                <input type="hidden" id="hiddenAgencyAddress" name="agencyAddress" value="1283 N Bridge St, Elkin NC 28621">
+                <input type="hidden" id="hiddenAgencyEmail" name="agencyEmail" value="Save@BillLayneInsurance.com">
+                <input type="hidden" id="hiddenAgencyPhone" name="agencyPhone" value="336-835-1993">
+                <input type="hidden" id="hiddenAgentName" name="agentName">
+                <input type="hidden" id="hiddenAgentEmail" name="agentEmail">
+
+                <!-- Policy Information -->
+                <div class="space-y-6 mb-10">
+                    <div class="flex items-center gap-3 mb-4 pb-2 border-b border-slate-100">
+                        <div class="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center text-primary-600"><i class="fas fa-shield-alt"></i></div>
+                        <h3 class="text-lg font-bold text-slate-900">Policy Information</h3>
+                    </div>
+
+                    <div class="grid sm:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Insurance Company <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <select id="insuranceCompany" name="insuranceCompany" required class="form-input appearance-none">
+                                    <option value="">Select Company</option>
+                                    <option value="Nationwide">Nationwide</option>
+                                    <option value="Progressive">Progressive</option>
+                                    <option value="National General">National General</option>
+                                    <option value="Alamance">Alamance</option>
+                                    <option value="Travelers">Travelers</option>
+                                    <option value="Foremost">Foremost</option>
+                                    <option value="State Farm">State Farm</option>
+                                    <option value="Allstate">Allstate</option>
+                                    <option value="GEICO">GEICO</option>
+                                    <option value="Liberty Mutual">Liberty Mutual</option>
+                                    <option value="Farmers">Farmers</option>
+                                    <option value="USAA">USAA</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500"><i class="fas fa-chevron-down text-xs"></i></div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Policy Number <span class="text-red-500">*</span></label>
+                            <input type="text" id="policyNumber" name="policyNumber" required class="form-input" placeholder="e.g. 123456789">
+                        </div>
+                    </div>
+
+                    <div class="grid sm:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Policy Type <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <select id="policyType" name="policyType" required class="form-input appearance-none">
+                                    <option value="">Select Type</option>
+                                    <option value="Auto">Auto Insurance</option>
+                                    <option value="Home">Homeowners Insurance</option>
+                                    <option value="Renters">Renters Insurance</option>
+                                    <option value="Motorcycle">Motorcycle Insurance</option>
+                                    <option value="RV">RV Insurance</option>
+                                    <option value="Commercial Auto">Commercial Auto</option>
+                                    <option value="Business">Business Insurance</option>
+                                    <option value="Life">Life Insurance</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500"><i class="fas fa-chevron-down text-xs"></i></div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Total Amount to Reinstate</label>
+                            <input type="text" id="amountPaid" name="amountPaid" class="form-input" placeholder="$0.00">
+                            <p class="text-xs text-slate-400 mt-1">* Includes all fees</p>
+                        </div>
+                    </div>
+
+                    <div class="grid sm:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Cancellation/Lapse Date <span class="text-red-500">*</span></label>
+                            <input type="date" id="cancellationDate" name="cancellationDate" required class="form-input text-slate-600">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Requested Reinstatement <span class="text-red-500">*</span></label>
+                            <input type="date" id="reinstatementDate" name="reinstatementDate" required class="form-input text-slate-600">
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="amountPaid">Total Amount Required to Reinstate</label>
-                    <input type="text" id="amountPaid" name="amountPaid" placeholder="$0.00">
-                    <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
-                        * Fees included in Total Amount Required to Reinstate
-                    </small>
+
+                <!-- Insured Information -->
+                <div class="space-y-6 mb-10">
+                    <div class="flex items-center gap-3 mb-4 pb-2 border-b border-slate-100">
+                        <div class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600"><i class="fas fa-user"></i></div>
+                        <h3 class="text-lg font-bold text-slate-900">Insured Information</h3>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Full Name <span class="text-red-500">*</span></label>
+                        <input type="text" id="insuredName" name="insuredName" required class="form-input" placeholder="John Doe">
+                    </div>
+
+                    <div class="grid sm:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Email Address</label>
+                            <input type="email" id="email" name="email" class="form-input" placeholder="john@example.com">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Phone Number <span class="text-red-500">*</span></label>
+                            <input type="tel" id="phone" name="phone" required class="form-input" placeholder="(336) 555-1234">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Property/Garaging Address <span class="text-red-500">*</span></label>
+                        <input type="text" id="propertyAddress" name="propertyAddress" required class="form-input" placeholder="123 Main St">
+                    </div>
+
+                    <div class="grid grid-cols-6 gap-4">
+                        <div class="col-span-3 sm:col-span-3">
+                            <label class="block text-sm font-bold text-slate-700 mb-2">City <span class="text-red-500">*</span></label>
+                            <input type="text" id="city" name="city" required class="form-input">
+                        </div>
+                        <div class="col-span-3 sm:col-span-1">
+                            <label class="block text-sm font-bold text-slate-700 mb-2">State <span class="text-red-500">*</span></label>
+                            <select id="state" name="state" required class="form-input px-2">
+                                <option value="NC">NC</option>
+                                <option value="VA">VA</option>
+                                <option value="SC">SC</option>
+                                <option value="TN">TN</option>
+                                <option value="GA">GA</option>
+                            </select>
+                        </div>
+                        <div class="col-span-6 sm:col-span-2">
+                            <label class="block text-sm font-bold text-slate-700 mb-2">ZIP Code <span class="text-red-500">*</span></label>
+                            <input type="text" id="zipCode" name="zipCode" maxlength="5" pattern="[0-9]{5}" required class="form-input">
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="cancellationDate">Cancellation/Lapse Date<span class="required">*</span></label>
-                    <input type="date" id="cancellationDate" name="cancellationDate" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="reinstatementDate">Requested Reinstatement Date<span class="required">*</span></label>
-                    <input type="date" id="reinstatementDate" name="reinstatementDate" required>
-                </div>
-            </div>
-            
-            <!-- Insured Information -->
-            <h3 class="section-title">Insured Information</h3>
-            
-            <div class="form-group">
-                <label for="insuredName">Insured Name (Full Name)<span class="required">*</span></label>
-                <input type="text" id="insuredName" name="insuredName" required>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email">
-                </div>
-                
-                <div class="form-group">
-                    <label for="phone">Phone Number<span class="required">*</span></label>
-                    <input type="tel" id="phone" name="phone" required placeholder="(336) 555-1234">
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="propertyAddress">Property/Garaging Address<span class="required">*</span></label>
-                <input type="text" id="propertyAddress" name="propertyAddress" placeholder="123 Main Street" required>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="city">City<span class="required">*</span></label>
-                    <input type="text" id="city" name="city" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="state">State<span class="required">*</span></label>
-                    <select id="state" name="state" required>
-                        <option value="">Select State</option>
-                        <option value="NC">North Carolina</option>
-                        <option value="SC">South Carolina</option>
-                        <option value="VA">Virginia</option>
-                        <option value="GA">Georgia</option>
-                        <option value="TN">Tennessee</option>
-                        <option value="FL">Florida</option>
-                        <option value="AL">Alabama</option>
-                        <option value="MS">Mississippi</option>
-                        <option value="LA">Louisiana</option>
-                        <option value="TX">Texas</option>
-                        <option value="KY">Kentucky</option>
-                        <option value="WV">West Virginia</option>
-                        <option value="MD">Maryland</option>
-                        <option value="DE">Delaware</option>
-                        <option value="PA">Pennsylvania</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="zipCode">ZIP Code<span class="required">*</span></label>
-                <input type="text" id="zipCode" name="zipCode" maxlength="5" pattern="[0-9]{5}" required>
-            </div>
-            
-            <!-- Statement of No Loss -->
-            <div class="statement-box">
-                <h3>Statement of No Loss</h3>
-                
-                <p class="legal-text">
-                    I, <span id="customerNameDisplay" style="font-weight: bold;">[Customer Name]</span>, state that neither I nor any other person covered by this policy has had a claim or loss or been involved in an accident
-                    since the cancellation or expiration of the policy (otherwise known as the "no loss period") wherein this policy, including any and all
-                    coverages endorsed upon or made part of the policy may apply.
-                </p>
-                <p class="legal-text">
-                    In addition, if this reinstatement is for a personal or commercial auto, motorcycle, or RV policy, I certify that I have disclosed the current
-                    garaging location and use of all insured vehicles including if any such vehicle is used to deliver food or goods, to transport people for
-                    compensation, or for any other business purpose. I have also disclosed household members who are age 14 or older, and all persons who
-                    regularly drive any vehicle insured under this policy.
-                </p>
-                <p class="legal-text">
-                    I understand that this insurance company is relying solely upon this Statement of No Loss all of which is material, as an inducement to
-                    reinstate my policy with no lapse in coverage. I further understand that if a claim, loss, or accident has occurred during the no loss period, or
-                    if I failed to disclose the current garaging location and primary use of all vehicles insured under this policy, all persons who regularly drive
-                    these vehicles, and all members of my household who are age 14 or older, the reinstatement is null and void, my policy remains cancelled
-                    and no insurance coverage shall be provided.
-                </p>
-                <p class="legal-text">
-                    I agree that if my check or other payment for this reinstatement is not honored for any reason, the reinstatement is null and void and no
-                    coverage shall exist under this policy. I agree to pay a reinstatement fee and late fee (if applicable) in addition to the premium required to
-                    reinstate my policy. My payment will be applied first to the reinstatement and late fee and the remainder to the premium.
-                </p>
-                <p class="legal-text" style="color: #cc0000; font-style: italic; font-weight: 600; background: #fff5f5; padding: 10px; border-radius: 5px; margin-top: 15px;">
-                    It is a crime to knowingly provide false, incomplete, or misleading information to an insurance company for the purpose of defrauding the
-                    company. Penalties include imprisonment, fines, and denial of insurance benefits.
-                </p>
-            </div>
-            
-            <div class="checkbox-container">
-                <label>
-                    <input type="checkbox" id="noLossConfirmation" name="noLossConfirmation" required>
-                    <span>I have read, understand, and agree to all the statements, terms, and conditions outlined above in the Statement of No Loss. I confirm that NO LOSS, damage, or claim has occurred during the lapse period.</span>
-                </label>
-            </div>
-            
-            <!-- DMV and Mortgage Optional Acknowledgements -->
-            <div class="checkbox-container" id="dmvContainer" style="display: none;">
-                <label>
-                    <input type="checkbox" id="dmvAcknowledgement" name="dmvAcknowledgement">
-                    <span>I acknowledge that the DMV may be notified of this policy reinstatement.</span>
-                </label>
-            </div>
-            
-            <div class="checkbox-container" id="mortgageContainer" style="display: none;">
-                <label>
-                    <input type="checkbox" id="mortgageAcknowledgement" name="mortgageAcknowledgement">
-                    <span>I acknowledge that my mortgage company may be notified of this policy reinstatement.</span>
-                </label>
-            </div>
-            
-            <!-- Electronic Signature -->
-            <h3 class="section-title">Electronic Signature</h3>
-            
-            <div class="form-group">
-                <label>Please sign below using your mouse or finger<span class="required">*</span></label>
-                <canvas id="signature-pad"></canvas>
-                <div class="signature-buttons">
-                    <button type="button" class="btn btn-clear" onclick="clearSignature()">Clear Signature</button>
-                </div>
-            </div>
-            
-            <input type="hidden" id="signature" name="signature">
-            
-            <div class="error-message" id="errorMessage"></div>
-            
-            <div class="loading" id="loading">
-                <div class="loading-box">
-                    <div class="spinner"></div>
-                    <h3 style="color: #1e3c72; margin: 20px 0 10px 0;">Submitting Your Statement</h3>
-                    <p style="font-size: 16px; color: #333; margin-bottom: 10px;">Please wait while we process your form...</p>
-                    <p class="warning-pulse" style="color: #dc3545; font-weight: 600; font-size: 14px;">
-                        ⚠️ Please keep this window open until you see the confirmation
+
+                <!-- Statement Box -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-8 text-sm leading-relaxed text-slate-600">
+                    <h4 class="font-bold text-slate-900 text-base mb-4 flex items-center gap-2"><i class="fas fa-file-contract text-primary-600"></i> Statement of No Loss</h4>
+                    
+                    <p class="mb-4">
+                        I, <span id="customerNameDisplay" class="font-bold text-slate-900 bg-yellow-100 px-1 rounded">[Customer Name]</span>, state that neither I nor any other person covered by this policy has had a claim or loss or been involved in an accident since the cancellation or expiration of the policy (otherwise known as the "no loss period") wherein this policy, including any and all coverages endorsed upon or made part of the policy may apply.
                     </p>
-                    <p style="color: #666; font-size: 13px; margin-top: 10px;">
-                        This usually takes 5-10 seconds
+                    <p class="mb-4">
+                        In addition, if this reinstatement is for a personal or commercial auto, motorcycle, or RV policy, I certify that I have disclosed the current garaging location and use of all insured vehicles including if any such vehicle is used to deliver food or goods, to transport people for compensation, or for any other business purpose. I have also disclosed household members who are age 14 or older, and all persons who regularly drive any vehicle insured under this policy.
                     </p>
+                    <p class="mb-4">
+                        I understand that this insurance company is relying solely upon this Statement of No Loss all of which is material, as an inducement to reinstate my policy with no lapse in coverage. I further understand that if a claim, loss, or accident has occurred during the no loss period, or if I failed to disclose the current garaging location and primary use of all vehicles insured under this policy, all persons who regularly drive these vehicles, and all members of my household who are age 14 or older, the reinstatement is null and void, my policy remains cancelled and no insurance coverage shall be provided.
+                    </p>
+                    <p class="mb-4">
+                        I agree that if my check or other payment for this reinstatement is not honored for any reason, the reinstatement is null and void and no coverage shall exist under this policy. I agree to pay a reinstatement fee and late fee (if applicable) in addition to the premium required to reinstate my policy. My payment will be applied first to the reinstatement and late fee and the remainder to the premium.
+                    </p>
+                    <div class="bg-red-50 border border-red-100 rounded-lg p-3 text-red-800 font-medium text-xs">
+                        <i class="fas fa-exclamation-circle mr-1"></i> It is a crime to knowingly provide false, incomplete, or misleading information to an insurance company for the purpose of defrauding the company. Penalties include imprisonment, fines, and denial of insurance benefits.
+                    </div>
                 </div>
-            </div>
-            
-            <button type="submit" class="btn btn-submit" id="submitBtn">
-                Submit Statement of No Loss
-            </button>
-        </form>
-        
-        <div class="footer">
-            <img src="https://i.imgur.com/1RmyVju.png" alt="Bill Layne Insurance" class="footer-logo">
-            <div>
-                Bill Layne Insurance Agency<br>
-                1283 N Bridge St, Elkin NC 28621<br>
-                336-835-1993 | Save@BillLayneInsurance.com
-            </div>
-            <div class="powered-by">
+
+                <!-- Acknowledgements -->
+                <div class="space-y-4 mb-10">
+                    <label class="flex items-start gap-3 p-4 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-primary-400 transition-colors shadow-sm">
+                        <input type="checkbox" id="noLossConfirmation" name="noLossConfirmation" required class="custom-checkbox mt-1 flex-shrink-0">
+                        <span class="text-sm font-medium text-slate-700">I have read, understand, and agree to all the statements, terms, and conditions outlined above. I confirm that <strong>NO LOSS</strong>, damage, or claim has occurred during the lapse period.</span>
+                    </label>
+
+                    <div id="dmvContainer" class="hidden">
+                        <label class="flex items-start gap-3 p-4 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-primary-400 transition-colors shadow-sm">
+                            <input type="checkbox" id="dmvAcknowledgement" name="dmvAcknowledgement" class="custom-checkbox mt-1 flex-shrink-0">
+                            <span class="text-sm font-medium text-slate-700">I acknowledge that the DMV may be notified of this policy reinstatement.</span>
+                        </label>
+                    </div>
+
+                    <div id="mortgageContainer" class="hidden">
+                        <label class="flex items-start gap-3 p-4 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-primary-400 transition-colors shadow-sm">
+                            <input type="checkbox" id="mortgageAcknowledgement" name="mortgageAcknowledgement" class="custom-checkbox mt-1 flex-shrink-0">
+                            <span class="text-sm font-medium text-slate-700">I acknowledge that my mortgage company may be notified of this policy reinstatement.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Signature Section -->
+                <div class="mb-10">
+                    <div class="flex items-center gap-3 mb-4 pb-2 border-b border-slate-100">
+                        <div class="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center text-green-600"><i class="fas fa-pen-nib"></i></div>
+                        <h3 class="text-lg font-bold text-slate-900">Electronic Signature</h3>
+                    </div>
+                    
+                    <p class="text-sm text-slate-500 mb-2">Please sign below using your mouse or finger <span class="text-red-500">*</span></p>
+                    <div class="border-2 border-dashed border-slate-300 rounded-xl overflow-hidden bg-white cursor-crosshair shadow-inner h-48 relative group hover:border-primary-400 transition-colors">
+                        <canvas id="signature-pad" class="w-full h-full"></canvas>
+                        <div class="absolute bottom-2 right-2 opacity-50 group-hover:opacity-100 transition-opacity">
+                            <button type="button" onclick="clearSignature()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1 rounded-md transition-colors border border-slate-200">
+                                <i class="fas fa-eraser mr-1"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="signature" name="signature">
+                </div>
+
+                <!-- Error Message -->
+                <div id="errorMessage" class="hidden bg-red-50 text-red-700 px-4 py-3 rounded-xl mb-6 text-sm font-medium border border-red-100"></div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary-500/30 transition-all hover:scale-[1.02] active:scale-[0.98] text-lg flex items-center justify-center gap-2">
+                    <span>Submit Statement</span>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+
+            </form>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <img src="https://i.imgur.com/oixB60n.png" alt="Bill Layne Insurance" class="h-12 mx-auto mb-4 opacity-80">
+            <p class="text-sm font-bold text-slate-700">Bill Layne Insurance Agency</p>
+            <p class="text-xs text-slate-500 mt-1">1283 N Bridge St, Elkin NC 28621 • (336) 835-1993</p>
+            <div class="mt-6 pt-6 border-t border-slate-100 text-[10px] text-slate-400 uppercase tracking-widest">
                 Powered by MyNoLossForm.com
+            </div>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div id="loading" class="hidden fixed inset-0 z-50 flex items-center justify-center loading-overlay">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-sm w-full mx-4 text-center border border-slate-100 animate-pulse-glow">
+            <div class="w-16 h-16 border-4 border-primary-100 border-t-primary-600 rounded-full animate-spin mx-auto mb-6"></div>
+            <h3 class="text-xl font-bold text-slate-900 mb-2">Processing...</h3>
+            <p class="text-slate-500 text-sm mb-4">Securely transmitting your signature.</p>
+            <div class="text-xs font-medium text-amber-600 bg-amber-50 py-2 px-4 rounded-full inline-block">
+                <i class="fas fa-lock mr-1"></i> Do not close this window
             </div>
         </div>
     </div>
 
     <!-- Success Modal -->
-    <div class="success-modal-overlay" id="successModalOverlay">
-        <div class="success-modal">
-            <div class="success-icon">
-                <svg viewBox="0 0 24 24">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
+    <div id="successModalOverlay" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm px-4">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl transform transition-all scale-100">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-check text-4xl text-green-600"></i>
             </div>
-            <h2>Successfully Submitted!</h2>
-            <p>Your Statement of No Loss has been received and processed successfully.</p>
-            <div class="confirmation-number">
-                Confirmation #: <span id="confirmNumber"></span>
+            <h2 class="text-2xl font-bold text-slate-900 mb-2">Success!</h2>
+            <p class="text-slate-600 mb-6">Your Statement of No Loss has been received and processed.</p>
+            
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6">
+                <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Confirmation Number</p>
+                <p id="confirmNumber" class="text-xl font-mono font-bold text-primary-600 select-all"></p>
             </div>
-            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">
-                ✓ Email confirmation sent (if provided)<br>
-                ✓ SMS confirmation sent to your phone<br>
-                ✓ PDF generated and sent to agency
-            </p>
-            <button class="btn btn-submit" onclick="closeSuccessModal()">OK</button>
+            
+            <div class="space-y-2 text-sm text-slate-500 mb-8 text-left px-4">
+                <p class="flex items-center gap-2"><i class="fas fa-check-circle text-green-500"></i> Email confirmation sent</p>
+                <p class="flex items-center gap-2"><i class="fas fa-check-circle text-green-500"></i> SMS confirmation sent</p>
+                <p class="flex items-center gap-2"><i class="fas fa-check-circle text-green-500"></i> PDF sent to agency</p>
+            </div>
+            
+            <button onclick="closeSuccessModal()" class="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-slate-800 transition-colors shadow-lg">
+                Close Window
+            </button>
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <script>
-        // YOUR GOOGLE APPS SCRIPT URL - ACTIVE AND READY
+        // YOUR GOOGLE APPS SCRIPT URL - PRESERVED
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxD6j-pGmC13_X5GTUfIpJPg-HJXIMnzcaUmvo7rEBwd97Cx6alEabi30YJp5S6fqUyEg/exec';
         
         let signaturePad;
         
-        // Get Device Info
+        // --- Helper Functions ---
         function getDeviceInfo() {
             const userAgent = navigator.userAgent;
             let deviceType = 'Desktop';
             let os = 'Unknown OS';
             let browser = 'Unknown Browser';
             
-            if (/Mobile|Android|iPhone|iPad/i.test(userAgent)) {
-                deviceType = /iPad/i.test(userAgent) ? 'Tablet' : 'Mobile';
-            }
-            
+            if (/Mobile|Android|iPhone|iPad/i.test(userAgent)) deviceType = /iPad/i.test(userAgent) ? 'Tablet' : 'Mobile';
             if (userAgent.indexOf('Win') !== -1) os = 'Windows';
             else if (userAgent.indexOf('Mac') !== -1) os = 'MacOS';
             else if (userAgent.indexOf('Linux') !== -1) os = 'Linux';
@@ -696,25 +456,18 @@
             return `${deviceType} - ${os} - ${browser}`.trim();
         }
         
-        // Generate Browser Fingerprint
         function generateBrowserFingerprint() {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             ctx.textBaseline = 'top';
             ctx.font = '14px Arial';
             ctx.fillText('fingerprint', 2, 2);
-            
-            let fingerprint = canvas.toDataURL();
-            fingerprint = fingerprint.substring(0, 50).replace(/[^a-zA-Z0-9]/g, '');
-            
+            let fingerprint = canvas.toDataURL().substring(0, 50).replace(/[^a-zA-Z0-9]/g, '');
             const screenData = `${screen.width}x${screen.height}x${screen.colorDepth}`;
-            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
             const plugins = navigator.plugins.length;
-            
             return `FP-${fingerprint}-${screenData.replace(/[^0-9]/g, '')}-${plugins}`.substring(0, 50);
         }
         
-        // Get IP Address
         async function getIPAddress() {
             try {
                 const response = await fetch('https://api.ipify.org?format=json');
@@ -725,89 +478,68 @@
                 return 'Unable to capture';
             }
         }
-        
-        // Parse URL parameters and auto-fill form
+
+        // --- Initialization ---
         window.addEventListener('DOMContentLoaded', async function() {
             const urlParams = new URLSearchParams(window.location.search);
             
-            // Pre-fill customer form fields from URL parameters
+            // Pre-fill form fields
             const fieldMappings = {
-                'insuredName': 'insuredName',
-                'email': 'email',
-                'phone': 'phone',
-                'propertyAddress': 'propertyAddress',
-                'city': 'city',
-                'state': 'state',
-                'zipCode': 'zipCode',
-                'insuranceCompany': 'insuranceCompany',
-                'policyNumber': 'policyNumber',
-                'policyType': 'policyType',
-                'amountPaid': 'amountPaid',
-                'cancellationDate': 'cancellationDate',
-                'reinstatementDate': 'reinstatementDate'
+                'insuredName': 'insuredName', 'email': 'email', 'phone': 'phone',
+                'propertyAddress': 'propertyAddress', 'city': 'city', 'state': 'state', 'zipCode': 'zipCode',
+                'insuranceCompany': 'insuranceCompany', 'policyNumber': 'policyNumber',
+                'policyType': 'policyType', 'amountPaid': 'amountPaid',
+                'cancellationDate': 'cancellationDate', 'reinstatementDate': 'reinstatementDate'
             };
             
-            // Process all URL parameters
             Object.keys(fieldMappings).forEach(param => {
                 const value = urlParams.get(param);
                 if (value) {
-                    const elementId = fieldMappings[param];
-                    const element = document.getElementById(elementId);
-                    if (element) {
-                        element.value = decodeURIComponent(value);
-                    }
+                    const element = document.getElementById(fieldMappings[param]);
+                    if (element) element.value = decodeURIComponent(value);
                 }
             });
             
-            // Set agent info from URL if provided
+            // Agent info
             const agentName = urlParams.get('agentName');
             const agentEmail = urlParams.get('agentEmail');
             if (agentName) document.getElementById('hiddenAgentName').value = agentName;
             if (agentEmail) document.getElementById('hiddenAgentEmail').value = agentEmail;
             
-            // Show/hide optional acknowledgements based on policy type
+            // Policy Type Logic
             const policyTypeElement = document.getElementById('policyType');
             policyTypeElement.addEventListener('change', function() {
                 const policyType = this.value;
-                // Show DMV acknowledgement for Auto policies
                 document.getElementById('dmvContainer').style.display = 
-                    (policyType === 'Auto' || policyType === 'Motorcycle' || policyType === 'RV' || policyType === 'Commercial Auto') ? 'block' : 'none';
-                // Show Mortgage acknowledgement for Home policies    
+                    ['Auto', 'Motorcycle', 'RV', 'Commercial Auto'].includes(policyType) ? 'block' : 'none';
                 document.getElementById('mortgageContainer').style.display = 
                     (policyType === 'Home') ? 'block' : 'none';
             });
             
-            // Trigger change event if policy type is pre-filled
-            if (policyTypeElement.value) {
-                policyTypeElement.dispatchEvent(new Event('change'));
-            }
+            if (policyTypeElement.value) policyTypeElement.dispatchEvent(new Event('change'));
             
-            // Initialize signature pad
+            // Init Signature Pad
             initSignaturePad();
             
-            // Update customer name in statement
+            // Update Customer Name in Text
             updateCustomerNameDisplay();
+            document.getElementById('insuredName').addEventListener('input', updateCustomerNameDisplay);
             
-            // Pre-fetch IP address
+            // Pre-fetch IP
             window.userIPAddress = await getIPAddress();
         });
-        
-        // Update customer name in the legal text
-        document.getElementById('insuredName').addEventListener('input', updateCustomerNameDisplay);
         
         function updateCustomerNameDisplay() {
             const name = document.getElementById('insuredName').value || '[Customer Name]';
             document.getElementById('customerNameDisplay').textContent = name;
         }
         
-        // Initialize signature pad
         function initSignaturePad() {
             const canvas = document.getElementById('signature-pad');
             signaturePad = new SignaturePad(canvas, {
                 backgroundColor: 'rgb(255, 255, 255)',
-                penColor: 'rgb(0, 0, 0)'
+                penColor: 'rgb(15, 23, 42)' // Slate-900 color for pen
             });
-            
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
         }
@@ -818,58 +550,53 @@
             canvas.width = canvas.offsetWidth * ratio;
             canvas.height = canvas.offsetHeight * ratio;
             canvas.getContext('2d').scale(ratio, ratio);
-            if (signaturePad) {
-                signaturePad.clear();
-            }
+            if (signaturePad) signaturePad.clear();
         }
         
-        function clearSignature() {
+        window.clearSignature = function() {
             signaturePad.clear();
         }
         
-        function closeSuccessModal() {
-            document.getElementById('successModalOverlay').classList.remove('show');
+        window.closeSuccessModal = function() {
+            document.getElementById('successModalOverlay').classList.add('hidden');
+            document.getElementById('successModalOverlay').classList.remove('flex');
         }
         
-        // Handle form submission
+        // --- Form Submission ---
         document.getElementById('noLossForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Validate agreement checkbox
             if (!document.getElementById('noLossConfirmation').checked) {
-                alert('Please check the box to confirm you have read and agree to the Statement of No Loss.');
+                alert('Please check the box to confirm you agree to the Statement.');
                 return;
             }
             
-            // Validate signature
             if (signaturePad.isEmpty()) {
-                alert('Please provide your signature before submitting.');
+                alert('Please sign the form before submitting.');
                 return;
             }
             
-            // Get signature data
             document.getElementById('signature').value = signaturePad.toDataURL();
             
             // Show loading
-            document.getElementById('loading').style.display = 'flex';
-            document.getElementById('submitBtn').disabled = true;
-            document.getElementById('errorMessage').style.display = 'none';
+            const loading = document.getElementById('loading');
+            loading.classList.remove('hidden');
+            loading.classList.add('flex');
             
-            // Prepare form data
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('errorMessage').classList.add('hidden');
+            
             const formData = new FormData(this);
             const data = Object.fromEntries(formData);
             
-            // Add optional acknowledgements (empty string if not checked)
+            // Checkbox logic
             data.dmvAcknowledgement = document.getElementById('dmvAcknowledgement').checked ? 'Yes' : '';
             data.mortgageAcknowledgement = document.getElementById('mortgageAcknowledgement').checked ? 'Yes' : '';
             
-            // Generate confirmation number
+            // Metadata generation
             const confirmationNumber = 'NOL-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-            
-            // Generate session ID
             const sessionId = 'NOL-SESSION-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9);
             
-            // Add verification data
             data.confirmationNumber = confirmationNumber;
             data.sessionId = sessionId;
             data.browserFingerprint = generateBrowserFingerprint();
@@ -879,83 +606,66 @@
             data.signatureDateTime = new Date().toLocaleString();
             data.signatureTime = new Date().toLocaleTimeString();
             data.userAgent = navigator.userAgent;
-            data.formVersion = 'v5.0-BillLayne';
+            data.formVersion = 'v5.0-BillLayne-Modern';
             data.submissionMethod = 'Online Portal - MyNoLossForm';
             data.ipAddress = window.userIPAddress || 'Unable to capture';
             
-            // Add signature metadata
             data.signatureMetadata = JSON.stringify({
                 cookiesEnabled: navigator.cookieEnabled,
                 onlineStatus: navigator.onLine,
-                languages: navigator.languages ? navigator.languages.join(', ') : navigator.language,
                 platform: navigator.platform,
-                hardwareConcurrency: navigator.hardwareConcurrency || 'N/A',
-                deviceMemory: navigator.deviceMemory || 'N/A',
-                maxTouchPoints: navigator.maxTouchPoints || 0,
                 colorDepth: screen.colorDepth,
-                timezoneOffset: new Date().getTimezoneOffset(),
-                plugins: Array.from(navigator.plugins || []).map(p => p.name).join(', ') || 'None'
+                timezoneOffset: new Date().getTimezoneOffset()
             });
             
-            // Add signature URL and timestamps
             data.signatureUrl = document.getElementById('signature').value;
             data.submittedAt = new Date().toISOString();
-            data.browserInfo = navigator.userAgent;
 
             try {
-                // Submit to Google Apps Script
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
                 
-                // Show success modal
                 document.getElementById('confirmNumber').textContent = confirmationNumber;
-                document.getElementById('successModalOverlay').classList.add('show');
+                const successModal = document.getElementById('successModalOverlay');
+                successModal.classList.remove('hidden');
+                successModal.classList.add('flex');
                 
-                // Reset form
                 this.reset();
                 signaturePad.clear();
                 updateCustomerNameDisplay();
                 
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('errorMessage').textContent = 'Failed to submit form. Please try again or contact support.';
-                document.getElementById('errorMessage').style.display = 'block';
+                const errorEl = document.getElementById('errorMessage');
+                errorEl.textContent = 'Failed to submit form. Please try again or contact the agency.';
+                errorEl.classList.remove('hidden');
             } finally {
-                document.getElementById('loading').style.display = 'none';
+                loading.classList.remove('flex');
+                loading.classList.add('hidden');
                 document.getElementById('submitBtn').disabled = false;
             }
         });
         
-        // Auto-format phone number
+        // Formatting Helpers
         document.getElementById('phone').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             if (value.length > 0) {
-                if (value.length <= 3) {
-                    value = '(' + value;
-                } else if (value.length <= 6) {
-                    value = '(' + value.slice(0, 3) + ') ' + value.slice(3);
-                } else {
-                    value = '(' + value.slice(0, 3) + ') ' + value.slice(3, 6) + '-' + value.slice(6, 10);
-                }
+                if (value.length <= 3) value = '(' + value;
+                else if (value.length <= 6) value = '(' + value.slice(0, 3) + ') ' + value.slice(3);
+                else value = '(' + value.slice(0, 3) + ') ' + value.slice(3, 6) + '-' + value.slice(6, 10);
             }
             e.target.value = value;
         });
         
-        // Auto-format amount
         document.getElementById('amountPaid').addEventListener('input', function(e) {
             let value = e.target.value.replace(/[^\d.]/g, '');
-            if (value && !e.target.value.startsWith('$')) {
-                e.target.value = '$' + value;
-            }
+            if (value && !e.target.value.startsWith('$')) e.target.value = '$' + value;
         });
         
-        // ZIP code validation
         document.getElementById('zipCode').addEventListener('input', function(e) {
             e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5);
         });
