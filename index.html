@@ -216,6 +216,54 @@
             background-position: right 1rem center;
             padding-right: 2.5rem;
         }
+
+        /* Mobile-first: slimmer header */
+        @media (max-width: 640px) {
+            header .w-10 { width: 2rem; height: 2rem; }
+            header .w-10 span { font-size: 0.75rem; }
+            header h1 { font-size: 0.95rem; }
+            header p { font-size: 0.6rem; }
+            header > div { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        }
+
+        /* Sticky mobile submit */
+        @media (max-width: 640px) {
+            .mobile-sticky-submit {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 30;
+                background: white;
+                padding: 0.75rem 1rem;
+                border-top: 1px solid #e2e8f0;
+                box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+            }
+            /* Add bottom padding to body so content isn't hidden behind sticky button */
+            body { padding-bottom: 80px; }
+        }
+        @media (min-width: 641px) {
+            .mobile-sticky-submit { display: none; }
+        }
+
+        /* Welcome guidance banner */
+        .guidance-banner {
+            background: linear-gradient(135deg, #dbeafe 0%, #ede9fe 100%);
+            border: 1px solid #bfdbfe;
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Bounce arrow for scroll hint */
+        @keyframes bounce-down {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(4px); }
+        }
+        .bounce-arrow {
+            animation: bounce-down 1.5s ease-in-out infinite;
+            display: inline-block;
+        }
     </style>
 <script type="importmap">
 {
@@ -280,9 +328,20 @@
             <form id="noLossForm">
 
                 <!-- Welcome Text -->
-                <div class="text-center mb-8">
+                <div class="text-center mb-6">
                     <h2 class="text-2xl sm:text-3xl font-display font-extrabold text-slate-800 mb-2">Reinstatement Request</h2>
                     <p class="text-slate-500 text-base">Complete this form to reinstate your policy. It only takes a few minutes.</p>
+                </div>
+
+                <!-- Guidance Banner — shows when form is prefilled -->
+                <div id="guidanceBanner" class="guidance-banner hidden">
+                    <div class="flex items-start gap-3">
+                        <span class="text-2xl flex-shrink-0">&#9989;</span>
+                        <div>
+                            <p class="font-bold text-slate-800 text-base mb-1">Good news — most info is already filled in!</p>
+                            <p class="text-slate-600 text-sm">Just review the details, check the agreement box, sign your name, and tap <strong>Submit</strong>. <span class="bounce-arrow">&#8595;</span></p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Hidden Fields (Preserved for Backend) -->
@@ -400,14 +459,14 @@
                             <input type="text" id="propertyAddress" name="propertyAddress" required class="form-input" placeholder="123 Main St">
                         </div>
 
-                        <div class="grid grid-cols-6 gap-4">
-                            <div class="col-span-6 sm:col-span-3">
-                                <label class="block text-sm font-bold text-slate-700 mb-2">City <span class="text-red-500">*</span></label>
-                                <input type="text" id="city" name="city" required class="form-input">
-                            </div>
-                            <div class="col-span-3 sm:col-span-1">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">City <span class="text-red-500">*</span></label>
+                            <input type="text" id="city" name="city" required class="form-input">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
                                 <label class="block text-sm font-bold text-slate-700 mb-2">State <span class="text-red-500">*</span></label>
-                                <select id="state" name="state" required class="form-input px-2">
+                                <select id="state" name="state" required class="form-input">
                                     <option value="NC">NC</option>
                                     <option value="VA">VA</option>
                                     <option value="SC">SC</option>
@@ -415,7 +474,7 @@
                                     <option value="GA">GA</option>
                                 </select>
                             </div>
-                            <div class="col-span-3 sm:col-span-2">
+                            <div>
                                 <label class="block text-sm font-bold text-slate-700 mb-2">ZIP Code <span class="text-red-500">*</span></label>
                                 <input type="text" id="zipCode" name="zipCode" maxlength="5" pattern="[0-9]{5}" required class="form-input">
                             </div>
@@ -514,17 +573,26 @@
                     <span></span>
                 </div>
 
-                <!-- Submit Button — big, green, unmissable -->
-                <button type="submit" id="submitBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold py-5 rounded-xl shadow-lg shadow-emerald-600/30 transition-all hover:shadow-xl hover:shadow-emerald-600/40 active:scale-[0.98] text-xl flex items-center justify-center gap-3 mt-4">
+                <!-- Submit Button — big, green, unmissable (hidden on mobile where sticky button takes over) -->
+                <button type="submit" id="submitBtn" class="hidden sm:flex w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold py-5 rounded-xl shadow-lg shadow-emerald-600/30 transition-all hover:shadow-xl hover:shadow-emerald-600/40 active:scale-[0.98] text-xl items-center justify-center gap-3 mt-4">
                     <i class="fas fa-paper-plane text-lg"></i>
                     <span>Submit My Statement</span>
                 </button>
 
-                <p class="text-center text-xs text-slate-400 mt-3"><i class="fas fa-lock mr-1"></i> Your information is transmitted securely and encrypted.</p>
+                <p class="text-center text-xs text-slate-400 mt-3 sm:block hidden"><i class="fas fa-lock mr-1"></i> Your information is transmitted securely and encrypted.</p>
 
             </form>
         </div>
     </main>
+
+    <!-- Sticky Mobile Submit Button -->
+    <div class="mobile-sticky-submit">
+        <button type="button" id="mobileSubmitBtn" onclick="document.getElementById('noLossForm').requestSubmit()" class="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold py-3.5 rounded-xl shadow-lg text-lg flex items-center justify-center gap-2">
+            <i class="fas fa-paper-plane"></i>
+            <span>Submit My Statement</span>
+        </button>
+        <p class="text-center text-[10px] text-slate-400 mt-1"><i class="fas fa-lock mr-1"></i> Secure &amp; encrypted</p>
+    </div>
 
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-6 mt-10">
@@ -677,6 +745,12 @@
 
             // Pre-fetch IP
             window.userIPAddress = await getIPAddress();
+
+            // Show guidance banner if form was prefilled via URL params
+            if (urlParams.has('insuredName') || urlParams.has('policyNumber')) {
+                const banner = document.getElementById('guidanceBanner');
+                if (banner) banner.classList.remove('hidden');
+            }
 
             // --- Progress Indicator (scroll-based) ---
             const sections = document.querySelectorAll('.form-section');
