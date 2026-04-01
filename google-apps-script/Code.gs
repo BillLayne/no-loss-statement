@@ -242,61 +242,114 @@ function createStatementPdf_(folder, submission, signatureBlob) {
   var docId = doc.getId();
   var body = doc.getBody();
 
-  // Set narrow margins for single-page fit
+  // Set margins for single-page letterhead
   body.setMarginTop(36);
-  body.setMarginBottom(36);
-  body.setMarginLeft(54);
-  body.setMarginRight(54);
+  body.setMarginBottom(28);
+  body.setMarginLeft(50);
+  body.setMarginRight(50);
 
-  // Agency header - compact
-  var header = body.appendParagraph(submission.agencyName || APP_CONFIG.agencyName);
-  header.setFontSize(14).setBold(true).setAlignment(DocumentApp.HorizontalAlignment.CENTER);
+  var navy = '#1a2744';
+  var darkRed = '#8b1a1a';
+  var gray = '#555555';
 
-  var subHeader = body.appendParagraph('STATEMENT OF NO LOSS');
-  subHeader.setFontSize(11).setBold(true).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(2);
+  // ── AGENCY HEADER (centered) ──
+  var h1 = body.appendParagraph('BILL LAYNE INSURANCE AGENCY');
+  h1.setFontSize(16).setBold(true).setForegroundColor(navy).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(0).setSpacingBefore(0);
 
-  var confLine = body.appendParagraph('Confirmation: ' + submission.confirmationNumber + '  |  ' + formatDateTime_(submission.submittedAt));
-  confLine.setFontSize(8).setForegroundColor('#666666').setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(4);
+  var h2 = body.appendParagraph('1283 N Bridge St, Elkin, NC 28621 \u2022 (336) 835-1993 \u2022 Save@BillLayneInsurance.com');
+  h2.setFontSize(8).setBold(false).setForegroundColor(gray).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(2).setSpacingBefore(0);
 
+  var h3 = body.appendParagraph('STATEMENT OF NO LOSS - CONF #' + submission.confirmationNumber);
+  h3.setFontSize(12).setBold(true).setForegroundColor(navy).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(2).setSpacingBefore(4);
+
+  // Red divider line
   body.appendHorizontalRule();
 
-  // Policy Info - two-column style using compact key-value
-  appendCompactHeading_(body, 'POLICY INFORMATION');
-  appendCompactKV_(body, 'Insurance Company', submission.insuranceCompany);
-  appendCompactKV_(body, 'Policy Number', submission.policyNumber);
-  appendCompactKV_(body, 'Policy Type', submission.policyType);
-  appendCompactKV_(body, 'Amount to Reinstate', submission.amountPaid || 'N/A');
-  appendCompactKV_(body, 'Cancellation / Lapse Date', submission.cancellationDate);
-  appendCompactKV_(body, 'Requested Reinstatement', submission.reinstatementDate);
+  // ── POLICY INFO TABLE (two columns) ──
+  var table = body.appendTable();
+  table.setBorderWidth(0);
 
-  // Insured Info
-  appendCompactHeading_(body, 'INSURED INFORMATION');
-  appendCompactKV_(body, 'Name', submission.insuredName);
-  appendCompactKV_(body, 'Phone', submission.phone);
-  appendCompactKV_(body, 'Email', submission.email || 'N/A');
-  appendCompactKV_(body, 'Address', submission.propertyAddress + ', ' + submission.city + ', ' + submission.state + ' ' + submission.zipCode);
+  var row1 = table.appendTableRow();
+  var c1 = row1.appendTableCell('INSURED: ' + (submission.insuredName || ''));
+  c1.setWidth(280);
+  formatCell_(c1, 9, true);
+  var c2 = row1.appendTableCell('POLICY: ' + (submission.policyNumber || ''));
+  formatCell_(c2, 9, true);
 
-  // Acknowledgements - inline
-  appendCompactHeading_(body, 'ACKNOWLEDGEMENTS');
-  appendCompactKV_(body, 'No Loss Confirmed', submission.noLossConfirmation);
-  appendCompactKV_(body, 'DMV Acknowledgement', submission.dmvAcknowledgement || 'No');
-  appendCompactKV_(body, 'Mortgage Acknowledgement', submission.mortgageAcknowledgement || 'No');
+  // Address row
+  var row1b = table.appendTableRow();
+  var addr = (submission.propertyAddress || '') + ', ' + (submission.city || '') + ', ' + (submission.state || '') + ', ' + (submission.zipCode || '');
+  var c3 = row1b.appendTableCell(addr);
+  formatCell_(c3, 8, false);
+  var c4 = row1b.appendTableCell('');
+  formatCell_(c4, 8, false);
 
-  // Statement text - single condensed paragraph
-  appendCompactHeading_(body, 'STATEMENT');
-  var stmtText = 'I, ' + submission.insuredName + ', state that neither I nor any other person covered by this policy has had a claim or loss or been involved in an accident since the cancellation or expiration of the policy. I understand the insurance company is relying on this statement to reinstate my policy with no lapse in coverage. If a claim occurred during the no loss period, the reinstatement is null and void. If my payment is not honored, the reinstatement is null and void and no coverage shall exist.';
-  var stmt = body.appendParagraph(stmtText);
-  stmt.setFontSize(9).setSpacingAfter(6).setLineSpacing(1.1);
+  // Company / Type
+  var row2 = table.appendTableRow();
+  var c5 = row2.appendTableCell('COMPANY: ' + (submission.insuranceCompany || ''));
+  formatCell_(c5, 9, false);
+  var c6 = row2.appendTableCell('TYPE: ' + (submission.policyType || ''));
+  formatCell_(c6, 9, false);
 
-  // Signature block - compact
+  // Lapse / Reinstate
+  var row3 = table.appendTableRow();
+  var c7 = row3.appendTableCell('LAPSE: ' + (submission.cancellationDate || ''));
+  formatCell_(c7, 9, false);
+  var c8 = row3.appendTableCell('REINSTATE: ' + (submission.reinstatementDate || ''));
+  formatCell_(c8, 9, false);
+
+  // Amount / Phone
+  var row4 = table.appendTableRow();
+  var c9 = row4.appendTableCell('Total Amount Required to Reinstate: ' + (submission.amountPaid || 'N/A'));
+  formatCell_(c9, 9, true);
+  var c10 = row4.appendTableCell('PHONE: ' + (submission.phone || ''));
+  formatCell_(c10, 9, false);
+  c10.editAsText().setItalic(true);
+
+  // Fees note
+  var feeNote = body.appendParagraph('*Fees included in Total Amount Required to Reinstate');
+  feeNote.setFontSize(7).setItalic(true).setForegroundColor(gray).setSpacingAfter(4).setSpacingBefore(0);
+
+  // ── FULL STATEMENT TEXT ──
+  var stmtFull = 'STATEMENT OF NO LOSS: I, ' + (submission.insuredName || '') + ', state that neither I nor any other person covered by this policy has had a claim or loss or been involved in an accident since the cancellation or expiration of the policy (the "no loss period") wherein this policy, including any and all coverages endorsed upon or made part of the policy may apply. In addition, if this reinstatement is for a personal or commercial auto, motorcycle, or RV policy, I certify that I have disclosed the current garaging location and use of all insured vehicles including if any such vehicle is used to deliver food or goods, to transport people for compensation, or for any other business purpose. I have also disclosed household members who are age 14 or older, and all persons who regularly drive any vehicle insured under this policy. I understand that this insurance company is relying solely upon this Statement of No Loss all of which is material, as an inducement to reinstate my policy with no lapse in coverage. I further understand that if a claim, loss, or accident has occurred during the no loss period, or if I failed to disclose the current garaging location and primary use of all vehicles insured under this policy, all persons who regularly drive these vehicles, and all members of my household who are age 14 or older, the reinstatement is null and void, my policy remains cancelled and no insurance coverage shall be provided. I agree that if my check or other payment for this reinstatement is not honored for any reason, the reinstatement is null and void and no coverage shall exist under this policy. I agree to pay a reinstatement fee and late fee (if applicable) in addition to the premium required to reinstate my policy. My payment will be applied first to the reinstatement and late fee and the remainder to the premium.';
+
+  var stmtPara = body.appendParagraph(stmtFull);
+  stmtPara.setFontSize(8).setLineSpacing(1.05).setSpacingAfter(4).setSpacingBefore(4);
+  // Bold the label
+  stmtPara.editAsText().setBold(0, 21, true);
+
+  // Warning
+  var warning = body.appendParagraph('\u26A0 WARNING: It is a crime to knowingly provide false information to an insurance company. Penalties include imprisonment, fines, and denial of benefits.');
+  warning.setFontSize(8).setForegroundColor(darkRed).setItalic(true).setSpacingAfter(2).setSpacingBefore(2);
+
+  // Checkbox acknowledgement
+  var ack = body.appendParagraph('\u2611 I agree to all terms above and confirm NO LOSS occurred during the lapse period.');
+  ack.setFontSize(9).setBold(true).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(2).setSpacingBefore(2);
+
+  // Red divider
   body.appendHorizontalRule();
-  var sigLabel = body.appendParagraph('ELECTRONIC SIGNATURE');
-  sigLabel.setFontSize(8).setBold(true).setForegroundColor('#333333').setSpacingAfter(2);
 
-  var sigInfo = body.appendParagraph('Signed by: ' + submission.insuredName + '  |  ' + (submission.signatureDateTime || formatDateTime_(submission.submittedAt)) + '  |  IP: ' + (submission.ipAddress || 'N/A'));
-  sigInfo.setFontSize(7).setForegroundColor('#666666').setSpacingAfter(4);
+  // ── ELECTRONIC SIGNATURE ──
+  var sigTitle = body.appendParagraph('ELECTRONIC SIGNATURE');
+  sigTitle.setFontSize(11).setBold(true).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(4).setSpacingBefore(4);
 
-  body.appendImage(signatureBlob).setWidth(200);
+  // Signature image
+  var sigImg = body.appendImage(signatureBlob);
+  sigImg.setWidth(220);
+  var sigImgPara = sigImg.getParent().asParagraph();
+  sigImgPara.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
+
+  // Signature metadata line
+  var sigDateTime = submission.signatureDateTime || formatDateTime_(submission.submittedAt);
+  var sigMeta = body.appendParagraph((submission.insuredName || '') + ' \u2022 ' + sigDateTime + ' \u2022 IP: ' + (submission.ipAddress || 'N/A') + ' \u2022 Session: ' + (submission.sessionId || submission.confirmationNumber));
+  sigMeta.setFontSize(7).setForegroundColor(gray).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(4).setSpacingBefore(4);
+
+  // Legal footer
+  var legalLine = body.appendParagraph('Electronic signature valid per E-SIGN Act \u2022 Bill Layne Insurance Agency \u2022 www.BillLayneInsurance.com');
+  legalLine.setFontSize(7).setForegroundColor(gray).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(0).setSpacingBefore(0);
+
+  var feeLine = body.appendParagraph('* Fees included in Total Amount Required to Reinstate');
+  feeLine.setFontSize(7).setItalic(true).setForegroundColor(gray).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(0).setSpacingBefore(0);
 
   doc.saveAndClose();
 
@@ -308,20 +361,11 @@ function createStatementPdf_(folder, submission, signatureBlob) {
   return pdfFile;
 }
 
-function appendCompactHeading_(body, title) {
-  var p = body.appendParagraph(title);
-  p.setFontSize(9).setBold(true).setForegroundColor('#003f87').setSpacingBefore(6).setSpacingAfter(2);
-}
-
-function appendCompactKV_(body, label, value) {
-  var p = body.appendParagraph(label + ':  ' + (value || ''));
-  p.setFontSize(9).setSpacingAfter(1).setSpacingBefore(0);
-  // Bold just the label portion
-  var text = p.editAsText();
-  text.setBold(0, label.length, true);
-  text.setBold(label.length, p.getText().length - 1, false);
-  text.setForegroundColor(0, label.length, '#333333');
-  text.setForegroundColor(label.length + 1, p.getText().length - 1, '#000000');
+function formatCell_(cell, fontSize, bold) {
+  cell.setBackgroundColor(null);
+  var para = cell.getChild(0).asParagraph();
+  para.setFontSize(fontSize).setSpacingAfter(1).setSpacingBefore(1);
+  if (bold) para.setBold(true);
 }
 
 function sendOfficeEmail_(runtime, submission, folder, pdfFile, archiveFile, signatureFile) {
