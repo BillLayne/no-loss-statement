@@ -647,7 +647,7 @@
     <script>
         // Configuration
         const BASE_URL = 'https://mynolossform.com/';  // Your mynolossform.com domain
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxD6j-pGmC13_X5GTUfIpJPg-HJXIMnzcaUmvo7rEBwd97Cx6alEabi30YJp5S6fqUyEg/exec'; // YOUR Script URL
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx-WBFdZPNLtlVtu1-spmFipbpKK0KC8QaltYPI3nNxMXgLfxPznFoQtr_PYoqs7s6i_A/exec'; // Replace with the current Apps Script web app /exec URL after redeploying.
         
         // Agency defaults - Bill Layne Insurance
         const AGENCY_DEFAULTS = {
@@ -861,6 +861,7 @@
                 // Send to secure Google Apps Script endpoint
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
+                    mode: 'no-cors',
                     headers: {
                         'Content-Type': 'text/plain',  // Use text/plain for better compatibility
                     },
