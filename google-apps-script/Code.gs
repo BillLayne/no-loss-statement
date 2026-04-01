@@ -1,7 +1,7 @@
 const APP_CONFIG = Object.freeze({
   agencyName: 'Bill Layne Insurance Agency',
   agencyPhone: '336-835-1993',
-  agencyEmail: 'bill@billlayneinsurance.com',
+  agencyEmail: 'docs@billlayneinsurance.com',
   agencyWebsite: 'https://mynolossform.com',
   defaultTimeZone: 'America/New_York',
   defaultPortalSecret: 'BillLayneInsurance2025',
@@ -383,16 +383,78 @@ function sendCustomerEmail_(runtime, submission, pdfFile) {
     return false;
   }
 
-  const subject = 'We received your Statement of No Loss (' + submission.confirmationNumber + ')';
-  const htmlBody = [
-    '<div style="font-family:Arial,sans-serif;color:#1f2937;line-height:1.6;">',
-    '<h2 style="margin:0 0 12px;">Statement Received</h2>',
-    '<p>Thank you, ' + htmlEscape_(submission.insuredName) + '. We received your signed Statement of No Loss.</p>',
-    '<p><strong>Confirmation #:</strong> ' + htmlEscape_(submission.confirmationNumber) + '<br>',
-    '<strong>Policy Number:</strong> ' + htmlEscape_(submission.policyNumber) + '<br>',
-    '<strong>Insurance Company:</strong> ' + htmlEscape_(submission.insuranceCompany) + '</p>',
-    '<p>If you have questions, contact ' + htmlEscape_(submission.agencyName || runtime.fromName) + ' at ' + htmlEscape_(submission.agencyPhone || APP_CONFIG.agencyPhone) + '.</p>',
-    '</div>'
+  var firstName = (submission.insuredName || 'there').split(' ')[0];
+  var localTime = '';
+  try {
+    localTime = Utilities.formatDate(new Date(submission.submittedAt), APP_CONFIG.defaultTimeZone, "MMMM d, yyyy 'at' h:mm a");
+  } catch(e) {
+    localTime = submission.submittedAt || new Date().toLocaleString();
+  }
+
+  var subject = '\u2705 Statement of No Loss Received \u2014 ' + submission.confirmationNumber + ' | Bill Layne Insurance';
+  var logoUrl = 'https://i.imgur.com/lxu9nfT.png';
+
+  var htmlBody = [
+    '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>',
+    '<body style="margin:0;padding:0;background-color:#f1f5f9;-webkit-text-size-adjust:100%;">',
+    '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:600px;margin:0 auto;">',
+
+    '<tr><td style="padding:0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#003f87;background:linear-gradient(135deg,#003f87 0%,#0076d3 100%);border-radius:0 0 16px 16px;">',
+    '<tr><td style="padding:36px 30px 28px;text-align:center;">',
+    '<img src="' + logoUrl + '" alt="Bill Layne Insurance" width="180" height="45" style="display:block;margin:0 auto 16px;max-width:180px;height:auto;border:0;">',
+    '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background-color:#1a5296;border-radius:20px;padding:6px 16px;"><span style="font-family:Arial,sans-serif;font-size:13px;color:#ffffff;">&#10003; No Loss Statement Received</span></td></tr></table>',
+    '</td></tr></table></td></tr>',
+
+    '<tr><td style="padding:20px 16px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#ffffff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,0.08);">',
+
+    '<tr><td style="padding:28px 28px 0;">',
+    '<p style="margin:0 0 4px;font-family:Arial,sans-serif;font-size:22px;font-weight:700;color:#0f2744;">Thank you, ' + htmlEscape_(firstName) + '!</p>',
+    '<p style="margin:0;font-family:Arial,sans-serif;font-size:15px;color:#64748b;line-height:1.6;">We have received your signed Statement of No Loss and appreciate you completing this promptly. A copy of your signed statement is attached to this email for your records.</p>',
+    '</td></tr>',
+
+    '<tr><td style="padding:20px 28px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#f0f9ff;border-radius:12px;border:1px solid #bae6fd;">',
+    '<tr><td style="padding:16px 20px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">',
+    '<tr><td style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;color:#0369a1;text-transform:uppercase;letter-spacing:0.5px;padding-bottom:8px;">Statement Details</td></tr>',
+    '<tr><td style="padding-bottom:6px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td style="font-family:Arial,sans-serif;font-size:14px;color:#64748b;">Confirmation #</td><td style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#0f2744;text-align:right;">' + htmlEscape_(submission.confirmationNumber) + '</td></tr></table></td></tr>',
+    '<tr><td style="padding-bottom:6px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td style="font-family:Arial,sans-serif;font-size:14px;color:#64748b;">Policy Number</td><td style="font-family:Arial,sans-serif;font-size:14px;color:#0f2744;text-align:right;">' + htmlEscape_(submission.policyNumber) + '</td></tr></table></td></tr>',
+    '<tr><td style="padding-bottom:6px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td style="font-family:Arial,sans-serif;font-size:14px;color:#64748b;">Insurance Company</td><td style="font-family:Arial,sans-serif;font-size:14px;color:#0f2744;text-align:right;">' + htmlEscape_(submission.insuranceCompany) + '</td></tr></table></td></tr>',
+    '<tr><td><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td style="font-family:Arial,sans-serif;font-size:14px;color:#64748b;">Submitted</td><td style="font-family:Arial,sans-serif;font-size:14px;color:#0f2744;text-align:right;">' + htmlEscape_(localTime) + '</td></tr></table></td></tr>',
+    '</table></td></tr></table></td></tr>',
+
+    '<tr><td style="padding:24px 28px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#f0fdf4;border-radius:12px;border:1px solid #bbf7d0;">',
+    '<tr><td style="padding:16px 20px;">',
+    '<p style="margin:0 0 8px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:0.5px;">What Happens Next</p>',
+    '<table role="presentation" cellpadding="0" cellspacing="0" border="0">',
+    '<tr><td style="padding:4px 0;font-family:Arial,sans-serif;font-size:14px;color:#334155;line-height:1.5;">&#128203; Your signed statement is securely stored</td></tr>',
+    '<tr><td style="padding:4px 0;font-family:Arial,sans-serif;font-size:14px;color:#334155;line-height:1.5;">&#128222; We will forward it to your insurance company</td></tr>',
+    '<tr><td style="padding:4px 0;font-family:Arial,sans-serif;font-size:14px;color:#334155;line-height:1.5;">&#128274; Keep the attached PDF copy for your records</td></tr>',
+    '<tr><td style="padding:4px 0;font-family:Arial,sans-serif;font-size:14px;color:#334155;line-height:1.5;">&#128222; We will contact you if anything else is needed</td></tr>',
+    '</table></td></tr></table></td></tr>',
+
+    '<tr><td style="padding:24px 28px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#fff7ed;border-radius:12px;border:1px solid #fed7aa;">',
+    '<tr><td style="padding:16px 20px;text-align:center;">',
+    '<p style="margin:0 0 4px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#9a3412;">Have questions?</p>',
+    '<p style="margin:0;font-family:Arial,sans-serif;font-size:14px;color:#78350f;">Call us at <a href="tel:3368351993" style="color:#0076d3;text-decoration:none;font-weight:700;">(336) 835-1993</a></p>',
+    '</td></tr></table></td></tr>',
+
+    '<tr><td style="padding:24px 28px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td style="text-align:center;">',
+    '<a href="https://www.billlayneinsurance.com" target="_blank" style="display:inline-block;background-color:#0076d3;color:#ffffff;font-family:Arial,sans-serif;font-size:15px;font-weight:700;text-decoration:none;padding:14px 36px;border-radius:12px;">Visit Our Website</a>',
+    '</td></tr></table></td></tr>',
+
+    '</table></td></tr>',
+
+    '<tr><td style="padding:20px 16px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#0f172a;border-radius:16px;">',
+    '<tr><td style="padding:28px 28px 20px;text-align:center;">',
+    '<img src="' + logoUrl + '" alt="Bill Layne Insurance" width="140" height="35" style="display:block;margin:0 auto 12px;max-width:140px;height:auto;border:0;">',
+    '<p style="margin:0 0 4px;font-family:Arial,sans-serif;font-size:14px;color:#e2e8f0;">Bill Layne Insurance Agency</p>',
+    '<p style="margin:0 0 4px;font-family:Arial,sans-serif;font-size:13px;color:#94a3b8;">1283 N Bridge St, Elkin, NC 28621</p>',
+    '<p style="margin:0 0 12px;font-family:Arial,sans-serif;font-size:13px;color:#94a3b8;"><a href="tel:3368351993" style="color:#60a5fa;text-decoration:none;">(336) 835-1993</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="mailto:docs@billlayneinsurance.com" style="color:#60a5fa;text-decoration:none;">docs@billlayneinsurance.com</a></p>',
+    '</td></tr>',
+    '<tr><td style="padding:0 28px 20px;text-align:center;"><p style="margin:0;font-family:Arial,sans-serif;font-size:11px;color:#475569;">&copy; 2026 Bill Layne Insurance Agency. All rights reserved.</p></td></tr>',
+    '</table></td></tr>',
+
+    '<tr><td style="padding:20px 0;">&nbsp;</td></tr>',
+    '</table></body></html>'
   ].join('');
 
   MailApp.sendEmail({
