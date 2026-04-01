@@ -237,74 +237,91 @@ function createSignatureBlob_(signatureUrl, confirmationNumber) {
 }
 
 function createStatementPdf_(folder, submission, signatureBlob) {
-  const docName = submission.confirmationNumber + ' - Statement of No Loss';
-  const doc = DocumentApp.create(docName);
-  const docId = doc.getId();
-  const body = doc.getBody();
+  var docName = submission.confirmationNumber + ' - Statement of No Loss';
+  var doc = DocumentApp.create(docName);
+  var docId = doc.getId();
+  var body = doc.getBody();
 
-  body.appendParagraph(submission.agencyName || APP_CONFIG.agencyName)
-    .setHeading(DocumentApp.ParagraphHeading.HEADING1);
-  body.appendParagraph('Statement of No Loss')
-    .setHeading(DocumentApp.ParagraphHeading.HEADING2);
-  body.appendParagraph('Confirmation #: ' + submission.confirmationNumber);
-  body.appendParagraph('Submitted: ' + formatDateTime_(submission.submittedAt));
+  // Set narrow margins for single-page fit
+  body.setMarginTop(36);
+  body.setMarginBottom(36);
+  body.setMarginLeft(54);
+  body.setMarginRight(54);
+
+  // Agency header - compact
+  var header = body.appendParagraph(submission.agencyName || APP_CONFIG.agencyName);
+  header.setFontSize(14).setBold(true).setAlignment(DocumentApp.HorizontalAlignment.CENTER);
+
+  var subHeader = body.appendParagraph('STATEMENT OF NO LOSS');
+  subHeader.setFontSize(11).setBold(true).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(2);
+
+  var confLine = body.appendParagraph('Confirmation: ' + submission.confirmationNumber + '  |  ' + formatDateTime_(submission.submittedAt));
+  confLine.setFontSize(8).setForegroundColor('#666666').setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(4);
+
   body.appendHorizontalRule();
 
-  appendSectionHeading_(body, 'Policy Information');
-  appendKeyValue_(body, 'Insurance Company', submission.insuranceCompany);
-  appendKeyValue_(body, 'Policy Number', submission.policyNumber);
-  appendKeyValue_(body, 'Policy Type', submission.policyType);
-  appendKeyValue_(body, 'Amount to Reinstate', submission.amountPaid || 'Not provided');
-  appendKeyValue_(body, 'Cancellation / Lapse Date', submission.cancellationDate);
-  appendKeyValue_(body, 'Requested Reinstatement', submission.reinstatementDate);
+  // Policy Info - two-column style using compact key-value
+  appendCompactHeading_(body, 'POLICY INFORMATION');
+  appendCompactKV_(body, 'Insurance Company', submission.insuranceCompany);
+  appendCompactKV_(body, 'Policy Number', submission.policyNumber);
+  appendCompactKV_(body, 'Policy Type', submission.policyType);
+  appendCompactKV_(body, 'Amount to Reinstate', submission.amountPaid || 'N/A');
+  appendCompactKV_(body, 'Cancellation / Lapse Date', submission.cancellationDate);
+  appendCompactKV_(body, 'Requested Reinstatement', submission.reinstatementDate);
 
-  appendSectionHeading_(body, 'Insured Information');
-  appendKeyValue_(body, 'Insured Name', submission.insuredName);
-  appendKeyValue_(body, 'Email', submission.email || 'Not provided');
-  appendKeyValue_(body, 'Phone', submission.phone);
-  appendKeyValue_(body, 'Property / Garaging Address', submission.propertyAddress);
-  appendKeyValue_(body, 'City / State / ZIP', submission.city + ', ' + submission.state + ' ' + submission.zipCode);
+  // Insured Info
+  appendCompactHeading_(body, 'INSURED INFORMATION');
+  appendCompactKV_(body, 'Name', submission.insuredName);
+  appendCompactKV_(body, 'Phone', submission.phone);
+  appendCompactKV_(body, 'Email', submission.email || 'N/A');
+  appendCompactKV_(body, 'Address', submission.propertyAddress + ', ' + submission.city + ', ' + submission.state + ' ' + submission.zipCode);
 
-  appendSectionHeading_(body, 'Acknowledgements');
-  appendKeyValue_(body, 'No Loss Confirmation', submission.noLossConfirmation);
-  appendKeyValue_(body, 'DMV Acknowledgement', submission.dmvAcknowledgement || 'No');
-  appendKeyValue_(body, 'Mortgage Acknowledgement', submission.mortgageAcknowledgement || 'No');
+  // Acknowledgements - inline
+  appendCompactHeading_(body, 'ACKNOWLEDGEMENTS');
+  appendCompactKV_(body, 'No Loss Confirmed', submission.noLossConfirmation);
+  appendCompactKV_(body, 'DMV Acknowledgement', submission.dmvAcknowledgement || 'No');
+  appendCompactKV_(body, 'Mortgage Acknowledgement', submission.mortgageAcknowledgement || 'No');
 
-  appendSectionHeading_(body, 'Statement Text');
-  body.appendParagraph(
-    'I, ' + submission.insuredName + ', state that neither I nor any other person covered by this policy has had a claim or loss or been involved in an accident since the cancellation or expiration of the policy wherein this policy may apply.'
-  );
-  body.appendParagraph(
-    'I understand that the insurance company is relying on this Statement of No Loss as an inducement to reinstate my policy with no lapse in coverage. I understand that if a claim, loss, or accident occurred during the no loss period, the reinstatement is null and void and coverage may be denied.'
-  );
-  body.appendParagraph(
-    'I agree that if my payment for this reinstatement is not honored for any reason, the reinstatement is null and void and no coverage shall exist under this policy.'
-  );
+  // Statement text - single condensed paragraph
+  appendCompactHeading_(body, 'STATEMENT');
+  var stmtText = 'I, ' + submission.insuredName + ', state that neither I nor any other person covered by this policy has had a claim or loss or been involved in an accident since the cancellation or expiration of the policy. I understand the insurance company is relying on this statement to reinstate my policy with no lapse in coverage. If a claim occurred during the no loss period, the reinstatement is null and void. If my payment is not honored, the reinstatement is null and void and no coverage shall exist.';
+  var stmt = body.appendParagraph(stmtText);
+  stmt.setFontSize(9).setSpacingAfter(6).setLineSpacing(1.1);
 
-  appendSectionHeading_(body, 'Electronic Signature');
-  body.appendParagraph('Signed by: ' + submission.insuredName);
-  body.appendParagraph('Signature captured: ' + (submission.signatureDateTime || formatDateTime_(submission.submittedAt)));
-  body.appendParagraph('IP Address: ' + (submission.ipAddress || 'Not captured'));
-  body.appendParagraph('Device Info: ' + (submission.deviceInfo || 'Not captured'));
-  body.appendParagraph('Browser Fingerprint: ' + (submission.browserFingerprint || 'Not captured'));
-  body.appendParagraph('Submission Method: ' + (submission.submissionMethod || 'Online Portal'));
-  body.appendParagraph('Form Version: ' + (submission.formVersion || 'Unknown'));
-  body.appendParagraph('');
-  body.appendImage(signatureBlob).setWidth(260);
+  // Signature block - compact
+  body.appendHorizontalRule();
+  var sigLabel = body.appendParagraph('ELECTRONIC SIGNATURE');
+  sigLabel.setFontSize(8).setBold(true).setForegroundColor('#333333').setSpacingAfter(2);
 
-  appendSectionHeading_(body, 'Metadata');
-  body.appendParagraph(JSON.stringify(buildArchiveObject_(submission), null, 2))
-    .setFontFamily('Courier New')
-    .setFontSize(8);
+  var sigInfo = body.appendParagraph('Signed by: ' + submission.insuredName + '  |  ' + (submission.signatureDateTime || formatDateTime_(submission.submittedAt)) + '  |  IP: ' + (submission.ipAddress || 'N/A'));
+  sigInfo.setFontSize(7).setForegroundColor('#666666').setSpacingAfter(4);
+
+  body.appendImage(signatureBlob).setWidth(200);
 
   doc.saveAndClose();
 
-  const docFile = DriveApp.getFileById(docId);
-  const pdfBlob = docFile.getAs(MimeType.PDF).setName(docName + '.pdf');
-  const pdfFile = folder.createFile(pdfBlob);
+  var docFile = DriveApp.getFileById(docId);
+  var pdfBlob = docFile.getAs(MimeType.PDF).setName(docName + '.pdf');
+  var pdfFile = folder.createFile(pdfBlob);
   docFile.setTrashed(true);
 
   return pdfFile;
+}
+
+function appendCompactHeading_(body, title) {
+  var p = body.appendParagraph(title);
+  p.setFontSize(9).setBold(true).setForegroundColor('#003f87').setSpacingBefore(6).setSpacingAfter(2);
+}
+
+function appendCompactKV_(body, label, value) {
+  var p = body.appendParagraph(label + ':  ' + (value || ''));
+  p.setFontSize(9).setSpacingAfter(1).setSpacingBefore(0);
+  // Bold just the label portion
+  var text = p.editAsText();
+  text.setBold(0, label.length, true);
+  text.setBold(label.length, p.getText().length - 1, false);
+  text.setForegroundColor(0, label.length, '#333333');
+  text.setForegroundColor(label.length + 1, p.getText().length - 1, '#000000');
 }
 
 function sendOfficeEmail_(runtime, submission, folder, pdfFile, archiveFile, signatureFile) {
@@ -598,13 +615,6 @@ function buildArchiveObject_(submission) {
   };
 }
 
-function appendSectionHeading_(body, title) {
-  body.appendParagraph(title).setHeading(DocumentApp.ParagraphHeading.HEADING3);
-}
-
-function appendKeyValue_(body, label, value) {
-  body.appendParagraph(label + ': ' + (value || ''));
-}
 
 function hasTwilioConfig_(runtime) {
   return !!(runtime.twilioSid && runtime.twilioToken && (runtime.twilioFrom || runtime.twilioMessagingServiceSid));
