@@ -243,10 +243,10 @@ function createStatementPdf_(folder, submission, signatureBlob) {
   var body = doc.getBody();
 
   // Set margins for single-page letterhead
-  body.setMarginTop(36);
-  body.setMarginBottom(28);
-  body.setMarginLeft(50);
-  body.setMarginRight(50);
+  body.setMarginTop(28);
+  body.setMarginBottom(20);
+  body.setMarginLeft(45);
+  body.setMarginRight(45);
 
   var navy = '#1a2744';
   var darkRed = '#8b1a1a';
@@ -314,7 +314,7 @@ function createStatementPdf_(folder, submission, signatureBlob) {
   var stmtFull = 'STATEMENT OF NO LOSS: I, ' + (submission.insuredName || '') + ', state that neither I nor any other person covered by this policy has had a claim or loss or been involved in an accident since the cancellation or expiration of the policy (the "no loss period") wherein this policy, including any and all coverages endorsed upon or made part of the policy may apply. In addition, if this reinstatement is for a personal or commercial auto, motorcycle, or RV policy, I certify that I have disclosed the current garaging location and use of all insured vehicles including if any such vehicle is used to deliver food or goods, to transport people for compensation, or for any other business purpose. I have also disclosed household members who are age 14 or older, and all persons who regularly drive any vehicle insured under this policy. I understand that this insurance company is relying solely upon this Statement of No Loss all of which is material, as an inducement to reinstate my policy with no lapse in coverage. I further understand that if a claim, loss, or accident has occurred during the no loss period, or if I failed to disclose the current garaging location and primary use of all vehicles insured under this policy, all persons who regularly drive these vehicles, and all members of my household who are age 14 or older, the reinstatement is null and void, my policy remains cancelled and no insurance coverage shall be provided. I agree that if my check or other payment for this reinstatement is not honored for any reason, the reinstatement is null and void and no coverage shall exist under this policy. I agree to pay a reinstatement fee and late fee (if applicable) in addition to the premium required to reinstate my policy. My payment will be applied first to the reinstatement and late fee and the remainder to the premium.';
 
   var stmtPara = body.appendParagraph(stmtFull);
-  stmtPara.setFontSize(8).setLineSpacing(1.05).setSpacingAfter(4).setSpacingBefore(4);
+  stmtPara.setFontSize(7.5).setLineSpacing(1.0).setSpacingAfter(4).setSpacingBefore(4);
   // Bold the label
   stmtPara.editAsText().setBold(0, 21, true);
 
@@ -331,18 +331,18 @@ function createStatementPdf_(folder, submission, signatureBlob) {
 
   // ── ELECTRONIC SIGNATURE ──
   var sigTitle = body.appendParagraph('ELECTRONIC SIGNATURE');
-  sigTitle.setFontSize(11).setBold(true).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(4).setSpacingBefore(4);
+  sigTitle.setFontSize(9).setBold(true).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(2).setSpacingBefore(2);
 
   // Signature image
   var sigImg = body.appendImage(signatureBlob);
-  sigImg.setWidth(220);
+  sigImg.setWidth(160).setHeight(60);
   var sigImgPara = sigImg.getParent().asParagraph();
   sigImgPara.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
 
   // Signature metadata line
   var sigDateTime = submission.signatureDateTime || formatDateTime_(submission.submittedAt);
   var sigMeta = body.appendParagraph((submission.insuredName || '') + ' \u2022 ' + sigDateTime + ' \u2022 IP: ' + (submission.ipAddress || 'N/A') + ' \u2022 Session: ' + (submission.sessionId || submission.confirmationNumber));
-  sigMeta.setFontSize(7).setForegroundColor(gray).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(4).setSpacingBefore(4);
+  sigMeta.setFontSize(6).setForegroundColor(gray).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(2).setSpacingBefore(2);
 
   // Legal footer
   var legalLine = body.appendParagraph('Electronic signature valid per E-SIGN Act \u2022 Bill Layne Insurance Agency \u2022 www.BillLayneInsurance.com');
