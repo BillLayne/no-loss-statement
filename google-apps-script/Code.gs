@@ -453,159 +453,92 @@ function sendCustomerEmail_(runtime, submission, pdfFile) {
     localTime = submission.submittedAt || new Date().toLocaleString();
   }
 
-  var subject = '\u2705 Statement of No Loss Received \u2014 ' + htmlEscape_(submission.insuredName) + ' \u2014 ' + htmlEscape_(carrier);
+  var subject = 'Statement of No Loss Received - ' + (submission.insuredName || '') + ' - Bill Layne Insurance';
   var logoUrl = 'https://i.imgur.com/lxu9nfT.png';
-  var carrierSlug = carrier.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-  var clientSlug = (submission.insuredName || '').toLowerCase().replace(/[^a-z0-9]+/g, '_');
+  var ff = "font-family:'Inter',Arial,'Helvetica Neue',Helvetica,sans-serif;";
 
   var htmlBody = [
-    '<!DOCTYPE html><html lang="en" xmlns="http://www.w3.org/1999/xhtml"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="x-apple-disable-message-reformatting"><title>Statement of No Loss Received</title>',
-    '<style>body,table,td,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%}table,td{mso-table-lspace:0;mso-table-rspace:0}img{-ms-interpolation-mode:bicubic;border:0;height:auto;line-height:100%;outline:none;text-decoration:none}body{margin:0;padding:0;width:100%!important;background-color:#f1f5f9}@media only screen and (max-width:620px){.email-container{width:100%!important;padding:0 12px!important}.hero-pad{padding:28px 20px 32px!important}.card-pad{padding:20px 16px!important}.btn-td{padding:14px 24px!important}}</style>',
-    '</head><body style="margin:0;padding:0;background-color:#f1f5f9;font-family:Arial,\'Helvetica Neue\',Helvetica,sans-serif;">',
+    '<!DOCTYPE html><html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="x-apple-disable-message-reformatting"><meta name="format-detection" content="telephone=no"><title>Statement of No Loss Received - ' + htmlEscape_(submission.insuredName || '') + ' - Bill Layne Insurance</title>',
+    '<!--[if mso]><noscript><xml><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript><![endif]-->',
+    '<style>body,table,td,p,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%}table,td{mso-table-lspace:0pt;mso-table-rspace:0pt}img{-ms-interpolation-mode:bicubic;border:0;outline:none;text-decoration:none;display:block}body{margin:0!important;padding:0!important;background-color:#f1f5f9;width:100%!important}.card-pad{padding:28px 32px!important}.hero-pad{padding:36px 28px!important}@media only screen and (max-width:620px){.email-container{width:100%!important}.card-pad{padding:20px 16px!important}.hero-pad{padding:28px 16px!important}.cta-btn{width:100%!important}.btn-td{padding:14px 24px!important}}</style>',
+    '<script type="application/ld+json">{"@context":"http://schema.org","@type":"EmailMessage","description":"No Loss statement confirmed for ' + htmlEscape_(submission.insuredName || '') + ' - ' + htmlEscape_(carrier) + ' policy ' + htmlEscape_(submission.policyNumber || '') + '","action":{"@type":"ViewAction","url":"https://www.BillLayneInsurance.com","name":"View Agency Website"}}</script>',
+    '</head><body style="margin:0;padding:0;background-color:#f1f5f9;">',
 
-    '<div style="display:none;font-size:1px;color:#f1f5f9;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">your no loss statement is confirmed &#8212; copy attached for your records</div>',
+    '<div style="display:none;white-space:nowrap;font:15px courier;color:#ffffff;line-height:0;width:600px!important;min-width:600px!important;max-width:600px!important;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>',
+    '<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;color:#f1f5f9;line-height:1px;">your no loss statement is confirmed &#8212; copy attached for your records&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;</div>',
 
-    '<table cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#f1f5f9" style="background-color:#f1f5f9;"><tr><td align="center" style="padding:24px 16px;">',
-    '<table cellpadding="0" cellspacing="0" border="0" width="600" class="email-container" style="width:600px;max-width:600px;margin:0 auto;">',
+    '<table cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#f1f5f9" style="background-color:#f1f5f9;"><tr><td align="center" style="padding:20px 10px;">',
+    '<!--[if mso]><table align="center" border="0" cellspacing="0" cellpadding="0" width="600"><tr><td width="600"><![endif]-->',
+    '<table cellpadding="0" cellspacing="0" border="0" width="600" class="email-container" style="max-width:600px;">',
 
-    // ── CARD 1: HEADER ──
-    '<tr><td style="padding-bottom:4px;">',
-    '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#fafafa;border-radius:16px 16px 0 0;border:1px solid #e2e8f0;border-bottom:none;">',
+    // CARD 1: HEADER
+    '<tr><td style="padding-bottom:4px;"><table cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#fafafa" style="background-color:#fafafa;border-radius:16px 16px 0 0;border:1px solid #e2e8f0;">',
     '<tr><td style="height:4px;background-color:#003f87;font-size:0;line-height:0;border-radius:16px 16px 0 0;">&nbsp;</td></tr>',
-    '<tr><td style="padding:20px 24px;" class="card-pad">',
-    '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>',
-    '<td align="center" valign="middle">',
-    '<table cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#ffffff" style="background-color:#ffffff;border-radius:8px;padding:8px 12px;">',
-    '<img src="' + logoUrl + '" width="160" alt="Bill Layne Insurance Agency" style="display:block;width:160px;max-width:160px;height:auto;">',
-    '</td></tr></table>',
-    '</td>',
-    '</tr></table>',
-    '</td></tr>',
-    '<tr><td style="padding:0 24px 14px;text-align:center;">',
-    '<p style="margin:0;font-size:11px;color:#64748b;font-family:Arial,sans-serif;letter-spacing:0.3px;">Statement of No Loss Confirmation &bull; ' + htmlEscape_(carrier) + ' &bull; Bill Layne Insurance Agency</p>',
-    '</td></tr>',
+    '<tr><td style="padding:20px 24px;" class="card-pad"><table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td align="center" valign="middle"><table cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#ffffff" style="background-color:#ffffff;border-radius:8px;padding:8px 12px;"><img src="' + logoUrl + '" width="160" alt="Bill Layne Insurance Agency" style="display:block;width:160px;max-width:160px;height:auto;"></td></tr></table></td></tr></table></td></tr>',
+    '<tr><td style="padding:0 24px 14px;text-align:center;"><p style="margin:0;font-size:11px;color:#64748b;' + ff + 'letter-spacing:0.3px;">Statement of No Loss Confirmation &bull; ' + htmlEscape_(carrier) + ' &bull; Bill Layne Insurance Agency</p></td></tr>',
     '</table></td></tr>',
 
-    // ── CARD 2: HERO GREEN ──
-    '<tr><td style="padding-bottom:4px;">',
-    '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="border:1px solid #e2e8f0;border-top:none;border-bottom:none;">',
-    '<tr><td class="hero-pad" style="padding:36px 32px 40px;background-color:#059669;text-align:center;">',
-
-    '<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 16px;"><tr><td style="background-color:#047857;border-radius:20px;padding:5px 16px;">',
-    '<span style="font-size:11px;font-weight:700;color:#ffffff;font-family:Arial,sans-serif;letter-spacing:1.5px;text-transform:uppercase;">&#9989; No Loss Statement Received</span>',
-    '</td></tr></table>',
-
-    '<p style="margin:0 0 6px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.80);font-family:Arial,sans-serif;letter-spacing:0.5px;text-transform:uppercase;">Thank You</p>',
-    '<p style="margin:0 0 8px;font-size:28px;font-weight:700;color:#ffffff;font-family:Arial,sans-serif;line-height:1.2;">' + htmlEscape_(submission.insuredName) + '</p>',
-
-    '<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>',
-    '<td style="background-color:#047857;border-radius:10px;padding:10px 20px;border:1px solid rgba(255,255,255,0.25);">',
-    '<p style="margin:0;font-size:11px;font-weight:700;color:#C8A84E;font-family:Arial,sans-serif;letter-spacing:1.2px;text-transform:uppercase;text-align:center;">Policy Number</p>',
-    '<p style="margin:4px 0 0;font-size:14px;font-weight:600;color:#ffffff;font-family:Arial,sans-serif;text-align:center;">' + htmlEscape_(submission.policyNumber) + '</p>',
-    '<p style="margin:2px 0 0;font-size:12px;color:rgba(255,255,255,0.70);font-family:Arial,sans-serif;text-align:center;">' + htmlEscape_(carrier) + ' &bull; ' + htmlEscape_(submission.policyType || 'Policy') + '</p>',
-    '</td></tr></table>',
-
-    '</td></tr></table></td></tr>',
-
-    // ── CARD 3: BODY + DETAILS ──
-    '<tr><td style="padding-bottom:4px;">',
-    '<table cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#ffffff" style="background-color:#ffffff;border:1px solid #e2e8f0;border-top:none;border-bottom:none;">',
-    '<tr><td style="padding:28px 28px 0;" class="card-pad">',
-    '<p style="margin:0 0 16px;font-size:15px;color:#334155;font-family:Arial,sans-serif;line-height:1.65;">Your signed Statement of No Loss has been received and confirmed. A copy is attached to this email for your records &#8212; please save it in case you ever need it.</p>',
-    '</td></tr>',
-
-    '<tr><td style="padding:0 28px 20px;" class="card-pad">',
-    '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#f0f9ff;border-radius:12px;border:1px solid #bae6fd;">',
-    '<tr><td style="padding:18px 20px;">',
-    '<p style="margin:0 0 10px;font-size:10px;font-weight:700;color:#0369a1;font-family:Arial,sans-serif;letter-spacing:1.5px;text-transform:uppercase;">Statement Details</p>',
-
-    '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:8px;"><tr><td style="font-size:13px;color:#64748b;font-family:Arial,sans-serif;">Confirmation #</td><td align="right" style="font-size:13px;font-weight:700;color:#0f172a;font-family:Arial,sans-serif;">' + htmlEscape_(submission.confirmationNumber) + '</td></tr></table>',
-    '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:8px;"><tr><td style="font-size:13px;color:#64748b;font-family:Arial,sans-serif;">Policy Number</td><td align="right" style="font-size:13px;color:#0f172a;font-family:Arial,sans-serif;">' + htmlEscape_(submission.policyNumber) + '</td></tr></table>',
-    '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:8px;"><tr><td style="font-size:13px;color:#64748b;font-family:Arial,sans-serif;">Insurance Company</td><td align="right" style="font-size:13px;color:#0f172a;font-family:Arial,sans-serif;">' + htmlEscape_(carrier) + '</td></tr></table>',
-    '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td style="font-size:13px;color:#64748b;font-family:Arial,sans-serif;">Submitted</td><td align="right" style="font-size:13px;color:#0f172a;font-family:Arial,sans-serif;">' + htmlEscape_(localTime) + '</td></tr></table>',
-
+    // CARD 2: HERO GREEN
+    '<tr><td style="padding-bottom:4px;"><table cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#059669" style="background-color:#059669;border-radius:16px;border:1px solid #e2e8f0;"><tr><td class="hero-pad" style="padding:36px 32px 40px;text-align:center;">',
+    '<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 16px;"><tr><td bgcolor="#047857" style="background-color:#047857;border-radius:20px;padding:5px 16px;"><span style="font-size:11px;font-weight:700;color:#ffffff;' + ff + 'letter-spacing:1.5px;text-transform:uppercase;">&#9989; No Loss Statement Received</span></td></tr></table>',
+    '<p style="margin:0 0 6px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.80);' + ff + 'letter-spacing:0.5px;text-transform:uppercase;">Thank You</p>',
+    '<p style="margin:0 0 8px;font-size:28px;font-weight:700;color:#ffffff;' + ff + 'line-height:1.2;">' + htmlEscape_(submission.insuredName || '') + '</p>',
+    '<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td bgcolor="#047857" style="background-color:#047857;border-radius:10px;padding:10px 20px;border:1px solid rgba(255,255,255,0.25);">',
+    '<p style="margin:0;font-size:11px;font-weight:700;color:#C8A84E;' + ff + 'letter-spacing:1.2px;text-transform:uppercase;text-align:center;">Policy Number</p>',
+    '<p style="margin:4px 0 0;font-size:14px;font-weight:600;color:#ffffff;' + ff + 'text-align:center;">' + htmlEscape_(submission.policyNumber || '') + '</p>',
+    '<p style="margin:2px 0 0;font-size:12px;color:rgba(255,255,255,0.70);' + ff + 'text-align:center;">' + htmlEscape_(carrier) + ' &bull; ' + htmlEscape_(submission.policyType || 'Policy') + '</p>',
     '</td></tr></table>',
     '</td></tr></table></td></tr>',
 
-    // ── CARD 4: WHAT HAPPENS NEXT ──
-    '<tr><td style="padding-bottom:4px;">',
-    '<table cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#fafafa" style="background-color:#fafafa;border:1px solid #e2e8f0;border-top:none;border-bottom:none;">',
-    '<tr><td style="padding:24px 28px;" class="card-pad">',
-    '<p style="margin:0 0 4px;font-size:10px;font-weight:700;color:#64748b;font-family:Arial,sans-serif;letter-spacing:1.5px;text-transform:uppercase;">Next Steps</p>',
-    '<p style="margin:0 0 16px;font-size:20px;font-weight:700;color:#0f172a;font-family:Arial,sans-serif;">What Happens Next</p>',
+    // CARD 3: BODY + DETAILS
+    '<tr><td style="padding-bottom:4px;"><table cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#ffffff" style="background-color:#ffffff;border-radius:16px;border:1px solid #e2e8f0;">',
+    '<tr><td style="padding:28px 28px 0;" class="card-pad"><p style="margin:0 0 16px;font-size:15px;color:#334155;' + ff + 'line-height:1.65;">Your signed Statement of No Loss has been received and confirmed. A copy is attached to this email for your records &#8212; please save it in case you ever need it.</p></td></tr>',
+    '<tr><td style="padding:0 28px 24px;" class="card-pad"><table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#f0f9ff;border-radius:12px;border:1px solid #bae6fd;"><tr><td style="padding:18px 20px;">',
+    '<p style="margin:0 0 10px;font-size:10px;font-weight:700;color:#0369a1;' + ff + 'letter-spacing:1.5px;text-transform:uppercase;">Statement Details</p>',
+    '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:8px;"><tr><td style="font-size:13px;color:#64748b;' + ff + '">Confirmation #</td><td align="right" style="font-size:13px;font-weight:700;color:#0f172a;' + ff + '">' + htmlEscape_(submission.confirmationNumber) + '</td></tr></table>',
+    '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:8px;"><tr><td style="font-size:13px;color:#64748b;' + ff + '">Policy Number</td><td align="right" style="font-size:13px;color:#0f172a;' + ff + '">' + htmlEscape_(submission.policyNumber) + '</td></tr></table>',
+    '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:8px;"><tr><td style="font-size:13px;color:#64748b;' + ff + '">Insurance Company</td><td align="right" style="font-size:13px;color:#0f172a;' + ff + '">' + htmlEscape_(carrier) + '</td></tr></table>',
+    '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td style="font-size:13px;color:#64748b;' + ff + '">Submitted</td><td align="right" style="font-size:13px;color:#0f172a;' + ff + '">' + htmlEscape_(localTime) + '</td></tr></table>',
+    '</td></tr></table></td></tr></table></td></tr>',
 
-    '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#f0fdf4;border-radius:12px;border:1px solid #bbf7d0;">',
-    '<tr><td style="padding:18px 20px;">',
-
-    buildStep_(1, 'Securely stored', 'Your signed statement is saved in your policy file'),
-    buildStep_(2, 'Forwarded to carrier', 'We\'ll send it to ' + htmlEscape_(carrier) + ' on your behalf'),
-    buildStep_(3, 'Save your copy', 'The attached PDF is your receipt'),
-    buildStepLast_(4, 'Nothing else needed', 'We\'ll reach out if anything changes'),
-
+    // CARD 4: WHAT HAPPENS NEXT
+    '<tr><td style="padding-bottom:4px;"><table cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#ffffff" style="background-color:#ffffff;border-radius:16px;border:1px solid #e2e8f0;border-left:4px solid #059669;"><tr><td style="padding:24px 28px;" class="card-pad">',
+    '<p style="margin:0 0 4px;font-size:10px;font-weight:700;color:#64748b;' + ff + 'letter-spacing:1.5px;text-transform:uppercase;">Next Steps</p>',
+    '<p style="margin:0 0 16px;font-size:20px;font-weight:700;color:#0f172a;' + ff + '">What Happens Next</p>',
+    '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#f0fdf4;border-radius:12px;border:1px solid #bbf7d0;"><tr><td style="padding:18px 20px;">',
+    nlStep_(ff, '1', 'Securely stored', 'Your signed statement is saved in your policy file'),
+    nlStep_(ff, '2', 'Forwarded to carrier', 'We\'ll send it to ' + htmlEscape_(carrier) + ' on your behalf'),
+    nlStep_(ff, '3', 'Save your copy', 'The attached PDF is your receipt'),
+    nlStepLast_(ff, '4', 'Nothing else needed', 'We\'ll reach out if anything changes'),
     '</td></tr></table>',
     '</td></tr></table></td></tr>',
 
-    // ── CARD 5: CTA ──
-    '<tr><td style="padding-bottom:4px;">',
-    '<table cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#ffffff" style="background-color:#ffffff;border:1px solid #e2e8f0;border-top:none;border-bottom:none;">',
-    '<tr><td style="padding:24px 28px;" class="card-pad">',
-
-    '<p style="margin:0 0 4px;font-size:15px;color:#334155;font-family:Arial,sans-serif;line-height:1.6;">Thanks in advance,</p>',
-    '<p style="margin:0 0 16px;font-size:15px;font-weight:700;color:#0f172a;font-family:Arial,sans-serif;">&mdash; Bill Layne</p>',
-
-    '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:20px;"><tr><td style="padding:0 4px;text-align:center;">',
-    '<p style="margin:0;font-size:13px;color:#64748b;font-family:Arial,sans-serif;line-height:1.6;font-style:italic;">Need a different format, additional documentation, or have questions about your policy? Reply here and I\'ll get back to you within the hour.</p>',
-    '</td></tr></table>',
-
-    '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td align="center">',
-    '<table cellpadding="0" cellspacing="0" border="0"><tr><td class="btn-td" style="background-color:#003f87;border-radius:12px;padding:14px 36px;">',
-    '<a href="tel:3368351993" style="display:block;font-size:15px;font-weight:700;color:#ffffff;font-family:Arial,sans-serif;text-decoration:none;text-align:center;">Call (336) 835-1993</a>',
-    '</td></tr></table></td></tr></table>',
-
-    '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:12px;"><tr><td align="center">',
-    '<table cellpadding="0" cellspacing="0" border="0"><tr><td style="border:2px solid #003f87;border-radius:12px;padding:12px 28px;">',
-    '<a href="https://m.me/dollarbillagency?text=Hi%20Bill%2C%20I%20have%20a%20question%20about%20my%20no%20loss%20statement" target="_blank" style="display:block;font-size:14px;font-weight:700;color:#003f87;font-family:Arial,sans-serif;text-decoration:none;text-align:center;">&#128172; Chat on Messenger</a>',
-    '</td></tr></table></td></tr>',
-    '<tr><td align="center" style="padding-top:6px;">',
-    '<p style="margin:0;font-size:11px;color:#94a3b8;font-family:Arial,sans-serif;">Available Mon&ndash;Fri 9am&ndash;5pm &bull; We reply within 1 business hour</p>',
-    '</td></tr></table>',
-
+    // CARD 5: CTA
+    '<tr><td style="padding-bottom:4px;"><table cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#ffffff" style="background-color:#ffffff;border-radius:16px;border:1px solid #e2e8f0;"><tr><td style="padding:24px 28px;" class="card-pad">',
+    '<p style="margin:0 0 4px;font-size:15px;color:#334155;' + ff + 'line-height:1.6;">Thanks in advance,</p>',
+    '<p style="margin:0 0 16px;font-size:15px;font-weight:700;color:#0f172a;' + ff + '">&mdash; Bill Layne</p>',
+    '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:20px;"><tr><td style="padding:0 4px;text-align:center;"><p style="margin:0;font-size:13px;color:#64748b;' + ff + 'line-height:1.6;font-style:italic;">Need a different format, additional documentation, or have questions about your policy? Reply here and I\'ll get back to you within the hour.</p></td></tr></table>',
+    '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td align="center"><table cellpadding="0" cellspacing="0" border="0"><tr><td class="btn-td" bgcolor="#003f87" style="background-color:#003f87;border-radius:8px;padding:14px 36px;"><a href="tel:3368351993" style="display:block;font-size:15px;font-weight:700;color:#ffffff;' + ff + 'text-decoration:none;text-align:center;">&#128222;&nbsp;&nbsp;Call (336) 835-1993</a></td></tr></table></td></tr></table>',
+    '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:12px;"><tr><td align="center"><table cellpadding="0" cellspacing="0" border="0"><tr><td style="border:2px solid #003f87;border-radius:8px;padding:12px 28px;"><a href="https://m.me/dollarbillagency?text=Hi%20Bill%2C%20I%20have%20a%20question%20about%20my%20no%20loss%20statement" target="_blank" style="display:block;font-size:14px;font-weight:700;color:#003f87;' + ff + 'text-decoration:none;text-align:center;">&#128172; Chat on Messenger</a></td></tr></table></td></tr><tr><td align="center" style="padding-top:6px;"><p style="margin:0;font-size:11px;color:#94a3b8;' + ff + '">Available Mon&ndash;Fri 9am&ndash;5pm &bull; We reply within 1 business hour</p></td></tr></table>',
     '</td></tr></table></td></tr>',
 
-    // ── FOOTER ──
-    '<tr><td>',
-    '<table cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#fafafa" style="background-color:#fafafa;border-radius:0 0 16px 16px;border:1px solid #e2e8f0;border-top:none;">',
-    '<tr><td style="padding:28px 24px;text-align:center;" class="card-pad">',
-
-    '<table cellpadding="0" cellspacing="0" border="0" width="60" style="margin:0 auto 20px auto;"><tr><td style="height:3px;background-color:#003f87;font-size:0;line-height:0;">&nbsp;</td></tr></table>',
-
-    '<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 12px auto;"><tr><td bgcolor="#ffffff" style="background-color:#ffffff;border-radius:8px;padding:8px 12px;">',
-    '<img src="' + logoUrl + '" width="140" alt="Bill Layne Insurance Agency" style="display:block;width:140px;max-width:140px;height:auto;">',
-    '</td></tr></table>',
-
-    '<p style="margin:0 0 4px;font-size:14px;font-weight:700;color:#0f172a;font-family:Arial,sans-serif;">Bill Layne Insurance Agency</p>',
-    '<p style="margin:0 0 2px;font-size:12px;color:#64748b;font-family:Arial,sans-serif;">1283 N Bridge St &bull; Elkin, NC 28621</p>',
-    '<p style="margin:0 0 2px;font-size:12px;color:#64748b;font-family:Arial,sans-serif;"><a href="tel:3368351993" style="color:#64748b;text-decoration:none;">(336) 835-1993</a> &bull; <a href="mailto:Save@BillLayneInsurance.com" style="color:#64748b;text-decoration:none;">Save@BillLayneInsurance.com</a></p>',
-    '<p style="margin:0 0 14px;font-size:12px;color:#64748b;font-family:Arial,sans-serif;"><a href="https://www.BillLayneInsurance.com" style="color:#64748b;text-decoration:none;">www.BillLayneInsurance.com</a> &bull; Est. 2005</p>',
-
-    '<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 14px auto;"><tr>',
-    '<td style="padding:0 6px;"><table cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:#e2e8f0;border-radius:6px;padding:6px 12px;"><a href="https://www.facebook.com/dollarbillagency" style="font-size:11px;color:#003f87;font-family:Arial,sans-serif;text-decoration:none;font-weight:700;">Facebook</a></td></tr></table></td>',
-    '<td style="padding:0 6px;"><table cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:#e2e8f0;border-radius:6px;padding:6px 12px;"><a href="https://www.youtube.com/@ncautoandhome" style="font-size:11px;color:#003f87;font-family:Arial,sans-serif;text-decoration:none;font-weight:700;">YouTube</a></td></tr></table></td>',
-    '<td style="padding:0 6px;"><table cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:#e2e8f0;border-radius:6px;padding:6px 12px;"><a href="https://www.instagram.com/ncautoandhome" style="font-size:11px;color:#003f87;font-family:Arial,sans-serif;text-decoration:none;font-weight:700;">Instagram</a></td></tr></table></td>',
-    '<td style="padding:0 6px;"><table cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color:#e2e8f0;border-radius:6px;padding:6px 12px;"><a href="https://twitter.com/shopsavecompare" style="font-size:11px;color:#003f87;font-family:Arial,sans-serif;text-decoration:none;font-weight:700;">X</a></td></tr></table></td>',
-    '</tr></table>',
-
-    '<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 14px auto;"><tr><td style="background-color:#f8fafc;border-radius:8px;padding:8px 14px;border:1px solid #e2e8f0;">',
-    '<p style="margin:0;font-size:12px;font-weight:700;color:#0f172a;font-family:Arial,sans-serif;">4.9 &#11088;&#11088;&#11088;&#11088;&#11088; <span style="font-weight:400;color:#64748b;">100+ Google Reviews</span></p>',
-    '</td></tr></table>',
-
-    '<p style="margin:0 0 10px;font-size:11px;color:#64748b;font-family:Arial,sans-serif;text-align:center;">Follow us on Facebook for tips, reminders &amp; updates &nbsp;&rarr;&nbsp;<a href="https://facebook.com/dollarbillagency" target="_blank" style="color:#003f87;font-weight:700;text-decoration:none;">facebook.com/dollarbillagency</a></p>',
-
-    '<p style="margin:0;font-size:11px;color:#94a3b8;font-family:Arial,sans-serif;text-align:center;">You\'re receiving this because you\'re a valued client of Bill Layne Insurance Agency.<br>&copy; 2026 Bill Layne Insurance Agency. All rights reserved.</p>',
-
+    // FOOTER
+    '<tr><td><table cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#fafafa" style="background-color:#fafafa;border-radius:0 0 16px 16px;border:1px solid #e2e8f0;border-top:none;"><tr><td style="padding:28px 24px;text-align:center;" class="card-pad">',
+    '<table cellpadding="0" cellspacing="0" border="0" width="60" style="margin:0 auto 20px auto;"><tr><td style="height:3px;background:linear-gradient(90deg,#003f87,#C8A84E);font-size:0;line-height:0;">&nbsp;</td></tr></table>',
+    '<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 12px auto;"><tr><td bgcolor="#ffffff" style="background-color:#ffffff;border-radius:6px;padding:6px 8px;"><img src="' + logoUrl + '" width="140" alt="Bill Layne Insurance Agency" style="display:block;width:140px;max-width:140px;height:auto;"></td></tr></table>',
+    '<p style="margin:0 0 4px 0;font-size:14px;font-weight:700;color:#0f172a;' + ff + '">Bill Layne Insurance Agency</p>',
+    '<p style="margin:0 0 2px 0;font-size:12px;color:#64748b;' + ff + '">1283 N Bridge St &bull; Elkin, NC 28621</p>',
+    '<p style="margin:0 0 2px 0;font-size:12px;color:#64748b;' + ff + '"><a href="tel:3368351993" style="color:#003f87;text-decoration:none;' + ff + '">(336)&nbsp;835&#8209;1993</a>&nbsp;&bull;&nbsp;<a href="mailto:Save@BillLayneInsurance.com" style="color:#003f87;text-decoration:none;' + ff + '">Save@BillLayneInsurance.com</a></p>',
+    '<p style="margin:0 0 16px 0;font-size:12px;color:#64748b;' + ff + '"><a href="https://www.BillLayneInsurance.com" style="color:#003f87;text-decoration:none;' + ff + '">BillLayneInsurance.com</a>&nbsp;&bull;&nbsp;Est. 2005</p>',
+    '<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 16px auto;"><tr><td style="padding:0 6px;"><a href="https://facebook.com/dollarbillagency" style="font-size:11px;color:#64748b;text-decoration:none;' + ff + '">Facebook</a></td><td style="color:#cbd5e1;font-size:11px;">|</td><td style="padding:0 6px;"><a href="https://youtube.com/@ncautoandhome" style="font-size:11px;color:#64748b;text-decoration:none;' + ff + '">YouTube</a></td><td style="color:#cbd5e1;font-size:11px;">|</td><td style="padding:0 6px;"><a href="https://instagram.com/ncautoandhome" style="font-size:11px;color:#64748b;text-decoration:none;' + ff + '">Instagram</a></td><td style="color:#cbd5e1;font-size:11px;">|</td><td style="padding:0 6px;"><a href="https://x.com/shopsavecompare" style="font-size:11px;color:#64748b;text-decoration:none;' + ff + '">X</a></td></tr></table>',
+    '<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 14px auto;"><tr><td style="background-color:#f8fafc;border-radius:8px;padding:8px 14px;border:1px solid #e2e8f0;"><table cellpadding="0" cellspacing="0" border="0"><tr><td valign="middle" style="padding-right:6px;"><img src="https://i.imgur.com/nDFmjxh.png" width="18" height="18" alt="Google" style="display:block;width:18px;height:18px;"></td><td valign="middle"><p style="margin:0;font-size:12px;font-weight:700;color:#0f172a;' + ff + '">4.9 &#11088;&#11088;&#11088;&#11088;&#11088; <span style="font-weight:400;color:#64748b;">100+ Google Reviews</span></p></td></tr></table></td></tr></table>',
+    '<p style="margin:0 0 10px 0;font-size:11px;color:#64748b;' + ff + 'text-align:center;">Follow us on Facebook for tips, reminders &amp; updates &nbsp;&rarr;&nbsp;<a href="https://facebook.com/dollarbillagency" target="_blank" style="color:#003f87;font-weight:700;text-decoration:none;' + ff + '">facebook.com/dollarbillagency</a></p>',
+    '<p style="margin:0 0 10px 0;font-size:11px;color:#64748b;' + ff + 'text-align:center;">&#128242; Want policy updates in Messenger? <a href="https://m.me/dollarbillagency?text=Yes%2C%20please%20send%20my%20policy%20updates%20via%20Messenger" target="_blank" style="color:#003f87;font-weight:700;text-decoration:none;' + ff + '">Tap here to connect &rarr;</a></p>',
+    '<p style="margin:0;font-size:11px;color:#94a3b8;' + ff + '">To unsubscribe from agency communications, reply with UNSUBSCRIBE.</p>',
     '</td></tr></table></td></tr>',
 
     '</table>',
+    '<!--[if mso]></td></tr></table><![endif]-->',
     '</td></tr></table>',
     '</body></html>'
   ].join('');
@@ -623,12 +556,12 @@ function sendCustomerEmail_(runtime, submission, pdfFile) {
   return true;
 }
 
-function buildStep_(num, title, desc) {
-  return '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:12px;"><tr><td width="36" valign="top"><table cellpadding="0" cellspacing="0" border="0" width="28" height="28"><tr><td width="28" height="28" align="center" valign="middle" style="background-color:#059669;border-radius:8px;font-size:13px;font-weight:700;color:#ffffff;font-family:Arial,sans-serif;line-height:28px;">' + num + '</td></tr></table></td><td style="padding-left:8px;vertical-align:middle;"><p style="margin:0;font-size:14px;color:#334155;font-family:Arial,sans-serif;line-height:1.5;"><strong style="color:#0f172a;">' + title + '</strong> &#8212; ' + desc + '</p></td></tr></table>';
+function nlStep_(ff, num, title, desc) {
+  return '<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:12px;"><tr><td width="36" valign="top"><table cellpadding="0" cellspacing="0" border="0" width="28" height="28"><tr><td width="28" height="28" align="center" valign="middle" bgcolor="#059669" style="background-color:#059669;border-radius:8px;font-size:13px;font-weight:700;color:#ffffff;' + ff + 'line-height:28px;">' + num + '</td></tr></table></td><td style="padding-left:8px;vertical-align:middle;"><p style="margin:0;font-size:14px;color:#334155;' + ff + 'line-height:1.5;"><strong style="color:#0f172a;">' + title + '</strong> &#8212; ' + desc + '</p></td></tr></table>';
 }
 
-function buildStepLast_(num, title, desc) {
-  return '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td width="36" valign="top"><table cellpadding="0" cellspacing="0" border="0" width="28" height="28"><tr><td width="28" height="28" align="center" valign="middle" style="background-color:#059669;border-radius:8px;font-size:13px;font-weight:700;color:#ffffff;font-family:Arial,sans-serif;line-height:28px;">' + num + '</td></tr></table></td><td style="padding-left:8px;vertical-align:middle;"><p style="margin:0;font-size:14px;color:#334155;font-family:Arial,sans-serif;line-height:1.5;"><strong style="color:#0f172a;">' + title + '</strong> &#8212; ' + desc + '</p></td></tr></table>';
+function nlStepLast_(ff, num, title, desc) {
+  return '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td width="36" valign="top"><table cellpadding="0" cellspacing="0" border="0" width="28" height="28"><tr><td width="28" height="28" align="center" valign="middle" bgcolor="#059669" style="background-color:#059669;border-radius:8px;font-size:13px;font-weight:700;color:#ffffff;' + ff + 'line-height:28px;">' + num + '</td></tr></table></td><td style="padding-left:8px;vertical-align:middle;"><p style="margin:0;font-size:14px;color:#334155;' + ff + 'line-height:1.5;"><strong style="color:#0f172a;">' + title + '</strong> &#8212; ' + desc + '</p></td></tr></table>';
 }
 
 function sendCustomerConfirmationSms_(runtime, submission) {
