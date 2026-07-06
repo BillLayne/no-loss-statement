@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Statement of No Loss - Bill Layne Insurance</title>
 
     <!-- Fonts -->
@@ -265,16 +265,6 @@
             display: inline-block;
         }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://aistudiocdn.com/react@^19.2.1",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
-    "react/": "https://aistudiocdn.com/react@^19.2.1/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.32.0"
-  }
-}
-</script>
 </head>
 <body class="font-sans text-slate-600 antialiased selection:bg-primary-100 selection:text-primary-900">
 
@@ -331,6 +321,25 @@
                 <div class="text-center mb-6">
                     <h2 class="text-2xl sm:text-3xl font-display font-extrabold text-slate-800 mb-2">Reinstatement Request</h2>
                     <p class="text-slate-500 text-base">Complete this form to reinstate your policy. It only takes a few minutes.</p>
+                </div>
+
+                <!-- Loading banner — shows while a secure link payload is fetched -->
+                <div id="linkLoadingBanner" class="hidden bg-primary-50 border border-primary-200 rounded-xl p-4 mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-5 h-5 border-2 border-primary-200 border-t-primary-600 rounded-full animate-spin flex-shrink-0"></div>
+                        <p class="text-slate-600 text-sm font-medium">Loading your information...</p>
+                    </div>
+                </div>
+
+                <!-- Link status banner — shows when a secure link is expired/invalid -->
+                <div id="linkErrorBanner" class="hidden bg-amber-50 border border-amber-300 rounded-xl p-4 mb-6">
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-clock text-amber-500 text-xl mt-0.5 flex-shrink-0"></i>
+                        <div>
+                            <p class="font-bold text-slate-800 text-base mb-1" id="linkErrorTitle">This link has expired</p>
+                            <p class="text-slate-600 text-sm" id="linkErrorText">For your security, pre-filled links expire after 7 days. Please call us at <a href="tel:3368351993" class="font-bold text-primary-600">(336) 835-1993</a> for a new link, or fill in the form manually below.</p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Guidance Banner — shows when form is prefilled -->
@@ -445,8 +454,9 @@
 
                         <div class="grid sm:grid-cols-2 gap-5">
                             <div>
-                                <label class="block text-sm font-bold text-slate-700 mb-2">Email Address</label>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Email Address <span class="font-normal text-slate-400">(recommended)</span></label>
                                 <input type="email" id="email" name="email" class="form-input" placeholder="you@example.com">
+                                <p class="text-xs text-slate-400 mt-1.5">We'll email you a copy of your signed statement.</p>
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-slate-700 mb-2">Phone Number <span class="text-red-500">*</span></label>
@@ -468,10 +478,20 @@
                                 <label class="block text-sm font-bold text-slate-700 mb-2">State <span class="text-red-500">*</span></label>
                                 <select id="state" name="state" required class="form-input">
                                     <option value="NC">NC</option>
-                                    <option value="VA">VA</option>
                                     <option value="SC">SC</option>
-                                    <option value="TN">TN</option>
+                                    <option value="VA">VA</option>
                                     <option value="GA">GA</option>
+                                    <option value="TN">TN</option>
+                                    <option value="FL">FL</option>
+                                    <option value="AL">AL</option>
+                                    <option value="MS">MS</option>
+                                    <option value="LA">LA</option>
+                                    <option value="TX">TX</option>
+                                    <option value="KY">KY</option>
+                                    <option value="WV">WV</option>
+                                    <option value="MD">MD</option>
+                                    <option value="DE">DE</option>
+                                    <option value="PA">PA</option>
                                 </select>
                             </div>
                             <div>
@@ -554,6 +574,16 @@
                     </div>
                     <hr class="border-slate-100 my-4">
 
+                    <div class="mb-5">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Type your full legal name <span class="text-red-500">*</span></label>
+                        <input type="text" id="typedName" name="typedName" required class="form-input" placeholder="Your full legal name" autocomplete="name">
+                    </div>
+
+                    <label class="flex items-start gap-4 p-4 bg-white border-2 border-slate-200 rounded-xl cursor-pointer hover:border-primary-400 hover:bg-primary-50/30 transition-all shadow-sm mb-5">
+                        <input type="checkbox" id="esignConsent" name="esignConsent" required class="custom-checkbox mt-0.5 flex-shrink-0">
+                        <span class="text-base font-medium text-slate-700 leading-relaxed">I agree to conduct this transaction electronically and that my electronic signature is legally binding, the same as a handwritten signature.</span>
+                    </label>
+
                     <p class="text-base text-slate-600 mb-3 font-medium"><i class="fas fa-hand-pointer text-primary-500 mr-2"></i>Use your finger or mouse to sign in the box below <span class="text-red-500">*</span></p>
                     <div class="signature-wrapper border-2 border-dashed border-primary-300 rounded-xl overflow-hidden bg-white cursor-crosshair shadow-inner relative group hover:border-primary-500 transition-colors" style="height: 220px;">
                         <canvas id="signature-pad" class="w-full h-full"></canvas>
@@ -574,7 +604,7 @@
                 </div>
 
                 <!-- Submit Button — big, green, unmissable (hidden on mobile where sticky button takes over) -->
-                <button type="submit" id="submitBtn" class="hidden sm:flex w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold py-5 rounded-xl shadow-lg shadow-emerald-600/30 transition-all hover:shadow-xl hover:shadow-emerald-600/40 active:scale-[0.98] text-xl items-center justify-center gap-3 mt-4">
+                <button type="submit" id="submitBtn" class="hidden sm:flex w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-5 rounded-xl shadow-lg shadow-emerald-600/30 transition-all hover:shadow-xl hover:shadow-emerald-600/40 active:scale-[0.98] text-xl items-center justify-center gap-3 mt-4">
                     <i class="fas fa-paper-plane text-lg"></i>
                     <span>Submit My Statement</span>
                 </button>
@@ -587,7 +617,7 @@
 
     <!-- Sticky Mobile Submit Button -->
     <div class="mobile-sticky-submit">
-        <button type="button" id="mobileSubmitBtn" onclick="document.getElementById('noLossForm').requestSubmit()" class="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold py-3.5 rounded-xl shadow-lg text-lg flex items-center justify-center gap-2">
+        <button type="button" id="mobileSubmitBtn" onclick="document.getElementById('noLossForm').requestSubmit()" class="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg text-lg flex items-center justify-center gap-2">
             <i class="fas fa-paper-plane"></i>
             <span>Submit My Statement</span>
         </button>
@@ -633,9 +663,9 @@
             </div>
 
             <div class="space-y-3 text-base text-slate-600 mb-8 text-left px-2">
-                <p class="flex items-center gap-3"><span class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0"><i class="fas fa-envelope text-emerald-600 text-sm"></i></span> Email confirmation sent</p>
-                <p class="flex items-center gap-3"><span class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0"><i class="fas fa-sms text-emerald-600 text-sm"></i></span> SMS confirmation sent</p>
-                <p class="flex items-center gap-3"><span class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0"><i class="fas fa-file-pdf text-emerald-600 text-sm"></i></span> PDF copy sent to agency</p>
+                <p id="statusEmail" class="flex items-center gap-3"><span class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0"><i class="fas fa-envelope text-emerald-600 text-sm"></i></span> Email confirmation sent</p>
+                <p id="statusSms" class="flex items-center gap-3"><span class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0"><i class="fas fa-sms text-emerald-600 text-sm"></i></span> SMS confirmation sent</p>
+                <p id="statusAgency" class="flex items-center gap-3"><span class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0"><i class="fas fa-file-pdf text-emerald-600 text-sm"></i></span> Signed copy delivered to your agency</p>
             </div>
 
             <button onclick="closeSuccessModal()" class="w-full bg-primary-600 text-white font-bold py-4 rounded-xl hover:bg-primary-700 transition-colors shadow-lg text-lg">
@@ -698,32 +728,76 @@
             }
         }
 
+        const PREFILL_FIELDS = [
+            'insuredName', 'email', 'phone',
+            'propertyAddress', 'city', 'state', 'zipCode',
+            'insuranceCompany', 'policyNumber',
+            'policyType', 'amountPaid',
+            'cancellationDate', 'reinstatementDate'
+        ];
+
+        function applyPrefill(values) {
+            PREFILL_FIELDS.forEach(field => {
+                if (values[field]) {
+                    const element = document.getElementById(field);
+                    if (element) element.value = values[field];
+                }
+            });
+            if (values.agentName) document.getElementById('hiddenAgentName').value = values.agentName;
+            if (values.agentEmail) document.getElementById('hiddenAgentEmail').value = values.agentEmail;
+        }
+
+        function showLinkError(reason) {
+            const banner = document.getElementById('linkErrorBanner');
+            const title = document.getElementById('linkErrorTitle');
+            if (reason === 'expired') {
+                title.textContent = 'This link has expired';
+            } else {
+                title.textContent = 'We could not load your pre-filled information';
+            }
+            banner.classList.remove('hidden');
+        }
+
         // --- Initialization ---
         window.addEventListener('DOMContentLoaded', async function() {
             const urlParams = new URLSearchParams(window.location.search);
+            let prefilled = false;
 
-            // Pre-fill form fields
-            const fieldMappings = {
-                'insuredName': 'insuredName', 'email': 'email', 'phone': 'phone',
-                'propertyAddress': 'propertyAddress', 'city': 'city', 'state': 'state', 'zipCode': 'zipCode',
-                'insuranceCompany': 'insuranceCompany', 'policyNumber': 'policyNumber',
-                'policyType': 'policyType', 'amountPaid': 'amountPaid',
-                'cancellationDate': 'cancellationDate', 'reinstatementDate': 'reinstatementDate'
-            };
+            // Secure short link: payload lives server-side, keyed by token
+            const linkId = urlParams.get('t');
+            window.currentLinkId = linkId || '';
 
-            Object.keys(fieldMappings).forEach(param => {
-                const value = urlParams.get(param);
-                if (value) {
-                    const element = document.getElementById(fieldMappings[param]);
-                    if (element) element.value = decodeURIComponent(value);
+            if (linkId) {
+                const loadingBanner = document.getElementById('linkLoadingBanner');
+                loadingBanner.classList.remove('hidden');
+                try {
+                    const response = await fetch(SCRIPT_URL + '?action=get_link&t=' + encodeURIComponent(linkId));
+                    const result = await response.json();
+                    if (result && result.ok && result.data) {
+                        applyPrefill(result.data);
+                        prefilled = true;
+                    } else {
+                        showLinkError(result && result.error);
+                    }
+                } catch (error) {
+                    console.error('Could not load link payload:', error);
+                    showLinkError('network');
+                } finally {
+                    loadingBanner.classList.add('hidden');
                 }
-            });
-
-            // Agent info
-            const agentName = urlParams.get('agentName');
-            const agentEmail = urlParams.get('agentEmail');
-            if (agentName) document.getElementById('hiddenAgentName').value = agentName;
-            if (agentEmail) document.getElementById('hiddenAgentEmail').value = agentEmail;
+            } else {
+                // Legacy long link: values in the URL itself.
+                // URLSearchParams already decodes — no second decode needed.
+                const legacyValues = {};
+                PREFILL_FIELDS.concat(['agentName', 'agentEmail']).forEach(field => {
+                    const value = urlParams.get(field);
+                    if (value) legacyValues[field] = value;
+                });
+                if (Object.keys(legacyValues).length) {
+                    applyPrefill(legacyValues);
+                    prefilled = true;
+                }
+            }
 
             // Policy Type Logic
             const policyTypeElement = document.getElementById('policyType');
@@ -747,8 +821,8 @@
             // Pre-fetch IP
             window.userIPAddress = await getIPAddress();
 
-            // Show guidance banner if form was prefilled via URL params
-            if (urlParams.has('insuredName') || urlParams.has('policyNumber')) {
+            // Show guidance banner if form was prefilled
+            if (prefilled) {
                 const banner = document.getElementById('guidanceBanner');
                 if (banner) banner.classList.remove('hidden');
             }
@@ -791,21 +865,35 @@
                 backgroundColor: 'rgb(255, 255, 255)',
                 penColor: 'rgb(15, 23, 42)' // Slate-900 color for pen
             });
+            signaturePad.addEventListener('endStroke', updateSignatureWatermark);
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
+        }
+
+        function updateSignatureWatermark() {
+            const watermark = document.querySelector('.signature-watermark');
+            if (watermark) watermark.style.display = signaturePad && !signaturePad.isEmpty() ? 'none' : '';
         }
 
         function resizeCanvas() {
             const canvas = document.getElementById('signature-pad');
             const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            // Preserve any strokes: on mobile, rotating the phone or opening
+            // the keyboard fires a resize — the customer's signature must survive it.
+            const existingStrokes = signaturePad && !signaturePad.isEmpty() ? signaturePad.toData() : null;
             canvas.width = canvas.offsetWidth * ratio;
             canvas.height = canvas.offsetHeight * ratio;
             canvas.getContext('2d').scale(ratio, ratio);
-            if (signaturePad) signaturePad.clear();
+            if (signaturePad) {
+                signaturePad.clear();
+                if (existingStrokes) signaturePad.fromData(existingStrokes);
+                updateSignatureWatermark();
+            }
         }
 
         window.clearSignature = function() {
             signaturePad.clear();
+            updateSignatureWatermark();
         }
 
         window.closeSuccessModal = function() {
@@ -822,6 +910,16 @@
                 return;
             }
 
+            if (!document.getElementById('esignConsent').checked) {
+                alert('Please check the box agreeing to sign electronically.');
+                return;
+            }
+
+            if (!document.getElementById('typedName').value.trim()) {
+                alert('Please type your full legal name in the signature section.');
+                return;
+            }
+
             if (signaturePad.isEmpty()) {
                 alert('Please sign the form before submitting.');
                 return;
@@ -834,7 +932,10 @@
             loading.classList.remove('hidden');
             loading.classList.add('flex');
 
-            document.getElementById('submitBtn').disabled = true;
+            const submitBtn = document.getElementById('submitBtn');
+            const mobileSubmitBtn = document.getElementById('mobileSubmitBtn');
+            submitBtn.disabled = true;
+            mobileSubmitBtn.disabled = true;
             document.getElementById('errorMessage').classList.add('hidden');
 
             const formData = new FormData(this);
@@ -843,13 +944,14 @@
             // Checkbox logic
             data.dmvAcknowledgement = document.getElementById('dmvAcknowledgement').checked ? 'Yes' : '';
             data.mortgageAcknowledgement = document.getElementById('mortgageAcknowledgement').checked ? 'Yes' : '';
+            data.esignConsent = 'Yes';
 
-            // Metadata generation
-            const confirmationNumber = 'NOL-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            // The server generates the authoritative confirmation number;
+            // sessionId only correlates this browser session in the archive.
             const sessionId = 'NOL-SESSION-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9);
 
-            data.confirmationNumber = confirmationNumber;
             data.sessionId = sessionId;
+            data.linkId = window.currentLinkId || '';
             data.browserFingerprint = generateBrowserFingerprint();
             data.deviceInfo = getDeviceInfo();
             data.screenResolution = `${window.screen.width}x${window.screen.height}`;
@@ -873,31 +975,52 @@
             data.submittedAt = new Date().toISOString();
 
             try {
+                // Plain-text body avoids a CORS preflight so the Apps Script
+                // response stays readable — we only show success when the
+                // server actually confirms the statement was saved.
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
 
-                document.getElementById('confirmNumber').textContent = confirmationNumber;
+                if (!response.ok) {
+                    throw new Error('Server returned ' + response.status);
+                }
+
+                const result = await response.json();
+
+                if (!result || !result.ok) {
+                    throw new Error((result && result.error) || 'The server could not process your statement.');
+                }
+
+                // Show the server's authoritative confirmation number
+                document.getElementById('confirmNumber').textContent = result.confirmationNumber || 'Recorded';
+
+                // Only show the checkmarks for what actually happened
+                document.getElementById('statusEmail').style.display = result.customerEmailSent ? 'flex' : 'none';
+                document.getElementById('statusSms').style.display = result.customerSmsSent ? 'flex' : 'none';
+                document.getElementById('statusAgency').style.display = result.officeEmailSent ? 'flex' : 'none';
+
                 const successModal = document.getElementById('successModalOverlay');
                 successModal.classList.remove('hidden');
                 successModal.classList.add('flex');
 
                 this.reset();
                 signaturePad.clear();
+                updateSignatureWatermark();
                 updateCustomerNameDisplay();
 
             } catch (error) {
                 console.error('Error:', error);
                 const errorEl = document.getElementById('errorMessage');
-                errorEl.textContent = 'Failed to submit form. Please try again or contact the agency.';
+                errorEl.querySelector('span').textContent = 'We could not submit your statement (' + error.message + '). Please try again, or call us at (336) 835-1993 and we will take care of it.';
                 errorEl.classList.remove('hidden');
+                errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
             } finally {
                 loading.classList.remove('flex');
                 loading.classList.add('hidden');
-                document.getElementById('submitBtn').disabled = false;
+                submitBtn.disabled = false;
+                mobileSubmitBtn.disabled = false;
             }
         });
 

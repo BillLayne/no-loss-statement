@@ -5,14 +5,23 @@ const APP_CONFIG = Object.freeze({
   agencyWebsite: 'https://mynolossform.com',
   defaultTimeZone: 'America/New_York',
   defaultPortalSecret: 'BillLayneInsurance2025',
-  rootFolderName: 'Bill Layne Insurance - No Loss Statements'
+  rootFolderName: 'Bill Layne Insurance - No Loss Statements',
+  linksFolderName: 'Link Payloads',
+  smsLogName: 'No Loss SMS Log',
+  linkTtlDays: 7
 });
 
 function doGet(e) {
+  const params = e && e.parameter ? e.parameter : {};
+
+  if (params.action === 'get_link') {
+    return handleGetLink_(params.t);
+  }
+
   const payload = {
     ok: true,
     app: 'no-loss-statement',
-    version: '2026-04-01',
+    version: '2026-07-06',
     timestamp: new Date().toISOString()
   };
 
@@ -32,6 +41,15 @@ function doPost(e) {
 
     if (payload && payload.action === 'send_link_sms') {
       return handleAgentPortalSms_(payload);
+    }
+
+    if (payload && payload.action === 'create_link') {
+      return handleCreateLink_(payload);
+    }
+
+    if (payload && payload.action === 'verify_code') {
+      validatePortalCode_(payload);
+      return jsonResponse_({ ok: true, action: 'verify_code' });
     }
 
     return handleStatementSubmission_(payload);
@@ -58,6 +76,10 @@ function parseRequestBody_(e) {
 }
 
 function handleStatementSubmission_(payload) {
+  // Backstop against anonymous abuse of the public endpoint (each submission
+  // triggers office email + Drive writes). Far above legitimate volume.
+  enforceCounter_('submit_all', 150, 'Too many submissions right now. Please try again later or call 336-835-1993.');
+
   const runtime = getRuntimeConfig_();
   const submission = normalizeSubmission_(payload);
   const folder = createSubmissionFolder_(runtime.rootFolder, submission);
@@ -94,7 +116,7 @@ function handleStatementSubmission_(payload) {
 }
 
 function handleAgentPortalSms_(payload) {
-  validateAgentPortalToken_(cleanText_(payload.authToken));
+  validatePortalCode_(payload);
 
   const runtime = getRuntimeConfig_();
   const to = normalizePhone_(payload.to);
@@ -107,7 +129,32 @@ function handleAgentPortalSms_(payload) {
     throw new Error('Missing SMS message.');
   }
 
-  const smsResult = sendSmsViaTwilio_(runtime, to, message);
+  // Caps SMS spend even if the portal code ever leaks.
+  enforceCounter_('sms_to_' + to, 5, 'Text limit reached for this phone number. Please try again later.');
+  enforceCounter_('sms_all', 100, 'Overall text limit reached. Please try again later.');
+
+  let smsResult = null;
+  let smsError = null;
+  try {
+    smsResult = sendSmsViaTwilio_(runtime, to, message);
+  } catch (error) {
+    smsError = error;
+  }
+
+  logSms_(runtime, {
+    type: 'agent_link',
+    to: to,
+    customer: cleanText_(payload.customerName),
+    policy: cleanText_(payload.policyNumber),
+    agent: cleanText_(payload.agentName),
+    sid: smsResult ? smsResult.sid : '',
+    status: smsResult ? smsResult.status : 'failed',
+    error: smsError ? String(smsError.message || smsError) : ''
+  });
+
+  if (smsError) {
+    throw smsError;
+  }
 
   return jsonResponse_({
     ok: true,
@@ -117,14 +164,98 @@ function handleAgentPortalSms_(payload) {
   });
 }
 
+function handleCreateLink_(payload) {
+  validatePortalCode_(payload);
+
+  const runtime = getRuntimeConfig_();
+  const allowedFields = [
+    'insuredName', 'email', 'phone', 'propertyAddress', 'city', 'state', 'zipCode',
+    'insuranceCompany', 'policyNumber', 'policyType', 'amountPaid',
+    'cancellationDate', 'reinstatementDate',
+    'agencyName', 'agencyAddress', 'agencyPhone', 'agencyEmail',
+    'agentName', 'agentEmail'
+  ];
+
+  const data = {};
+  allowedFields.forEach(function(field) {
+    const value = cleanText_(payload[field]);
+    if (value) {
+      data[field] = value;
+    }
+  });
+
+  if (!data.insuredName || !data.policyNumber) {
+    throw new Error('Missing required link fields (insuredName, policyNumber).');
+  }
+
+  enforceCounter_('link_all', 200, 'Link limit reached. Please try again later.');
+
+  const id = Utilities.getUuid().replace(/-/g, '').substring(0, 10);
+  const linksFolder = findOrCreateFolder_(runtime.rootFolder, APP_CONFIG.linksFolderName);
+  const record = {
+    createdAt: new Date().toISOString(),
+    createdBy: cleanText_(payload.agentName) || 'Agent Portal',
+    data: data
+  };
+  linksFolder.createFile(id + '.json', JSON.stringify(record), MimeType.PLAIN_TEXT);
+
+  return jsonResponse_({
+    ok: true,
+    action: 'create_link',
+    id: id,
+    url: APP_CONFIG.agencyWebsite + '/?t=' + id,
+    expiresAt: new Date(Date.now() + APP_CONFIG.linkTtlDays * 86400000).toISOString()
+  });
+}
+
+function handleGetLink_(id) {
+  const cleanId = String(id || '').replace(/[^a-zA-Z0-9]/g, '');
+  if (!cleanId) {
+    return jsonResponse_({ ok: false, error: 'missing_link_id' });
+  }
+
+  const runtime = getRuntimeConfig_();
+  const linksFolder = findOrCreateFolder_(runtime.rootFolder, APP_CONFIG.linksFolderName);
+  const files = linksFolder.getFilesByName(cleanId + '.json');
+  if (!files.hasNext()) {
+    return jsonResponse_({ ok: false, error: 'not_found' });
+  }
+
+  let record;
+  try {
+    record = JSON.parse(files.next().getBlob().getDataAsString());
+  } catch (error) {
+    return jsonResponse_({ ok: false, error: 'corrupt_link' });
+  }
+
+  const ageMs = Date.now() - new Date(record.createdAt).getTime();
+  if (isNaN(ageMs) || ageMs > APP_CONFIG.linkTtlDays * 86400000) {
+    return jsonResponse_({ ok: false, error: 'expired' });
+  }
+
+  return jsonResponse_({
+    ok: true,
+    action: 'get_link',
+    createdAt: record.createdAt,
+    data: record.data || {}
+  });
+}
+
 function normalizeSubmission_(payload) {
   if (!payload || typeof payload !== 'object') {
     throw new Error('Payload must be an object.');
   }
 
   const submission = {
-    confirmationNumber: cleanText_(payload.confirmationNumber) || generateFallbackConfirmation_(),
+    // Server-generated so the confirmation number in our records is
+    // authoritative and cannot be forged or duplicated by the client.
+    confirmationNumber: generateFallbackConfirmation_(),
+    clientConfirmationNumber: cleanText_(payload.confirmationNumber),
+    serverReceivedAt: new Date().toISOString(),
     sessionId: cleanText_(payload.sessionId),
+    linkId: cleanText_(payload.linkId),
+    typedName: cleanText_(payload.typedName),
+    esignConsent: truthyToYesNo_(payload.esignConsent),
     insuredName: requireField_(payload.insuredName, 'insuredName'),
     email: cleanText_(payload.email),
     phone: requireField_(payload.phone, 'phone'),
@@ -256,7 +387,7 @@ function createStatementPdf_(folder, submission, signatureBlob) {
   var h1 = body.appendParagraph('BILL LAYNE INSURANCE AGENCY');
   h1.setFontSize(16).setBold(true).setForegroundColor(navy).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(0).setSpacingBefore(0);
 
-  var h2 = body.appendParagraph('1283 N Bridge St, Elkin, NC 28621 \u2022 (336) 835-1993 \u2022 Save@BillLayneInsurance.com');
+  var h2 = body.appendParagraph('1283 N Bridge St, Elkin, NC 28621 • (336) 835-1993 • Save@BillLayneInsurance.com');
   h2.setFontSize(8).setBold(false).setForegroundColor(gray).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(2).setSpacingBefore(0);
 
   var h3 = body.appendParagraph('STATEMENT OF NO LOSS - CONF #' + submission.confirmationNumber);
@@ -319,12 +450,21 @@ function createStatementPdf_(folder, submission, signatureBlob) {
   stmtPara.editAsText().setBold(0, 21, true);
 
   // Warning
-  var warning = body.appendParagraph('\u26A0 WARNING: It is a crime to knowingly provide false information to an insurance company. Penalties include imprisonment, fines, and denial of benefits.');
+  var warning = body.appendParagraph('⚠ WARNING: It is a crime to knowingly provide false information to an insurance company. Penalties include imprisonment, fines, and denial of benefits.');
   warning.setFontSize(8).setForegroundColor(darkRed).setItalic(true).setSpacingAfter(2).setSpacingBefore(2);
 
   // Checkbox acknowledgement
-  var ack = body.appendParagraph('\u2611 I agree to all terms above and confirm NO LOSS occurred during the lapse period.');
+  var ack = body.appendParagraph('☑ I agree to all terms above and confirm NO LOSS occurred during the lapse period.');
   ack.setFontSize(9).setBold(true).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(2).setSpacingBefore(2);
+
+  // E-sign consent + typed name acknowledgement
+  var consentBits = [];
+  if (submission.esignConsent) consentBits.push('☑ Agreed to sign electronically (E-SIGN consent)');
+  if (submission.typedName) consentBits.push('Typed legal name: ' + submission.typedName);
+  if (consentBits.length) {
+    var consentPara = body.appendParagraph(consentBits.join(' • '));
+    consentPara.setFontSize(8).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(2).setSpacingBefore(0);
+  }
 
   // Red divider
   body.appendHorizontalRule();
@@ -341,11 +481,16 @@ function createStatementPdf_(folder, submission, signatureBlob) {
 
   // Signature metadata line
   var sigDateTime = submission.signatureDateTime || formatDateTime_(submission.submittedAt);
-  var sigMeta = body.appendParagraph((submission.insuredName || '') + ' \u2022 ' + sigDateTime + ' \u2022 IP: ' + (submission.ipAddress || 'N/A') + ' \u2022 Session: ' + (submission.sessionId || submission.confirmationNumber));
-  sigMeta.setFontSize(6).setForegroundColor(gray).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(2).setSpacingBefore(2);
+  var sigMeta = body.appendParagraph((submission.insuredName || '') + ' • Signed (client-reported): ' + sigDateTime + ' • IP (client-reported): ' + (submission.ipAddress || 'N/A') + ' • Session: ' + (submission.sessionId || submission.confirmationNumber));
+  sigMeta.setFontSize(6).setForegroundColor(gray).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(0).setSpacingBefore(2);
+
+  // Server timestamp is stamped by the backend at receipt — the authoritative
+  // time in this record, unlike the client-reported values above.
+  var srvMeta = body.appendParagraph('Received by server (authoritative): ' + formatDateTime_(submission.serverReceivedAt) + ' • Device: ' + (submission.deviceInfo || 'N/A'));
+  srvMeta.setFontSize(6).setForegroundColor(gray).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(2).setSpacingBefore(0);
 
   // Legal footer
-  var legalLine = body.appendParagraph('Electronic signature valid per E-SIGN Act \u2022 Bill Layne Insurance Agency \u2022 www.BillLayneInsurance.com');
+  var legalLine = body.appendParagraph('Electronic signature valid per E-SIGN Act • Bill Layne Insurance Agency • www.BillLayneInsurance.com');
   legalLine.setFontSize(7).setForegroundColor(gray).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(0).setSpacingBefore(0);
 
   var feeLine = body.appendParagraph('* Fees included in Total Amount Required to Reinstate');
@@ -574,7 +719,18 @@ function sendCustomerConfirmationSms_(runtime, submission) {
     submission.policyNumber + '. Confirmation #: ' + submission.confirmationNumber + '.'
   );
 
-  sendSmsViaTwilio_(runtime, submission.phone, message);
+  const smsResult = sendSmsViaTwilio_(runtime, submission.phone, message);
+
+  logSms_(runtime, {
+    type: 'customer_confirmation',
+    to: normalizePhone_(submission.phone),
+    customer: submission.insuredName,
+    policy: submission.policyNumber,
+    agent: submission.agentName,
+    sid: smsResult.sid,
+    status: smsResult.status
+  });
+
   return true;
 }
 
@@ -628,33 +784,102 @@ function sendSmsViaTwilio_(runtime, to, message) {
   };
 }
 
-function validateAgentPortalToken_(token) {
-  if (!token) {
-    throw new Error('Missing auth token.');
-  }
-
+function validatePortalCode_(payload) {
   const props = PropertiesService.getScriptProperties();
   const secret = cleanText_(props.getProperty('AGENT_PORTAL_SECRET')) || APP_CONFIG.defaultPortalSecret;
-  const today = new Date();
-  const acceptedDates = [
-    Utilities.formatDate(today, 'Etc/UTC', 'yyyy-MM-dd'),
-    Utilities.formatDate(new Date(today.getTime() - 24 * 60 * 60 * 1000), 'Etc/UTC', 'yyyy-MM-dd'),
-    Utilities.formatDate(new Date(today.getTime() + 24 * 60 * 60 * 1000), 'Etc/UTC', 'yyyy-MM-dd')
-  ];
 
-  const isValid = acceptedDates.some(function(dateValue) {
-    return Utilities.base64Encode(secret + dateValue) === token;
-  });
+  // Current scheme: the agent enters the portal access code once and the
+  // portal sends it with each request. The code never appears in page source.
+  const code = cleanText_(payload && payload.portalCode);
+  if (code && code === secret) {
+    return;
+  }
 
-  if (!isValid) {
-    throw new Error('Unauthorized agent portal request.');
+  // Legacy scheme (btoa(secret + date)) accepted during transition so an
+  // un-refreshed portal tab keeps working until the secret is rotated.
+  const token = cleanText_(payload && payload.authToken);
+  if (token) {
+    const today = new Date();
+    const acceptedDates = [
+      Utilities.formatDate(today, 'Etc/UTC', 'yyyy-MM-dd'),
+      Utilities.formatDate(new Date(today.getTime() - 24 * 60 * 60 * 1000), 'Etc/UTC', 'yyyy-MM-dd'),
+      Utilities.formatDate(new Date(today.getTime() + 24 * 60 * 60 * 1000), 'Etc/UTC', 'yyyy-MM-dd')
+    ];
+
+    const isValid = acceptedDates.some(function(dateValue) {
+      return Utilities.base64Encode(secret + dateValue) === token;
+    });
+
+    if (isValid) {
+      return;
+    }
+  }
+
+  throw new Error('Unauthorized agent portal request.');
+}
+
+// Rolling rate limit: at most `limit` events per bucket per 6-hour window
+// (6h is CacheService's maximum TTL).
+function enforceCounter_(bucket, limit, message) {
+  const cache = CacheService.getScriptCache();
+  const key = 'rl_' + bucket;
+  const count = Number(cache.get(key) || 0);
+  if (count >= limit) {
+    throw new Error(message);
+  }
+  cache.put(key, String(count + 1), 21600);
+}
+
+function logSms_(runtime, entry) {
+  try {
+    const props = PropertiesService.getScriptProperties();
+    let ss = null;
+    const existingId = cleanText_(props.getProperty('SMS_LOG_SPREADSHEET_ID'));
+
+    if (existingId) {
+      try {
+        ss = SpreadsheetApp.openById(existingId);
+      } catch (error) {
+        console.error('Configured SMS_LOG_SPREADSHEET_ID was not accessible, creating a new log: ' + error);
+      }
+    }
+
+    if (!ss) {
+      ss = SpreadsheetApp.create(APP_CONFIG.smsLogName);
+      DriveApp.getFileById(ss.getId()).moveTo(runtime.rootFolder);
+      props.setProperty('SMS_LOG_SPREADSHEET_ID', ss.getId());
+    }
+
+    const sheet = ss.getSheets()[0];
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow(['Timestamp', 'Type', 'To', 'Customer', 'Policy', 'Agent', 'Twilio SID', 'Status', 'Error']);
+    }
+
+    sheet.appendRow([
+      Utilities.formatDate(new Date(), APP_CONFIG.defaultTimeZone, 'yyyy-MM-dd HH:mm:ss'),
+      entry.type || '',
+      entry.to || '',
+      entry.customer || '',
+      entry.policy || '',
+      entry.agent || '',
+      entry.sid || '',
+      entry.status || '',
+      entry.error || ''
+    ]);
+  } catch (error) {
+    console.error('SMS log failed: ' + error);
   }
 }
 
 function buildArchiveObject_(submission) {
   return {
     confirmationNumber: submission.confirmationNumber,
+    clientConfirmationNumber: submission.clientConfirmationNumber,
+    serverReceivedAt: submission.serverReceivedAt,
     sessionId: submission.sessionId,
+    linkId: submission.linkId,
+    typedName: submission.typedName,
+    esignConsent: submission.esignConsent,
     insuredName: submission.insuredName,
     email: submission.email,
     phone: submission.phone,
@@ -691,7 +916,6 @@ function buildArchiveObject_(submission) {
     signatureMetadata: submission.signatureMetadata
   };
 }
-
 
 function hasTwilioConfig_(runtime) {
   return !!(runtime.twilioSid && runtime.twilioToken && (runtime.twilioFrom || runtime.twilioMessagingServiceSid));

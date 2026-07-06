@@ -20,11 +20,13 @@ For customer submissions, `Code.gs` will:
 - email the agent a copy if `agentEmail` was included in the prefilled link
 - send the customer a confirmation SMS if Twilio settings are configured
 
-For agent portal SMS sends, it will:
+For agent portal requests, it will:
 
-- validate the agent portal auth token
-- call Twilio server-side
-- append `Reply STOP to opt out.` if it is missing
+- validate the portal access code server-side (`verify_code`)
+- create secure short prefill links (`create_link`) — the customer payload is stored in Drive under `Link Payloads`, and the link is just `mynolossform.com/?t=<id>`; links expire after 7 days
+- serve link payloads back to the customer form (`get_link`)
+- send the SMS via Twilio server-side (`send_link_sms`), appending `Reply STOP to opt out.` if missing
+- log every outbound SMS (agent link sends and customer confirmations) to the `No Loss SMS Log` spreadsheet in the root Drive folder
 
 ## Required Script Properties
 
@@ -50,8 +52,14 @@ Reply-to address used on outgoing emails.
 Example: `America/New_York`
 
 `AGENT_PORTAL_SECRET`
-Defaults to the current portal secret in `agent-portal.html`.
-Set this if you want to rotate the secret later.
+The portal access code agents type into the lock screen on `agent-portal.html`.
+IMPORTANT: you MUST set this to a NEW value. The old default
+(`BillLayneInsurance2025`) is public — it shipped in the page source and git
+history — so anything still relying on it is unprotected.
+
+`SMS_LOG_SPREADSHEET_ID`
+Auto-created on first SMS send. Only set it manually if you want to point the
+log at an existing spreadsheet.
 
 ## Twilio Properties
 
