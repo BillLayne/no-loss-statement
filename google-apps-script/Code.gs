@@ -171,9 +171,9 @@ function handleCreateLink_(payload) {
   const allowedFields = [
     'insuredName', 'email', 'phone', 'propertyAddress', 'city', 'state', 'zipCode',
     'insuranceCompany', 'policyNumber', 'policyType', 'amountPaid',
-    'cancellationDate', 'reinstatementDate',
+    'cancellationDate', 'reinstatementDate', 'policyTermStart', 'policyTermEnd',
     'agencyName', 'agencyAddress', 'agencyPhone', 'agencyEmail',
-    'agentName', 'agentEmail'
+    'agentName', 'agentEmail', 'producerNumber'
   ];
 
   const data = {};
@@ -269,6 +269,9 @@ function normalizeSubmission_(payload) {
     amountPaid: cleanText_(payload.amountPaid),
     cancellationDate: requireField_(payload.cancellationDate, 'cancellationDate'),
     reinstatementDate: requireField_(payload.reinstatementDate, 'reinstatementDate'),
+    policyTermStart: cleanText_(payload.policyTermStart),
+    policyTermEnd: cleanText_(payload.policyTermEnd),
+    producerNumber: cleanText_(payload.producerNumber),
     noLossConfirmation: truthyToYesNo_(payload.noLossConfirmation, true),
     dmvAcknowledgement: truthyToYesNo_(payload.dmvAcknowledgement),
     mortgageAcknowledgement: truthyToYesNo_(payload.mortgageAcknowledgement),
@@ -422,12 +425,24 @@ function createStatementPdf_(folder, submission, signatureBlob) {
   var c6 = row2.appendTableCell('TYPE: ' + (submission.policyType || ''));
   formatCell_(c6, 9, false);
 
-  // Lapse / Reinstate
+  // Lapse / Reinstate — carriers cancel at 12:01 AM, matching form 10108
   var row3 = table.appendTableRow();
-  var c7 = row3.appendTableCell('LAPSE: ' + (submission.cancellationDate || ''));
+  var c7 = row3.appendTableCell('LAPSE: ' + (submission.cancellationDate ? submission.cancellationDate + ' at 12:01 AM' : ''));
   formatCell_(c7, 9, false);
   var c8 = row3.appendTableCell('REINSTATE: ' + (submission.reinstatementDate || ''));
   formatCell_(c8, 9, false);
+
+  // Policy Term / Producer Number (only when provided)
+  if (submission.policyTermStart || submission.policyTermEnd || submission.producerNumber) {
+    var rowTerm = table.appendTableRow();
+    var termText = submission.policyTermStart && submission.policyTermEnd
+      ? submission.policyTermStart + ' - ' + submission.policyTermEnd
+      : (submission.policyTermStart || submission.policyTermEnd || 'N/A');
+    var cTerm = rowTerm.appendTableCell('POLICY TERM: ' + termText);
+    formatCell_(cTerm, 9, false);
+    var cProducer = rowTerm.appendTableCell('PRODUCER #: ' + (submission.producerNumber || 'N/A'));
+    formatCell_(cProducer, 9, false);
+  }
 
   // Amount / Phone
   var row4 = table.appendTableRow();
@@ -893,6 +908,9 @@ function buildArchiveObject_(submission) {
     amountPaid: submission.amountPaid,
     cancellationDate: submission.cancellationDate,
     reinstatementDate: submission.reinstatementDate,
+    policyTermStart: submission.policyTermStart,
+    policyTermEnd: submission.policyTermEnd,
+    producerNumber: submission.producerNumber,
     noLossConfirmation: submission.noLossConfirmation,
     dmvAcknowledgement: submission.dmvAcknowledgement,
     mortgageAcknowledgement: submission.mortgageAcknowledgement,

@@ -585,11 +585,26 @@
                 <div class="form-group">
                     <label for="cancellationDate">Cancellation/Lapse Date *</label>
                     <input type="date" id="cancellationDate" required>
+                    <small style="color: var(--text-secondary); font-size: 12px; margin-top: 6px; display: block;">
+                        Policies cancel at 12:01 AM on this date
+                    </small>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="reinstatementDate">Requested Reinstatement Date *</label>
                     <input type="date" id="reinstatementDate" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="policyTermStart">Policy Term Start (Optional)</label>
+                    <input type="date" id="policyTermStart">
+                </div>
+
+                <div class="form-group">
+                    <label for="policyTermEnd">Policy Term End (Optional)</label>
+                    <input type="date" id="policyTermEnd">
                 </div>
             </div>
             
@@ -605,6 +620,11 @@
                     <label for="agentEmail">Your Email (for copy of signed statement)</label>
                     <input type="email" id="agentEmail" placeholder="agent@billlayneinsurance.com">
                 </div>
+            </div>
+
+            <div class="form-group">
+                <label for="producerNumber">Producer Number (Optional — shown on the signed PDF, e.g. your National General producer code)</label>
+                <input type="text" id="producerNumber" placeholder="162634">
             </div>
             
             <button class="btn btn-primary" id="generateBtn" onclick="generateLink()">
@@ -787,6 +807,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            restoreAgentFields();
             if (!getPortalCode()) {
                 showPortalLock();
             }
@@ -812,10 +833,35 @@
                 policyType: document.getElementById('policyType').value,
                 cancellationDate: document.getElementById('cancellationDate').value,
                 reinstatementDate: document.getElementById('reinstatementDate').value,
+                policyTermStart: document.getElementById('policyTermStart').value,
+                policyTermEnd: document.getElementById('policyTermEnd').value,
                 amountPaid: document.getElementById('amountPaid').value.trim(),
                 agentName: document.getElementById('agentName').value.trim(),
-                agentEmail: document.getElementById('agentEmail').value.trim()
+                agentEmail: document.getElementById('agentEmail').value.trim(),
+                producerNumber: document.getElementById('producerNumber').value.trim()
             };
+        }
+
+        // Agent convenience: remember who you are between visits
+        const AGENT_FIELDS_KEY = 'nolAgentFields';
+
+        function saveAgentFields(values) {
+            try {
+                localStorage.setItem(AGENT_FIELDS_KEY, JSON.stringify({
+                    agentName: values.agentName,
+                    agentEmail: values.agentEmail,
+                    producerNumber: values.producerNumber
+                }));
+            } catch (e) { /* storage unavailable — not critical */ }
+        }
+
+        function restoreAgentFields() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(AGENT_FIELDS_KEY) || '{}');
+                if (saved.agentName) document.getElementById('agentName').value = saved.agentName;
+                if (saved.agentEmail) document.getElementById('agentEmail').value = saved.agentEmail;
+                if (saved.producerNumber) document.getElementById('producerNumber').value = saved.producerNumber;
+            } catch (e) { /* ignore corrupt storage */ }
         }
 
         // Legacy fallback: customer data in the URL itself. Only used if the
@@ -824,7 +870,8 @@
             const params = new URLSearchParams();
             ['insuredName', 'email', 'phone', 'propertyAddress', 'city', 'state', 'zipCode',
              'insuranceCompany', 'policyNumber', 'policyType', 'cancellationDate',
-             'reinstatementDate', 'amountPaid', 'agentName', 'agentEmail'].forEach(key => {
+             'reinstatementDate', 'policyTermStart', 'policyTermEnd', 'amountPaid',
+             'agentName', 'agentEmail', 'producerNumber'].forEach(key => {
                 if (values[key]) params.append(key, values[key]);
             });
             params.append('agencyName', AGENCY_DEFAULTS.agencyName);
@@ -912,6 +959,7 @@
             btn.disabled = false;
             btn.textContent = 'Generate Pre-filled Link';
 
+            saveAgentFields(values);
             renderResult(values);
         }
 
@@ -941,7 +989,7 @@
                 `Bill Layne Insurance needs you to complete a Statement of No Loss for your policy reinstatement.\n\n` +
                 `Policy: ${policyNumber}\n` +
                 `Company: ${insuranceCompany}\n` +
-                `Cancellation Date: ${formatDate(cancellationDate)}\n` +
+                `Cancellation Date: ${formatDate(cancellationDate)} at 12:01 AM\n` +
                 `Reinstatement Date: ${formatDate(reinstatementDate)}\n` +
                 `${amountPaid ? 'Amount Due: ' + amountPaid + '\n' : ''}` +
                 `\nPlease click this link to complete the form:\n${currentLink}\n\n` +
@@ -956,7 +1004,7 @@
                 `Policy Details:\n` +
                 `- Policy Number: ${policyNumber}\n` +
                 `- Insurance Company: ${insuranceCompany}\n` +
-                `- Cancellation Date: ${formatDate(cancellationDate)}\n` +
+                `- Cancellation Date: ${formatDate(cancellationDate)} at 12:01 AM\n` +
                 `- Reinstatement Date: ${formatDate(reinstatementDate)}\n` +
                 `${amountPaid ? '- Amount Due: ' + amountPaid + '\n' : ''}` +
                 `\nPlease click the link below to complete the required form:\n${currentLink}\n\n` +
