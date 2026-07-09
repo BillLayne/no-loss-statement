@@ -4,7 +4,6 @@ const APP_CONFIG = Object.freeze({
   agencyEmail: 'docs@billlayneinsurance.com',
   agencyWebsite: 'https://mynolossform.com',
   defaultTimeZone: 'America/New_York',
-  defaultPortalSecret: 'BillLayneInsurance2025',
   rootFolderName: 'Bill Layne Insurance - No Loss Statements',
   linksFolderName: 'Link Payloads',
   smsLogName: 'No Loss SMS Log',
@@ -62,6 +61,41 @@ function doPost(e) {
   }
 }
 
+// Cloudflare Turnstile verification for customer statement submissions.
+// Disabled until the Script Property TURNSTILE_SECRET_KEY is set, so the
+// backend can deploy ahead of the frontend site key. Fails closed when
+// Cloudflare rejects the token, fails open on transient network errors
+// (a real customer should never be blocked by a Cloudflare outage).
+function verifyTurnstile_(payload) {
+  const secret = cleanText_(PropertiesService.getScriptProperties().getProperty('TURNSTILE_SECRET_KEY'));
+  if (!secret) {
+    return;
+  }
+
+  const token = payload && payload.turnstileToken ? String(payload.turnstileToken) : '';
+  if (!token) {
+    throw new Error('Please complete the security check and try again, or call 336-835-1993 and we will take care of it.');
+  }
+
+  try {
+    const response = UrlFetchApp.fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'post',
+      payload: { secret: secret, response: token },
+      muteHttpExceptions: true
+    });
+    const result = JSON.parse(response.getContentText() || '{}');
+    if (result.success !== true) {
+      console.warn('Turnstile rejected token: ' + JSON.stringify(result['error-codes'] || []));
+      throw new Error('The security check did not pass. Please try again, or call 336-835-1993 and we will take care of it.');
+    }
+  } catch (error) {
+    if (error && error.message && error.message.indexOf('security check') !== -1) {
+      throw error;
+    }
+    console.error('Turnstile verification unavailable, allowing submission: ' + error);
+  }
+}
+
 function parseRequestBody_(e) {
   const contents = e && e.postData && e.postData.contents ? e.postData.contents : '';
   if (!contents) {
@@ -76,6 +110,9 @@ function parseRequestBody_(e) {
 }
 
 function handleStatementSubmission_(payload) {
+  // Bot check runs first so unverified traffic never consumes the rate budget.
+  verifyTurnstile_(payload);
+
   // Backstop against anonymous abuse of the public endpoint (each submission
   // triggers office email + Drive writes). Far above legitimate volume.
   enforceCounter_('submit_all', 150, 'Too many submissions right now. Please try again later or call 336-835-1993.');
@@ -209,6 +246,9 @@ function handleCreateLink_(payload) {
 }
 
 function handleGetLink_(id) {
+  // Link payloads contain customer PII — cap lookups so ids can't be probed.
+  enforceCounter_('get_link_all', 300, 'Too many requests right now. Please try again later.');
+
   const cleanId = String(id || '').replace(/[^a-zA-Z0-9]/g, '');
   if (!cleanId) {
     return jsonResponse_({ ok: false, error: 'missing_link_id' });
@@ -317,7 +357,7 @@ function getRuntimeConfig_() {
     fromName: cleanText_(props.getProperty('FROM_NAME')) || APP_CONFIG.agencyName,
     customerReplyTo: cleanText_(props.getProperty('CUSTOMER_REPLY_TO')) || officeEmails[0] || APP_CONFIG.agencyEmail,
     timeZone: cleanText_(props.getProperty('TIMEZONE')) || Session.getScriptTimeZone() || APP_CONFIG.defaultTimeZone,
-    portalSecret: cleanText_(props.getProperty('AGENT_PORTAL_SECRET')) || APP_CONFIG.defaultPortalSecret,
+    portalSecret: cleanText_(props.getProperty('AGENT_PORTAL_SECRET')),
     twilioSid: cleanText_(props.getProperty('TWILIO_SID')),
     twilioToken: cleanText_(props.getProperty('TWILIO_TOKEN')),
     twilioFrom: cleanText_(props.getProperty('TWILIO_FROM')),
@@ -604,6 +644,11 @@ function sendCustomerEmail_(runtime, submission, pdfFile) {
     return false;
   }
 
+  // Destination comes from the public form — cap per address so submissions
+  // can't be used to flood a mailbox with agency-branded mail.
+  enforceCounter_('email_to_' + submission.email.toLowerCase(), 5,
+    'Too many emails to this address right now.');
+
   var firstName = (submission.insuredName || 'there').split(' ')[0];
   var carrier = submission.insuranceCompany || 'Your Insurance Company';
   var localTime = '';
@@ -729,6 +774,12 @@ function sendCustomerConfirmationSms_(runtime, submission) {
     return false;
   }
 
+  // The destination number comes from the public form — apply the same
+  // per-number cap the portal SMS path uses so submissions can't be used
+  // to text one number repeatedly.
+  enforceCounter_('sms_to_' + normalizePhone_(submission.phone), 5,
+    'Too many messages to this number right now.');
+
   const message = appendOptOut_(
     'Bill Layne Insurance received your Statement of No Loss for policy ' +
     submission.policyNumber + '. Confirmation #: ' + submission.confirmationNumber + '.'
@@ -801,33 +852,19 @@ function sendSmsViaTwilio_(runtime, to, message) {
 
 function validatePortalCode_(payload) {
   const props = PropertiesService.getScriptProperties();
-  const secret = cleanText_(props.getProperty('AGENT_PORTAL_SECRET')) || APP_CONFIG.defaultPortalSecret;
+  const secret = cleanText_(props.getProperty('AGENT_PORTAL_SECRET'));
 
-  // Current scheme: the agent enters the portal access code once and the
-  // portal sends it with each request. The code never appears in page source.
+  // Fail closed: if the Script Property is missing the portal is locked, never
+  // open. (The old hardcoded fallback shipped in public git history.)
+  if (!secret) {
+    throw new Error('Agent portal is not configured. Set the AGENT_PORTAL_SECRET Script Property.');
+  }
+
+  // The agent enters the portal access code once and the portal sends it with
+  // each request. The code never appears in page source.
   const code = cleanText_(payload && payload.portalCode);
   if (code && code === secret) {
     return;
-  }
-
-  // Legacy scheme (btoa(secret + date)) accepted during transition so an
-  // un-refreshed portal tab keeps working until the secret is rotated.
-  const token = cleanText_(payload && payload.authToken);
-  if (token) {
-    const today = new Date();
-    const acceptedDates = [
-      Utilities.formatDate(today, 'Etc/UTC', 'yyyy-MM-dd'),
-      Utilities.formatDate(new Date(today.getTime() - 24 * 60 * 60 * 1000), 'Etc/UTC', 'yyyy-MM-dd'),
-      Utilities.formatDate(new Date(today.getTime() + 24 * 60 * 60 * 1000), 'Etc/UTC', 'yyyy-MM-dd')
-    ];
-
-    const isValid = acceptedDates.some(function(dateValue) {
-      return Utilities.base64Encode(secret + dateValue) === token;
-    });
-
-    if (isValid) {
-      return;
-    }
   }
 
   throw new Error('Unauthorized agent portal request.');

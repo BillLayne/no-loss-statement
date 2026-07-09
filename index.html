@@ -633,6 +633,12 @@
                     <input type="hidden" id="signature" name="signature">
                 </div>
 
+                <!-- Bot check (Cloudflare Turnstile) — rendered only when TURNSTILE_SITE_KEY is configured -->
+                <div id="turnstileWrap" class="hidden mb-6">
+                    <p class="text-sm text-slate-500 mb-2"><i class="fas fa-shield-halved text-primary-500 mr-1"></i> Quick security check:</p>
+                    <div id="turnstileContainer"></div>
+                </div>
+
                 <!-- Error Message -->
                 <div id="errorMessage" class="hidden bg-red-50 text-red-700 px-5 py-4 rounded-xl mb-6 text-base font-medium border border-red-200 flex items-center gap-3">
                     <i class="fas fa-exclamation-circle text-red-500 text-xl flex-shrink-0"></i>
@@ -724,6 +730,39 @@
         // YOUR GOOGLE APPS SCRIPT URL
         // Replace this with the current Apps Script web app /exec URL after redeploying.
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx-WBFdZPNLtlVtu1-spmFipbpKK0KC8QaltYPI3nNxMXgLfxPznFoQtr_PYoqs7s6i_A/exec';
+
+        // Cloudflare Turnstile bot protection. Leave empty to disable (form works
+        // without it). To enable: create a Turnstile widget for mynolossform.com in
+        // the Cloudflare dashboard, paste the SITE key here, and set the matching
+        // SECRET key as Script Property TURNSTILE_SECRET_KEY in the Apps Script.
+        const TURNSTILE_SITE_KEY = '';
+        let turnstileWidgetId = null;
+
+        function initTurnstile() {
+            if (!TURNSTILE_SITE_KEY) return;
+            const s = document.createElement('script');
+            s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileReady';
+            s.async = true;
+            document.head.appendChild(s);
+        }
+
+        function onTurnstileReady() {
+            document.getElementById('turnstileWrap').classList.remove('hidden');
+            turnstileWidgetId = turnstile.render('#turnstileContainer', {
+                sitekey: TURNSTILE_SITE_KEY,
+                theme: 'light'
+            });
+        }
+
+        // Turnstile tokens are single-use: always reset after a submission attempt
+        // so a retry (or a second statement) gets a fresh token.
+        function refreshTurnstile() {
+            if (turnstileWidgetId !== null && window.turnstile) {
+                try { turnstile.reset(turnstileWidgetId); } catch (e) { /* no-op */ }
+            }
+        }
+
+        initTurnstile();
 
         let signaturePad;
 
@@ -971,6 +1010,20 @@
                 return;
             }
 
+            let turnstileToken = '';
+            if (TURNSTILE_SITE_KEY) {
+                turnstileToken = (window.turnstile && turnstileWidgetId !== null)
+                    ? (turnstile.getResponse(turnstileWidgetId) || '') : '';
+                if (!turnstileToken) {
+                    const wrap = document.getElementById('turnstileWrap');
+                    wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    wrap.classList.add('ring-2', 'ring-amber-400', 'rounded-xl');
+                    setTimeout(function() { wrap.classList.remove('ring-2', 'ring-amber-400', 'rounded-xl'); }, 2500);
+                    alert('Please complete the quick security check above the Submit button.');
+                    return;
+                }
+            }
+
             document.getElementById('signature').value = signaturePad.toDataURL();
 
             // Show loading
@@ -1019,6 +1072,7 @@
 
             data.signatureUrl = document.getElementById('signature').value;
             data.submittedAt = new Date().toISOString();
+            if (turnstileToken) data.turnstileToken = turnstileToken;
 
             try {
                 // Plain-text body avoids a CORS preflight so the Apps Script
@@ -1067,6 +1121,7 @@
                 loading.classList.add('hidden');
                 submitBtn.disabled = false;
                 mobileSubmitBtn.disabled = false;
+                refreshTurnstile();
             }
         });
 
